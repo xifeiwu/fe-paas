@@ -101,6 +101,16 @@ class Net extends NetBase {
         path: '/service/updateApplicationService',
         method: 'post'
       },
+      // 获取服务版本，TODO: not used
+      'service_version': {
+        path: '/service/queryApplicationServiceVersion',
+        method: 'post'
+      },
+      // {
+      //    appId: appId,
+      //    spaceId: profileId
+      //  }
+
       // 获取服务基本信息列表（k8s运行时）
       'service_list_by_profile': {
         path: '/service/queryByDetail',
@@ -2025,32 +2035,6 @@ class Net extends NetBase {
   }
 
   /**
-   * TODO: maybe not used later
-   * 获取服务版本号列表
-   * @param options {appId, profileId}
-   * @returns {Promise}
-   */
-  getServiceVersion(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.service_version.url, options).then(response => {
-        if ('data' in response) {
-          let data = response.data;
-          if (0 === data.code) {
-            let content = data.content ? data.content : {};
-            this.showLog('getServiceVersion', content);
-            resolve(content);
-          } else {
-            reject(data.msg);
-          }
-        }
-        // resolve(response);
-      }).catch(err => {
-        reject(err);
-      })
-    })
-  }
-
-  /**
    * TODO: not used
    * 获取镜像列表相关信息
    * 1. autoImageList， 自动打镜像列表
@@ -2577,28 +2561,6 @@ class Net extends NetBase {
           resolve(resMsg.msg);
         } else {
           reject(resMsg.msg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
-      })
-    })
-  }
-
-  /**
-   * TODO: not used
-   * 检查是否有正在处理的工单
-   * @param options: {appId:, serviceVersion:}
-   * @returns {Promise}
-   */
-  checkWorkOrderHandling(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.work_order_in_handling.url, options).then(response => {
-        let responseMsg = this.getResponseMsg(response);
-        if (responseMsg.success) {
-          resolve(responseMsg.msg);
-        } else {
-          reject(responseMsg.msg);
         }
       }).catch(err => {
         console.log(err);

@@ -77,12 +77,6 @@ class URL extends BaseURL {
         path: '/service/switchService',
         method: 'post'
       },
-      // 获取服务版本
-      'service_version': {
-        url: API_PATH + '/service/queryApplicationServiceVersion',
-        path: '/service/queryApplicationServiceVersion',
-        method: 'post'
-      },
       // 部署服务-部署日志
       'service_get_deploy_log': {
         url: API_PATH + '/service/deploy/log',
@@ -229,11 +223,6 @@ class URL extends BaseURL {
         method: 'patch'
       },
       /** 工单相关 */
-      // 是否有未处理工单
-      'work_order_in_handling': {
-        url: API_PATH + '/workOrderDeploy/validNoEndWorkOrderDeployByAppId',
-        path: '/workOrderDeploy/validNoEndWorkOrderDeployByAppId'
-      },
       // 工单详情
       // 工单详情-功能列表
       'work_order_detail_feature_list': {
