@@ -6,15 +6,25 @@
                                <!--@version-selected="getSelectedService"></paas-version-selector>-->
         <paas-service-selector
                 ref="service-selector"
-                :addItemAll="{app: false, profile: false}"
+                :addItemAll="{app: true, profile: false}"
                 :customConfig="config4ServiceSelector"
                 @service-selected="onServiceSelected"></paas-service-selector>
+      </div>
+      <div class="item">
+        <el-input size="mini" placeholder="按关键字搜索"
+                  style="max-width: 360px;"
+                  v-model="filterKey">
+          <i slot="prefix" class="el-icon-search"></i>
+          <i :class="filterKey && filterKey.length > 0 ? 'paas-icon-close' : ''"
+             slot="suffix"
+             @click="evt => filterKey=''"></i>
+        </el-input>
       </div>
       <div class="item">
         <el-button v-if="true"
                    size="mini"
                    type="primary"
-                   @click="handleClick($event, 'refresh')">刷新</el-button>
+                   @click="handleClick($event, 'refresh')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
         <el-button v-if="true"
                    size="mini"
                    type="primary"
@@ -23,7 +33,7 @@
     </div>
     <div class="list">
       <el-table
-              :data="gatewayList"
+              :data="gatewayListByPage"
               style="width: 100%"
               :height="heightOfTable"
       >
@@ -36,20 +46,20 @@
         <el-table-column
                 label="应用名称"
                 prop="appName"
-                minWidth="150"
+                minWidth="120"
                 headerAlign="left" align="left">
         </el-table-column>
-        <el-table-column
-                label="运行环境"
-                prop="profileDescription"
-                width="120"
-                headerAlign="center" align="center">
-        </el-table-column>
+        <!--<el-table-column-->
+                <!--label="运行环境"-->
+                <!--prop="profileDescription"-->
+                <!--width="120"-->
+                <!--headerAlign="center" align="center">-->
+        <!--</el-table-column>-->
         <el-table-column
                 label="域名"
                 prop="host"
                 minWidth="150"
-                headerAlign="center" align="center">
+                headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
                 label="请求路径"
@@ -196,14 +206,29 @@
       return {
         config4VersionSelector: null,
         config4ServiceSelector: null,
+
         appInfo: null,
         profileInfo: null,
+        appId: null,
+        profileId: null,
+        filterKey: '',
+
         heightOfTable: '',
-        gatewayList: []
-      };
+        gatewayList: [],
+        gatewayListByPage: [],
+    };
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      appId() {
+        this.updateListByPage(false);
+      },
+      profileId() {
+        this.updateListByPage(true);
+      },
+      filterKey() {
+        this.updateListByPage(false);
+      }
     },
     methods: {
       onScreenSizeChange(size) {
@@ -234,46 +259,75 @@
           return;
         }
         console.log(selectedAPP, selectedProfile);
-        this.appInfo = selectedAPP;
-        this.profileInfo = selectedProfile;
-        this.requestList();
-      },
-      getSelectedService() {
-        let selectedInfo = this.$refs['service-selector'].getSelectedInfo();
-        if (!this.$utils.propExists(selectedInfo, 'selectedAPP.appId')) {
+        if (!this.$utils.hasProps(selectedAPP, 'appId')) {
           console.log(`selectedApp.appId not exist!`);
-          return null;
+          return;
         }
-        if (!this.$utils.propExists(selectedInfo, 'selectedProfile.id')) {
+        if (!this.$utils.hasProps(selectedProfile, 'id')) {
           console.log(`selectedProfile.id not exist!`);
           return null;
         }
-        this.appInfo = selectedInfo.selectedAPP;
-        this.profileInfo = selectedInfo.selectedProfile;
+        this.appInfo = selectedAPP;
+        this.profileInfo = selectedProfile;
+        this.appId = selectedAPP.appId;
+        this.profileId = selectedProfile.id;
+      },
+      getSelectedService() {
+        const {selectedAPP, selectedProfile} = this.$refs['service-selector'].getSelectedInfo();
+        this.onServiceSelected(selectedAPP, selectedProfile);
       },
 
-      async requestList() {
-        this.gatewayList = [];
-        const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_list, {
-          payload: {
-            groupId: this.$storeHelper.groupInfo.id,
-            appId: this.appInfo.appId,
-            spaceId: this.profileInfo.id,
-          }
-        });
-        resData.forEach(it => {
-          it.gateway = it.gateway ? it.gateway : '---';
-          it.appName = it.appName ? it.appName : '---';
-          const profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
-          it.profileDescription = profileInfo ? profileInfo.description : '---';
-          it.domain = (Array.isArray(it.domainList) && it.domainList.length > 0) ? it.domainList.join(', ') : '---';
-          if (it['createTimestamp']) {
-            it.formattedCreateTime = this.$utils.formatDate(it.createTimestamp, 'yyyy-MM-dd hh:mm:ss').split(' ');
+      async _requestList() {
+        var result = [];
+        try {
+          const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_list, {
+            payload: {
+              groupId: this.$storeHelper.groupInfo.id,
+              spaceId: this.profileId,
+            }
+          });
+          resData.forEach(it => {
+            it.gatewayName = it.gatewayName ? it.gatewayName : '---';
+            it.appName = it.appName ? it.appName : '---';
+            // const profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
+            // it.profileDescription = profileInfo ? profileInfo.description : '---';
+            // it.domain = (Array.isArray(it.domainList) && it.domainList.length > 0) ? it.domainList.join(', ') : '---';
+            if (it['createTimestamp']) {
+              it.formattedCreateTime = this.$utils.formatDate(it.createTimestamp, 'yyyy-MM-dd hh:mm:ss').split(' ');
+            } else {
+              it.formattedCreateTime = '---';
+            }
+          });
+          result = resData;
+        } catch(err) {
+        }
+        return result;
+      },
+      async updateListByPage(refresh) {
+        if (refresh) {
+          this.gatewayList = await this._requestList();
+        }
+        if (this.appId == null) {
+          return;
+        }
+        let filterReg = null;
+        if (this.filterKey) {
+          filterReg = new RegExp(this.filterKey, 'i');
+        }
+        var gatewayListByPage = this.gatewayList.filter(it => {
+          if (this.$storeHelper.APP_ID_FOR_ALL == this.appId) {
+            return true;
           } else {
-            it.formattedCreateTime = '---';
+            return it.appId == this.appId;
+          }
+        }).filter(it => {
+          if (!filterReg) {
+            return true;
+          } else {
+            return filterReg.test(`${it.gatewayName}${it.appName}${it.host}`)
           }
         });
-        this.gatewayList = resData;
+        this.gatewayListByPage = gatewayListByPage;
       },
 
       async handleClick(evt, action) {
@@ -283,13 +337,13 @@
               path: this.$router.helper.pages['/profile/gateway/add'].fullPath,
               query: {
                 groupId: this.$storeHelper.groupInfo.id,
-                appId: this.appInfo.appId,
-                spaceId: this.profileInfo.id
+                appId: this.appId,
+                spaceId: this.profileId
               }
             });
             break;
           case 'refresh':
-            this.requestList();
+            this.updateListByPage(true);
             break;
         }
 
