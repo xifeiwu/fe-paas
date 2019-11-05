@@ -28,7 +28,7 @@
         <el-button v-if="true"
                    size="mini"
                    type="primary"
-                   @click="handleClick($event, 'gateway_create')">创建API</el-button>
+                   @click="handleClick($event, 'open_dialog_gateway_create')">创建API网关</el-button>
       </div>
     </div>
     <div class="list">
@@ -111,35 +111,31 @@
       </el-table>
     </div>
 
-    <el-dialog title="手动伸缩" :visible="action.name == 'instance_change_count'"
+    <el-dialog title="创建API网关"
+               :visible="action.name == 'open_dialog_gateway_create'"
+               v-if="action.name == 'open_dialog_gateway_create'"
+               bodyPadding="6px 10px"
                :close-on-click-modal="false"
-               @close="action.name = null"
-               class="manual-scale size-500"
+               @close="closeDialog"
+               class="size-650"
     >
-      <el-form labelWidth="150px" size="mini" class="message-show">
-        <!--<el-form-item label="总实例数：">-->
-          <!--<div>{{instanceStatus.canaryCnt + instanceStatus.masterCnt}}个</div>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="当前灰度实例数：">-->
-          <!--<div>{{instanceStatus.canaryCnt}}个</div>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="当前主实例数：">-->
-          <!--<div>{{instanceStatus.masterCnt}}个</div>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="调整主实例数为：" :error="manualScale.error">-->
-          <!--<el-input-number v-model="manualScale.newCount" :min="1" size="mini"></el-input-number>-->
-          <!--<i class="el-icon-question" style="color: #E6A23C; margin-left: 6px;"-->
-             <!--v-pop-on-mouse-over="'现在仅支持调整主服务实例数，如需调整灰度服务实例数，请到灰度发布页面进行调整。'">-->
-          <!--</i>-->
-        <!--</el-form-item>-->
+      <el-form labelWidth="0px" size="mini">
+        <el-form-item labelWidth="0px" class="message-show">
+          <span style="font-weight: bold">请选择相关服务：</span>
+        </el-form-item>
+        <el-form-item labelWidth="0px" :error="action.data.errMsg">
+          <paas-service-selector
+                  ref="service-selector-for-gateway-create"
+                  :addItemAll="{app: false, profile: false}"
+                  :customConfig="{appId, profileId}"></paas-service-selector>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
-          <el-button type="primary" size="mini"
-                     @click="handleDialogEvent('manualScale')">确&nbsp定</el-button>
+          <el-button type="primary" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">确定</el-button>
         </div>
         <div class="item">
-          <el-button  size="mini" @click="action.name = null">取&nbsp消</el-button>
+          <el-button size="mini" @click="closeDialog">取消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -254,12 +250,11 @@
        * get current app/profile(service) selected
        * NOTICE: at start of this page, requestList should be called when onServiceSelected is called
        */
-      onServiceSelected(selectedAPP, selectedProfile) {
-        if (!selectedAPP || !selectedProfile) {
+      onServiceSelected(selectedApp, selectedProfile) {
+        if (!selectedApp || !selectedProfile) {
           return;
         }
-        console.log(selectedAPP, selectedProfile);
-        if (!this.$utils.hasProps(selectedAPP, 'appId')) {
+        if (!this.$utils.hasProps(selectedApp, 'appId')) {
           console.log(`selectedApp.appId not exist!`);
           return;
         }
@@ -267,14 +262,14 @@
           console.log(`selectedProfile.id not exist!`);
           return null;
         }
-        this.appInfo = selectedAPP;
+        this.appInfo = selectedApp;
         this.profileInfo = selectedProfile;
-        this.appId = selectedAPP.appId;
+        this.appId = selectedApp.appId;
         this.profileId = selectedProfile.id;
       },
       getSelectedService() {
-        const {selectedAPP, selectedProfile} = this.$refs['service-selector'].getSelectedInfo();
-        this.onServiceSelected(selectedAPP, selectedProfile);
+        const {selectedApp, selectedProfile} = this.$refs['service-selector'].getSelectedInfo();
+        this.onServiceSelected(selectedApp, selectedProfile);
       },
 
       async _requestList() {
@@ -332,13 +327,16 @@
 
       async handleClick(evt, action) {
         switch (action) {
-          case 'gateway_create':
+          case 'open_dialog_gateway_create':
+            const dialogData = await this.openDialog(action, {
+              errMsg: ''
+            });
             this.$router.push({
               path: this.$router.helper.pages['/profile/gateway/add'].fullPath,
               query: {
                 groupId: this.$storeHelper.groupInfo.id,
-                appId: this.appId,
-                spaceId: this.profileId
+                appId: dialogData.appId,
+                profileId: dialogData.profileId
               }
             });
             break;
@@ -348,8 +346,22 @@
         }
 
       },
-      handleDialogEvent(evt, action) {
-
+      async handleDialogEvent(evt, action) {
+        switch (action) {
+          case 'gateway_create':
+            try {
+              const {selectedApp, selectedProfile} = this.$refs['service-selector-for-gateway-create'].getSelectedInfo();
+              const serviceModel = await this.$net.getServiceByAppIdAndSpaceId(selectedApp.appId, selectedProfile.id);
+              this.action.promise.resolve({
+                appId: selectedApp.appId,
+                profileId: selectedProfile.id
+              });
+            } catch (err) {
+              this.action.data.errMsg = err.message;
+            } finally {
+            }
+            break;
+        }
       }
     }
   };
