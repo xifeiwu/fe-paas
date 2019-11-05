@@ -102,6 +102,14 @@
                 <el-table-column label="用户名" prop="username" headerAlign="center" align="center" width="100">
                 </el-table-column>
                 <el-table-column label="真实姓名" prop="realName" headerAlign="center" align="center" width="100">
+                  <template slot-scope="scope">
+                    <span v-if="scope.row.enable">
+                      {{scope.row.realName}}
+                    </span>
+                    <span v-else>
+                      {{scope.row.realName}} (已删除)
+                    </span>
+                  </template>
                 </el-table-column>
                 <el-table-column label="岗位" prop="jobDescription" headerAlign="center" align="center">
                 </el-table-column>
