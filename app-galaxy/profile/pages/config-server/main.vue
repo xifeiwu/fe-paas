@@ -253,7 +253,7 @@
           }))['data'];
           configList = configList.sort((a, b) => b.updateTime - a.updateTime);
         } catch (err) {
-          consle.log(err);
+          console.log(err);
         }
         return configList;
       },
