@@ -4,10 +4,39 @@
       <span>{{forModify ? '修改API网关' : '创建API网关'}}</span>
     </div>
     <el-form :model="formData" :rules="formRules" size="mini" v-if="gatewayStatusFromNet"
-             ref="createInstanceForm" label-width="90px">
+             ref="the-form" label-width="90px">
       <el-form-item label="应用名称" class="message-show">{{gatewayStatusFromNet.appName}}</el-form-item>
       <el-form-item label="运行环境" class="message-show">{{gatewayStatusFromNet.spaceName}}</el-form-item>
       <el-form-item label="请求类型" class="message-show">HTTP</el-form-item>
+
+      <el-form-item label="网关名称" prop="gatewayName" class="gateway-name">
+        <div v-if="forModify">{{gatewayStatusFromNet.gatewayName}}</div>
+        <el-input v-model="formData.gatewayName" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。不能超过63个字符" :maxlength=63 v-else></el-input>
+      </el-form-item>
+      <el-form-item label="请求路径" prop="paths" class="path-list">
+        <div v-if="formData.paths.length > 0">
+          <el-tag
+                  v-for="tag in formData.paths"
+                  size="small"
+                  :key="tag"
+                  closable
+                  type="success"
+                  @close="handlePath('remove', tag)"
+          >{{tag}}</el-tag>
+        </div>
+        <div v-else style="height: 27px">空</div>
+        <div class="content">
+          <el-input v-model="formData.pathToAdd" placeholder=""
+                    @keydown.native.enter.prevent="handlePath('add', formData.pathToAdd)"></el-input>
+          <el-button
+                  size="small"
+                  type="text"
+                  class="flex primary"
+                  @click="handlePath('add', formData.pathToAdd)">
+            <span>添加</span>
+          </el-button>
+        </div>
+      </el-form-item>
 
       <div class="el-form-item el-form-item--mini timeout-setting" style="margin-bottom: 0px;">
         <div class="el-form-item__label" style="width: 90px; float: left; z-index: 11">
@@ -47,6 +76,13 @@
         <span class="item">请求缓冲区大小：{{gatewayStatusFromNet.requestCache}}</span>
         <span class="item">客户端请求最大长度：{{gatewayStatusFromNet.requestMax}}</span>
         <span class="item">响应数据缓存区大小：{{gatewayStatusFromNet.responseCache}}</span>
+      </el-form-item>
+      <el-form-item label="域名" prop="hostList">
+        <el-checkbox-group v-model="formData.hostList" style="display: inline-block;">
+          <el-checkbox v-for="(item, index) in gatewayStatusFromNet.domainList" :label="item" :key="index">
+            {{item}}
+          </el-checkbox>
+        </el-checkbox-group>
       </el-form-item>
     </el-form>
     <div class="section-footer">
@@ -91,6 +127,23 @@
         color: #E6A23C;
       }
       .el-form-item {
+        &.gateway-name {
+          .el-input {
+            max-width: 500px;
+          }
+        }
+        &.path-list {
+          .el-tag {
+            margin-right: 3px;
+            margin-bottom: 2px;
+          }
+          .content {
+            .el-input {
+              display: inline-block;
+              max-width: 500px;
+            }
+          }
+        }
         &.timeout-setting, &.retry-setting {
           .el-form-item {
             display: inline-block;
@@ -156,10 +209,10 @@
         formData: {
         },
         formRules: {
-          name: [{
+          gatewayName: [{
             required: true,
-            message: '请输入实例名称',
-            trigger: 'blur'
+            message: '请输入网关名称',
+            trigger: ['blur', 'change']
           }, {
             validator: (rule, values, callback) => {
               const reg = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
@@ -173,60 +226,47 @@
               }
             }
           }],
-          versionId: [{
-            type: 'number',
+          hostList: [{
+            type: 'array',
             required: true,
-            message: '请选择实例版本',
-            trigger: 'blur'
-          }],
-          cpu: [{
-            type: 'number',
-            required: true,
-            message: '请选择CPU类型',
-            trigger: 'blur'
-          }],
-          memory: [{
-            type: 'number',
-            required: true,
-            message: '请选择内存大小',
-            trigger: 'blur'
-          }],
-          disk: [{
-            type: 'number',
-            required: true,
-            message: '请选择磁盘大小',
-            trigger: 'blur'
-          }],
-          dbName: [{
-            required: true,
-            message: '请输入数据库名称',
-            trigger: 'blur'
+            message: '至少选择一个域名',
+            trigger: ['blur', 'change']
           }, {
-            validator: utils.generateValidator(true, false, 2, 30, true)
-          }],
-          userName: [{
-            required: true,
-            message: '请输入用户名',
-            trigger: 'blur'
-          }, {
-            validator: utils.generateValidator(true, false, 2, 30, true)
-          }],
-          password: [{
-            required: true,
-            message: '请输入密码',
-            trigger: 'blur'
-          }, {
-            validator: utils.generateValidator(true, false, 2, 30, true)
-          }],
-          comment: [{
             validator(rule, values, callback) {
-              if (values.length > 100) {
-                callback('长度不能超过100个字符');
+              if (values.length == 0) {
+                callback('请至少选择一个域名');
                 return;
               }
               callback();
             }
-          }]
+          }],
+          paths: [{
+            type: 'array',
+            required: true,
+            message: '请至少填写一个路径',
+            trigger: ['blur', 'change']
+          },
+            {
+              validator(rule, values, callback) {
+                let passed = true;
+//                let mailReg = /^([\w-_]+(?:\.[\w-_]+)*)@((?:[a-z0-9]+(?:-[a-zA-Z0-9]+)*)+\.[a-z]{2,6})$/;
+//                if (Array.isArray(values)) {
+//                  values.every(it => {
+//                    passed = mailReg.exec(it);
+//                    if (!passed) {
+//                      callback(`${it}格式不正确`);
+//                    }
+//                    return passed;
+//                  })
+//                } else {
+//                  callback('不是数组');
+//                }
+                if (passed) {
+                  callback();
+                }
+              }
+            }
+          ],
         }
       }
     },
@@ -244,15 +284,16 @@
         this.gatewayStatusFromNet = gatewayStatusFromNet;
 
         const formData = {
-          host: [],
+          hostList: [],
           paths: [],
+          pathToAdd: '',
           connTimeout: null,    // 连接超时
           sendTimeout: null,    // 发送超时
           readTimeout: null,    // 读取超时
           retryTimeout: null,   // 重试超时时间
           retryNum: null,       // 重试次数
         };
-        this.formData.host = gatewayStatusFromNet.host;
+        this.formData.hostList = gatewayStatusFromNet.host;
         this.formData.paths = gatewayStatusFromNet.paths;
         if (this.forModify) {
           formData.connTimeout = gatewayStatusFromNet.connTimeout;
@@ -269,8 +310,60 @@
         }
         this.formData = formData;
       },
-
+      // add or remove path
+      handlePath(action, data) {
+        switch (action) {
+          case 'add':
+            if (this.formData.paths.includes(data)) {
+              this.$message.error(`路径"${data}"已经存在！`);
+              return;
+            }
+            this.formData.paths.push(data);
+            this.formData.pathToAdd = '';
+            break;
+          case 'remove':
+            const index = this.formData.paths.indexOf(data);
+            if (index > -1) {
+              this.formData.paths.splice(index, 1);
+            } else {
+              console.log(`${data} not found!`);
+            }
+            break;
+        }
+      },
       async handleClick(evt, action) {
+        switch (action) {
+          case 'create':
+            try {
+              await this.$refs['the-form'].validate();
+              console.log(this.formData);
+              const formData = this.formData;
+              await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create, {
+                payload: {
+                  groupId: this.groupId,
+                  appId: this.appId,
+                  spaceId: this.profileId,
+                  domainList: formData.hostList,
+                  paths: formData.paths,
+                  connTimeout: formData.connTimeout,
+                  sendTimeout: formData.sendTimeout,
+                  readTimeout: formData.readTimeout,
+                  retryTimeout: formData.retryTimeout,
+                  retryNum: formData.retryNum,
+                  gatewayName: formData.gatewayName
+                }
+              });
+              this.$message.success(`网关"${formData.gatewayName}"创建成功！`);
+              this.$router.push({
+                path: this.$router.helper.pages['/profile/gateway'].fullPath,
+              })
+            } catch (err) {
+              console.log(err);
+            }
+            break;
+          case 'update':
+            break;
+        }
 
       }
     }

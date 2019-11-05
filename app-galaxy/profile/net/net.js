@@ -658,7 +658,7 @@ class Net extends NetBase {
         path: '/gateway/getCreateApiInfo',
         method: 'get'
       },
-      // 创建网关默认配置
+      // 创建网关
       'gateway_create': {
         path: '/gateway/addGateway',
         method: 'post'
