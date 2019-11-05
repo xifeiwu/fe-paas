@@ -1160,7 +1160,8 @@
         // console.log(this.rules.mainClass);
       },
 
-      // 得到服务所属
+      // TODO: can be replace by $net.getServiceByAppIdAndSpaceId
+      // 根据appId和spaceId，得到对应服务
       async getServiceByAppIdAndSpaceId(appId, profileId) {
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
           payload: {
@@ -1174,6 +1175,7 @@
         const serviceInfo = this.$net.getServiceModel(resContent['applicationServerList'][0]);
         return serviceInfo;
       },
+
       async getServiceById(serviceId) {
         var mainServiceInfo = await this.$net.requestPaasServer(this.$net.URL_LIST.service_by_id, {
           params: {

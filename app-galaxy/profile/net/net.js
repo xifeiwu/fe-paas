@@ -1918,6 +1918,25 @@ class Net extends NetBase {
     return item;
   }
 
+  // TODO: can be replace by $net.getServiceByAppIdAndSpaceId
+  // 根据appId和spaceId，得到对应服务
+  async getServiceByAppIdAndSpaceId(appId, profileId) {
+    const resContent = await this.requestPaasServer(this.URL_LIST.service_list_by_app_and_profile, {
+      payload: {
+        appId: appId,
+        spaceId: profileId
+      }
+    });
+    if (!resContent.hasOwnProperty('applicationServerList') && !Array.isArray(resContent['applicationServerList'])) {
+      throw new Error('数据格式不正确');
+    }
+    if (resContent['applicationServerList'].length === 0) {
+      throw new Error('服务尚未创建');
+    }
+    const serviceInfo = this.getServiceModel(resContent['applicationServerList'][0]);
+    return serviceInfo;
+  }
+
   /**
    * 端口映射：检测端口是否被占用
    * @param payload: {appId, spaceId， outerPort}

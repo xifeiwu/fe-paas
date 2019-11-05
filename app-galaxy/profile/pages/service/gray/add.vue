@@ -1167,6 +1167,7 @@
         // console.log(this.rules.mainClass);
       },
 
+      // TODO: can be replace by $net.getServiceByAppIdAndSpaceId
       // 得到服务所属
       async getServiceByAppIdAndSpaceId(appId, profileId) {
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {

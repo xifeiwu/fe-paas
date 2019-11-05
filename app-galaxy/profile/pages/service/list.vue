@@ -2513,6 +2513,7 @@ tolerations:
         this.serviceListByPage = filteredServiceList.slice(start, end);
       },
 
+      // TODO: can be replace by $net.getServiceByAppIdAndSpaceId
       async getServiceByAppIdAndSpaceId(row) {
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {
           payload: {
@@ -2521,8 +2522,10 @@ tolerations:
           }
         });
         if (!resContent.hasOwnProperty('applicationServerList') && !Array.isArray(resContent['applicationServerList'])) {
-          this.$message.error('数据格式不正确');
           throw new Error('数据格式不正确');
+        }
+        if (resContent['applicationServerList'].length === 0) {
+          throw new Error('所选服务不存在');
         }
         const parsedContent = this.$net.getServiceModel(resContent['applicationServerList'][0]);
         return parsedContent;
