@@ -582,7 +582,7 @@
             it.name = it.id;
             it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss').split(' ');
             it['formattedStartTime'] = this.$utils.formatDate(it['startTime'], 'yyyy-MM-dd hh:mm:ss').split(' ');
-            it.cpuUsageInPercent = it['cpuUsage'] ? `${parseFloat(it['cpuUsage'] * 100).toFixed(2)}%` : '---';
+            it.cpuUsageInPercent = !it['cpuUsage'] && it['cpuUsage'] !== 0 ? '---' : `${parseFloat(it['cpuUsage'] * 100).toFixed(2)}%`;
             this.$utils.renameProperty(it, 'state', 'status');
             this.$utils.renameProperty(it, 'ip', 'intranetIP');
 
