@@ -182,7 +182,17 @@
   export default {
     components: {},
     created() {
+      const path = this.$route['path'];
+      this.forModify = this.$router.helper.pages['/profile/gateway/modify'].pathReg.test(path);
+
+      var goBack = false;
       if (!this.$utils.hasProps(this.$route.query, 'groupId', 'appId', 'profileId')) {
+        goBack = true;
+      }
+      if (this.forModify && !this.$utils.hasProps(this.$route.query, 'gatewayName')) {
+        goBack = true;
+      }
+      if (goBack) {
         this.$message.error(`信息不完整：'groupId', 'appId', 'profileId'`);
         this.$router.push(this.$router.helper.pages['/profile/gateway'].fullPath);
         return;
@@ -272,12 +282,16 @@
     },
     methods: {
       async requestRelatedInfoFromNet() {
+        const query = {
+          groupId: this.groupId,
+          appId: this.appId,
+          spaceId: this.profileId,
+        };
+        if (this.forModify) {
+          query.gatewayName = this.$route.query['gatewayName'];
+        }
         const gatewayStatusFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create_related, {
-          query: {
-            groupId: this.groupId,
-            appId: this.appId,
-            spaceId: this.profileId,
-          }
+          query
         });
         gatewayStatusFromNet.host = (gatewayStatusFromNet.host && Array.isArray(gatewayStatusFromNet.host)) ? gatewayStatusFromNet.host : [];
         gatewayStatusFromNet.paths = (gatewayStatusFromNet.paths && Array.isArray(gatewayStatusFromNet.paths)) ? gatewayStatusFromNet.paths : [];

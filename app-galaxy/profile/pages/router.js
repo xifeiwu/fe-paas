@@ -282,6 +282,10 @@ class Helper extends RouterHelper {
       name: '添加',
       component: gatewayAdd
     }, {
+        path: '/profile/gateway/modify',
+        name: '添加',
+        component: gatewayAdd
+    }, {
       path: '/profile/work-order',
       // label: '审批管理',
       component: WorkOrderMain,

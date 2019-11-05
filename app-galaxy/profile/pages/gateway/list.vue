@@ -40,13 +40,13 @@
         <el-table-column
                 label="网关名称"
                 prop="gatewayName"
-                minWidth="150"
+                minWidth="120"
                 headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
                 label="应用名称"
                 prop="appName"
-                minWidth="120"
+                minWidth="100"
                 headerAlign="left" align="left">
         </el-table-column>
         <!--<el-table-column-->
@@ -58,7 +58,7 @@
         <el-table-column
                 label="域名"
                 prop="host"
-                minWidth="150"
+                minWidth="120"
                 headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
@@ -92,20 +92,20 @@
         <el-table-column
                 label="创建人"
                 prop="creatorName"
-                width="120"
+                width="100"
                 headerAlign="center" align="center">
         </el-table-column>
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
           <template slot-scope="scope">
-            <!--<el-button-->
-                    <!--type="text"-->
-                    <!--v-if="true"-->
-                    <!--:class="['flex', $storeHelper.permission['instance_replace'].disabled || isMesosService || publishStatus? 'disabled' : 'primary']"-->
-                    <!--@click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"-->
-            <!--&gt;-->
-              <!--<span>驱逐</span>-->
-            <!--</el-button>-->
-            <!--<div class="ant-divider"></div>-->
+            <el-button
+                    type="text"
+                    v-if="true"
+                    :class="['flex', 'primary']"
+                    @click="handleTRClick($event, 'gateway_modify', scope.row, scope.$index)"
+            >
+              <span>修改网关配置</span><i class="paas-icon-level-up"></i>
+            </el-button>
+            <div class="ant-divider"></div>
           </template>
         </el-table-column>
       </el-table>
@@ -323,6 +323,23 @@
           }
         });
         this.gatewayListByPage = gatewayListByPage;
+      },
+
+      async handleTRClick(evt, action, row, index) {
+        switch (action) {
+          case 'gateway_modify':
+            // console.log(row);
+            this.$router.push({
+              path: this.$router.helper.pages['/profile/gateway/modify'].fullPath,
+              query: {
+                groupId: this.$storeHelper.groupInfo.id,
+                appId: row.appId,
+                profileId: row.spaceId,
+                gatewayName: row.gatewayName
+              }
+            });
+            break;
+        }
       },
 
       async handleClick(evt, action) {
