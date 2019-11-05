@@ -2,14 +2,14 @@
   <div class="paas-service-selector">
     <div class="item">
       <label>应用名称:</label>
-      <el-select class="app-name" filterable v-model="selectedAppId" placeholder="请选择">
+      <el-select class="app-name" filterable v-model="selectedAppId" size="mini-extral" placeholder="请选择">
         <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
         </el-option>
       </el-select>
     </div>
     <div class="item">
       <label>运行环境:</label>
-      <el-select v-model="selectedProfileId" placeholder="请选择" :disabled="fixedInfo.type === 'profile'">
+      <el-select v-model="selectedProfileId" placeholder="请选择" size="mini-extral"  :disabled="fixedInfo.type === 'profile'">
         <el-option v-for="item in profileList" :key="item.id" :label="item.description" :value="item.id">
         </el-option>
       </el-select>
