@@ -199,12 +199,15 @@
 
           <el-form-item label="每个源IP可建立的最大连接数：" prop="limitConnections" class="message-show">
             <el-input-number v-model="rateLimiting.limitConnections" type="number" :min="0"></el-input-number>
+            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'可建立的最大连接数必须为正数'"></i>
           </el-form-item>
           <el-form-item label="每个源IP每分钟最大请求次数：" prop="limitRpm" class="message-show">
             <el-input-number v-model="rateLimiting.limitRpm" type="number" :min="0"></el-input-number>
+            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'每分钟最大请求次数必须为正数'"></i>
           </el-form-item>
           <el-form-item label="每个源IP每秒最大请求次数：" prop="limitRps" class="message-show">
             <el-input-number v-model="rateLimiting.limitRps" type="number" :min="0"></el-input-number>
+            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'每秒最大请求次数必须为正数'"></i>
           </el-form-item>
         </el-form>
       </div>
