@@ -77,7 +77,6 @@
         <el-table-column
                 label="配置时间"
                 prop="formattedCreateTime"
-                sortable="custom"
                 width="100"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
@@ -271,6 +270,10 @@
      *
      */
     created() {
+      const query = this.$route.query;
+      query.hasOwnProperty('currentPage') && (this.currentPage = parseInt(decodeURIComponent(query.currentPage)));
+      query.hasOwnProperty('filterKey') && (this.filterKey = decodeURIComponent(query.filterKey));
+
     },
     mounted() {
       this.$nextTick(() => {
@@ -312,7 +315,11 @@
           limitRps:''
         },
         gatewayStatusFromNet: [],
-    };
+        query: {
+          currentPage: 1,
+          filterKey: ''
+        }
+      };
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
@@ -322,10 +329,12 @@
       profileId() {
         this.updateListByPage(true);
       },
-      filterKey() {
+      filterKey(filterKey) {
+        this.setQuery({filterKey});
         this.updateListByPage(false);
       },
-      currentPage() {
+      currentPage(currentPage) {
+        this.setQuery({currentPage});
         this.updateListByPage(false);
       },
       pageSize() {
@@ -429,12 +438,12 @@
           }
         });
 
-        if (!this.$utils.isNumber(this.currentPage)) {
+        if (!this.$utils.isNumber(parseInt(this.currentPage))) {
           this.currentPage = 1;
           return;
         }
         const maxPageSize = Math.ceil(listFiltered.length / this.pageSize);
-        if (this.currentPage > maxPageSize) {
+        if (maxPageSize >= 1 && this.currentPage > maxPageSize) {
           this.currentPage = maxPageSize;
         }
         var page = this.currentPage - 1;
@@ -602,6 +611,23 @@
 
             }
             break;
+        }
+      },
+
+      setQuery(objOrKey, value) {
+        if (this.$utils.isObject(objOrKey)) {
+          for (let key in objOrKey) {
+            value = objOrKey[key];
+            this.setQuery(key, value);
+          }
+        } else {
+          if (this.query.hasOwnProperty(objOrKey)) {
+            this.query[objOrKey] = encodeURIComponent(value);
+          }
+          this.$router.push({
+            name: 'gateway_list',
+            query: this.query
+          });
         }
       }
     }
