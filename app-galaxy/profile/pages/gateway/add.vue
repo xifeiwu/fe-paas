@@ -11,7 +11,7 @@
 
       <el-form-item label="网关名称" prop="gatewayName" class="gateway-name">
         <div v-if="forModify">{{gatewayStatusFromNet.gatewayName}}</div>
-        <el-input v-model="formData.gatewayName" placeholder="小写字符，数字，中划线，不能以中划线开始或结尾。不能超过63个字符" :maxlength=63 v-else></el-input>
+        <el-input v-model="formData.gatewayName" placeholder="可以包含字母数字中划线，1-36个字符" v-else></el-input>
       </el-form-item>
       <el-form-item label="请求路径" prop="paths" class="path-list">
         <div v-if="formData.paths.length > 0">
@@ -226,11 +226,11 @@
             trigger: ['blur', 'change']
           }, {
             validator: (rule, values, callback) => {
-              const reg = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
+              const reg = /[0-9a-zA-Z-]{1, 36}/;
               let passed = true;
-              if (!reg.exec(values)) {
+              if (!reg.test(values)) {
                 passed = false;
-                callback('可以包含小写字符数字或中划线，但不能以中划线开始或结尾');
+                callback('可以包含字母数字中划线，1-36个字符');
               }
               if (passed) {
                 callback();
