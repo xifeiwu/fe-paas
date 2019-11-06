@@ -302,7 +302,7 @@
 
   #app-add {
     background: white;
-    margin: 20px;
+    margin: 10px;
     padding: 10px 30px;
     width: 80%;
     max-width: 850px;

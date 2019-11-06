@@ -109,13 +109,13 @@
       </el-form>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
-          <el-button type="danger" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保存修改</el-button>
+          <el-button type="warning" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保存修改</el-button>
         </div>
         <div class="item">
           <el-button type="danger" size="mini" @click="handleDialogEvent($event, 'remove_config')">删除配置</el-button>
         </div>
         <div class="item">
-          <el-button type="success" size="mini" @click="closeDialog">取消修改</el-button>
+          <el-button size="mini" @click="closeDialog">取消修改</el-button>
         </div>
       </div>
     </el-dialog>
