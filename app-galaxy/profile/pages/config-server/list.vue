@@ -193,7 +193,7 @@
       this.$nextTick(() => {
         const routeConfig = this.$router.helper.getConfigByFullPath('/profile/config-server/:id(\\d+)');
         if (routeConfig) {
-          routeConfig.name = `${this.dirSelected.configDirName}`;
+          routeConfig.label = `${this.dirSelected.configDirName}`;
         }
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });

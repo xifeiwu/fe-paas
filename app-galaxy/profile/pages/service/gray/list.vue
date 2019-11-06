@@ -619,7 +619,7 @@
         };
         const routeConfig = this.$router.helper.getConfigByFullPath('/profile/service/:id(\\d+)');
         if (routeConfig) {
-          routeConfig.name = `${serviceInfo.appName}/${profileInfo.description}`;
+          routeConfig.label = `${serviceInfo.appName}/${profileInfo.description}`;
         }
         this.originServiceInfo = theData.originServiceInfo;
         this.serviceInfo = theData.serviceInfo;

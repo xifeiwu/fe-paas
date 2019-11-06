@@ -637,7 +637,7 @@
           profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
           const routeConfig = this.$router.helper.getConfigByFullPath('/profile/service/:id(\\d+)');
           if (routeConfig) {
-            routeConfig.name = `${serviceInfo.appName}/${profileInfo.description}`;
+            routeConfig.label = `${serviceInfo.appName}/${profileInfo.description}`;
           }
         } else
         if (this.$router.helper.pages['/profile/service/:id(\\d+)/gray/modify'].pathReg.test(path)) {
@@ -653,7 +653,7 @@
           profileInfo = this.$storeHelper.getProfileInfoByID(serviceInfo.spaceId);
           const routeConfig = this.$router.helper.getConfigByFullPath('/profile/service/:id(\\d+)');
           if (routeConfig) {
-            routeConfig.name = `${serviceInfo.appName}/${profileInfo.description}`;
+            routeConfig.label = `${serviceInfo.appName}/${profileInfo.description}`;
           }
         } else
         if (this.$router.helper.pages['/profile/service/modify'].pathReg.test(path)) {

@@ -11,7 +11,7 @@
       <a :href="$storeHelper.getByPlatform('gray_log_un_production')" target="_blank">非生产环境GrayLog</a>
     </div>
     <el-tabs v-model="currentPath" type="card" @tab-click="handleClick">
-      <el-tab-pane v-for="item in tabs" :label="item.name" :name="item.fullPath" :key="item.fullPath"></el-tab-pane>
+      <el-tab-pane v-for="item in tabs" :label="item.label" :name="item.fullPath" :key="item.fullPath"></el-tab-pane>
     </el-tabs>
     <!--<keep-alive>-->
       <router-view></router-view>

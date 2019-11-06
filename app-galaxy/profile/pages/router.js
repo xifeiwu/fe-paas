@@ -113,126 +113,126 @@ class Helper extends RouterHelper {
       redirect: '/profile/app',
     }, {
       path: '/profile/app',
-      name: '应用管理',
+      label: '应用管理',
       component: AppMain,
       meta: {
         isPermitted: true,
       },
     }, {
       path: '/profile/app/add',
-      name: '创建应用',
+      label: '创建应用',
       component: AppAdd,
     }, {
       path: '/profile/app/update',
-      name: '修改应用',
+      label: '修改应用',
       component: AppAdd,
     }, {
       path: '/profile/service',
-      name: '服务管理',
+      label: '服务管理',
       redirect: '/profile/service/list',
     }, {
       path: '/profile/service/list/:id(\\d+)?',
-      name: '服务列表',
+      label: '服务列表',
       component: serviceList,
     }, {
       path: '/profile/service/add',
-      name: '创建服务',
+      label: '创建服务',
       component: serviceAdd,
     }, {
       path: '/profile/service/modify',
-      name: '修改配置',
+      label: '修改配置',
       component: serviceAdd,
     },{
       path: '/profile/service/copy',
-      name: '复制服务',
+      label: '复制服务',
       component: serviceAdd,
     }, {
       path: '/profile/service/:id(\\d+)',
       messageShow: true,
-      name: '---',
+      label: '---',
       meta: {
         isPermitted: false,
       },
     }, {
       path: '/profile/service/:id(\\d+)/gray',
-      name: '灰度发布',
+      label: '灰度发布',
       component: serviceGray
     }, {
       path: '/profile/service/:id(\\d+)/gray/add',
-      name: '创建灰度版本',
+      label: '创建灰度版本',
       component: serviceGrayAdd
     }, {
       path: '/profile/service/:id(\\d+)/gray/modify',
-      name: '修改灰度版本',
+      label: '修改灰度版本',
       component: serviceGrayAdd
     }, {
       path: '/profile/service/detail',
-      name: '服务详情',
+      label: '服务详情',
       component: serviceDetail
     }, {
       path: '/profile/pipeline',
-      name: 'Pipeline',
+      label: 'Pipeline',
       component: pipeLine,
       redirect: '/profile/pipeline/list',
       children: [{
         path: 'list',
-        // name: '列表',
+        // label: '列表',
         component: pipeLineList,
       }, {
         path: 'add',
-        name: '添加pipeline',
+        label: '添加pipeline',
         component: pipelineAdd
       }, {
         path: 'modify',
-        name: '修改配置',
+        label: '修改配置',
         component: pipelineAdd
       }, {
         path: 'update',
-        name: '修改配置',
+        label: '修改配置',
         component: pipelineAdd
       }, {
         path: 'records',
-        name: '执行记录',
+        label: '执行记录',
         component: pipeLineRecord,
       }, {
         path: 'records/plan',
-        name: '执行进度',
+        label: '执行进度',
         component: pipelinePlan,
       }]
     },{
       path: '/profile/instance',
-      name: '实例列表',
+      label: '实例列表',
       component: InstanceMain,
     }, {
       path: '/profile/domain',
-      name: '外网域名',
+      label: '外网域名',
       component: DomainMain,
     }, {
       path: '/profile/domain/white-list',
-      name: '关联IP白名单',
+      label: '关联IP白名单',
       component: DomainWhiteList,
     }, {
       path: '/profile/log',
-      // name: '审批管理',
+      // label: '审批管理',
       component: LogMain,
       redirect: '/profile/log/run',
       children: [{
         path: 'run',
-        name: '运行日志',
+        label: '运行日志',
         component: LogRun,
         meta: {
           keepAlive: true
         }
       }, {
         path: 'deploy',
-        name: '部署日志',
+        label: '部署日志',
         component: LogDeploy,
         meta: {
           keepAlive: true
         }
       }, {
         path: 'canary',
-        name: '完成灰度发布日志',
+        label: '完成灰度发布日志',
         component: LogCanary,
         meta: {
           keepAlive: true
@@ -241,24 +241,24 @@ class Helper extends RouterHelper {
     },
       {
       path: '/profile/monitor',
-      name: '实例监控',
+      label: '实例监控',
       component: MonitorMain,
     },
       {
       path: '/profile/oauth',
-      // name: '权限管理',
+      // label: '权限管理',
       component: OAuthMain,
       redirect: '/profile/oauth/key',
       children: [{
         path: 'key',
-        name: 'ClientId列表',
+        label: 'ClientId列表',
         component: OAuthKey,
         meta: {
           keepAlive: true
         }
       }, {
         path: 'url',
-        name: '授权URL',
+        label: '授权URL',
         component: OAuthURL,
         meta: {
           keepAlive: true
@@ -266,143 +266,143 @@ class Helper extends RouterHelper {
       }]
     }, {
       path: '/profile/work-order',
-      // name: '审批管理',
+      // label: '审批管理',
       component: WorkOrderMain,
       redirect: '/profile/work-order/todo',
       children: [{
         path: 'todo',
-        name: '待办工单',
+        label: '待办工单',
         component: WorkOrderToDo,
       }, {
         path: 'list',
-        name: '工单列表',
+        label: '工单列表',
         component: WorkOrderList,
       }]
     }, {
       path: '/profile/work-order/todo/add',
-      name: '申请工单',
+      label: '申请工单',
       component: WorkOrderAdd,
     }, {
       path: '/profile/work-order/todo/modify',
-      name: '修改工单',
+      label: '修改工单',
       component: WorkOrderAdd,
     }, {
       path: '/profile/work-order/todo/deploy',
-      name: '部署工单',
+      label: '部署工单',
       component: WorkOrderDeploy,
     }, {
       path: '/profile/work-order/todo/test',
-      name: '测试工单',
+      label: '测试工单',
       component: WorkOrderTest,
     }, {
       path: '/profile/work-order/todo/accept',
-      name: '验收工单',
+      label: '验收工单',
       component: WorkOrderAccept,
     }, {
       path: '/profile/middleware',
-      // name: '中间件',
+      // label: '中间件',
       component: Middleware,
       children: [{
         path: 'mariadb',
-        name: 'Mariadb服务',
+        label: 'Mariadb服务',
         component: MiddlewareMariadb,
       }, {
         path: 'mariadb/add',
-        name: '申请MariaDB服务',
+        label: '申请MariaDB服务',
         component: MiddlewareMariadbAdd,
       }, {
         path: 'mariadb/modify',
-        name: '修改MariaDB服务',
+        label: '修改MariaDB服务',
         component: MiddlewareMariadbAdd,
       }, {
         path: 'mariadb/history',
-        name: '操作历史',
+        label: '操作历史',
         component: MiddlewareMariadbHistory,
       }, {
 	      path: 'mariadb/backup-list',
-	      name: '备份列表',
+	      label: '备份列表',
 	      component: MiddlewareMariadbBackupList,
       }, {
         path: 'mariadb/backup',
-        name: '备份与恢复',
+        label: '备份与恢复',
         component: MiddlewareMariadbBackup,
       }, {
         path: 'redis',
-        name: 'Redis实例',
+        label: 'Redis实例',
         component: middlewareRedis
       }, {
         path: 'redis/add',
-        name: '申请实例',
+        label: '申请实例',
         component: middlewareRedisAdd
       }, {
         path: 'redis/modify',
-        name: '修改配置',
+        label: '修改配置',
         component: middlewareRedisModify
       }]
     }, {
       path: '/profile/config-server',
-      name: '配置中心',
+      label: '配置中心',
       component: ConfigServerMain
     }, {
       path: '/profile/config-server/:id(\\d+)',
       messageShow: true,
-      name: '---',
+      label: '---',
       meta: {
         isPermitted: false,
       },
     }, {
       path: '/profile/config-server/:id(\\d+)/list',
-      name: '配置文件列表',
+      label: '配置文件列表',
       component: ConfigServerFileList,
     }, {
       path: '/profile/cdn',
-      name: 'cdn加速',
+      label: 'cdn加速',
       component: CdnMain,
       children: [
         {
           path: 'list',
-          name: '加速域名列表',
+          label: '加速域名列表',
           component: CdnList,
         },
         {
           path: 'create',
-          name: '创建加速域名',
+          label: '创建加速域名',
           component: CdnCreate,
         },
         {
           path: 'edit',
-          name: '修改配置',
+          label: '修改配置',
           component: CdnEdit,
         },
         {
           path: 'prefetch',
-          name: '刷新预取',
+          label: '刷新预取',
           component: CdnPrefetch,
         },
         {
           path: 'statistics',
-          name: '统计分析',
+          label: '统计分析',
           component: CdnStatistics,
         },
         {
           path: 'dashboard',
-          name: '统计分析',
+          label: '统计分析',
           component: CdnDashboard,
         },
       ]
     }, {
       path: '/profile/image/repo',
-      name: '镜像仓库',
+      label: '镜像仓库',
       component: ImageList,
     },
     //   {
     //   path: '/profile/image/:id/list',
-    //   name:'镜像详情',
+    //   label:'镜像详情',
     //   component: ImageDetail,
     // },
       {
         path: '/profile/image/repo/version',
-        name:'镜像版本',
+        label:'镜像版本',
         component: ImageVersion,
       }
     ];

@@ -27,8 +27,8 @@
             <i class="paas-icon-fa-home" style="margin-right: 2px;"></i>
             <el-breadcrumb separator-class="el-icon-arrow-right" @item-click="handleBreadCrumbClick">
               <el-breadcrumb-item v-for="item in breadCrumbItemList" :key="item.fullPath" :item="item">
-                <span v-if="item.messageShow" :class="['badge', 'primary', 'small', 'message-show']" style="color: #5a5e66; cursor: text; height: 14px; line-height: 14px;">{{item['name']}}</span>
-                <span v-else>{{item['name']}}</span>
+                <span v-if="item.messageShow" :class="['badge', 'primary', 'small', 'message-show']" style="color: #5a5e66; cursor: text; height: 14px; line-height: 14px;">{{item['label']}}</span>
+                <span v-else>{{item['label']}}</span>
               </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
@@ -580,9 +580,9 @@
         while (pathList.length > 0) {
           const partialPath = pathList.join('/');
           const routeConfig = this.$router.helper.getConfigByRoutePath(partialPath);
-          if (routeConfig && routeConfig.hasOwnProperty('name')) {
+          if (routeConfig && routeConfig.hasOwnProperty('label')) {
             if (routeConfig.messageShow) {
-              routeConfig.name = '---';
+              routeConfig.label = '---';
             }
             this.breadCrumbItemList.unshift(routeConfig);
           }
