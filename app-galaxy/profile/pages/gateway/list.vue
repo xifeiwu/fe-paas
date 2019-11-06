@@ -33,7 +33,7 @@
     </div>
     <div class="list">
       <el-table
-              :data="gatewayListByPage"
+              :data="listByPage"
               style="width: 100%"
               :height="heightOfTable"
       >
@@ -116,6 +116,19 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-container">
+        <div class="pagination">
+          <el-pagination
+                  @size-change="val => this.pageSize = val"
+                  background
+                  :current-page.sync="currentPage"
+                  :page-size="pageSize"
+                  :page-sizes="[10, 15, 20, 30]"
+                  layout="total, sizes, prev, pager, next"
+                  :total="listFiltered.length">
+          </el-pagination>
+        </div>
+      </div>
     </div>
 
     <el-dialog title="创建API网关"
@@ -153,6 +166,8 @@
 </style>
 <style lang="scss" scoped>
   #gateway-list {
+    display: flex;
+    flex-direction: column;
     background-color: white;
     height:100%;
     max-width: 1500px;
@@ -175,6 +190,7 @@
       }
     }
     > .list {
+      flex: 1;
       position: relative;
     }
   }
@@ -218,7 +234,11 @@
 
         heightOfTable: '',
         gatewayList: [],
-        gatewayListByPage: [],
+        listFiltered: [],
+        listByPage: [],
+
+        currentPage: 1,
+        pageSize: 15,
     };
     },
     watch: {
@@ -231,7 +251,13 @@
       },
       filterKey() {
         this.updateListByPage(false);
-      }
+      },
+      currentPage() {
+        this.updateListByPage(false);
+      },
+      pageSize() {
+        this.updateListByPage(false);
+      },
     },
     methods: {
       onScreenSizeChange(size) {
@@ -316,7 +342,7 @@
         if (this.filterKey) {
           filterReg = new RegExp(this.filterKey, 'i');
         }
-        var gatewayListByPage = this.gatewayList.filter(it => {
+        const listFiltered = this.gatewayList.filter(it => {
           if (this.$storeHelper.APP_ID_FOR_ALL == this.appId) {
             return true;
           } else {
@@ -329,7 +355,23 @@
             return filterReg.test(`${it.gatewayName}${it.appName}${it.host}`)
           }
         });
-        this.gatewayListByPage = gatewayListByPage;
+
+        if (!this.$utils.isNumber(this.currentPage)) {
+          this.currentPage = 1;
+          return;
+        }
+        const maxPageSize = Math.ceil(listFiltered.length / this.pageSize);
+        if (this.currentPage > maxPageSize) {
+          this.currentPage = maxPageSize;
+        }
+        var page = this.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.pageSize;
+        const length = this.pageSize;
+        const end = start + length;
+
+        this.listFiltered = listFiltered;
+        this.listByPage = listFiltered.slice(start, end);
       },
 
       async handleTRClick(evt, action, row, index) {
