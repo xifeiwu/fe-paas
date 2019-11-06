@@ -22,11 +22,8 @@ export default class Utils extends BaseUtils {
 
 
   isNumber(val) {
-    return typeof val === 'number';
+    return typeof val === 'number' && !isNaN(parseFloat(val)) && isFinite(val);
   }
-  // isNumber(n) {
-  //   return !isNaN(parseFloat(n)) && isFinite(n);
-  // }
 
   isInteger(n) {
     return Number.isInteger(n);
