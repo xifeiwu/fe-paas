@@ -1,7 +1,7 @@
 <template>
   <div id="gateway_add">
     <div class="section-title">
-      <span>{{forModify ? '修改API网关' : '创建API网关'}}</span>
+      <span>{{forDetail ? '网关详情' : (forModify ? '修改API网关' : '创建API网关')}}</span>
     </div>
     <el-form :model="formData" :rules="formRules" size="mini" v-if="gatewayStatusFromNet"
              ref="the-form" label-width="90px">
@@ -10,31 +10,44 @@
       <el-form-item label="请求类型" class="message-show">HTTP</el-form-item>
 
       <el-form-item label="网关名称" prop="gatewayName" class="gateway-name">
-        <div v-if="forModify">{{gatewayStatusFromNet.gatewayName}}</div>
+        <div v-if="forModify || forDetail">{{gatewayStatusFromNet.gatewayName}}</div>
         <el-input v-model="formData.gatewayName" placeholder="可以包含字母数字中划线，1-36个字符" v-else></el-input>
       </el-form-item>
       <el-form-item label="请求路径" prop="paths" class="path-list">
-        <div v-if="formData.paths.length > 0">
-          <el-tag
-                  v-for="tag in formData.paths"
-                  size="small"
-                  :key="tag"
-                  closable
-                  type="success"
-                  @close="handlePath('remove', tag)"
-          >{{tag}}</el-tag>
+        <div v-if="forDetail">
+          <div v-if="formData.paths.length > 0">
+            <el-tag
+                    v-for="tag in formData.paths"
+                    size="small"
+                    :key="tag"
+                    type="success"
+            >{{tag}}</el-tag>
+          </div>
+          <div v-else>---</div>
         </div>
-        <div v-else style="height: 27px">空</div>
-        <div class="content">
-          <el-input v-model="formData.pathToAdd" placeholder="路径以/开头"
-                    @keydown.native.enter.prevent="handlePath('add', formData.pathToAdd)"></el-input>
-          <el-button
-                  size="small"
-                  type="text"
-                  class="flex primary"
-                  @click="handlePath('add', formData.pathToAdd)">
-            <span>添加</span>
-          </el-button>
+        <div v-else>
+          <div v-if="formData.paths.length > 0">
+            <el-tag
+                    v-for="tag in formData.paths"
+                    size="small"
+                    :key="tag"
+                    closable
+                    type="success"
+                    @close="handlePath('remove', tag)"
+            >{{tag}}</el-tag>
+          </div>
+          <div v-else style="height: 27px">空</div>
+          <div class="content">
+            <el-input v-model="formData.pathToAdd" placeholder="路径以/开头"
+                      @keydown.native.enter.prevent="handlePath('add', formData.pathToAdd)"></el-input>
+            <el-button
+                    size="small"
+                    type="text"
+                    class="flex primary"
+                    @click="handlePath('add', formData.pathToAdd)">
+              <span>添加</span>
+            </el-button>
+          </div>
         </div>
       </el-form-item>
 
@@ -43,18 +56,25 @@
           <span>超时设置</span>
         </div>
         <div class="el-form-item__content" style="margin-left: 90px;">
-          <el-form-item label="连接超时" labelWidth="70px">
-            <el-input-number v-model="formData.connTimeout" :min="0" :max="120" size="mini" label="连接超时"></el-input-number><span>秒</span>
-            <i class="paas-icon-question" v-pop-on-mouse-over="'时间区间：0~120s'"></i>
-          </el-form-item>
-          <el-form-item label="发送超时" labelWidth="70px">
-            <el-input-number v-model="formData.sendTimeout" :min="0" :max="120" size="mini" label="发送超时"></el-input-number><span>秒</span>
-            <i class="paas-icon-question" v-pop-on-mouse-over="'时间区间：0~120s'"></i>
-          </el-form-item>
-          <el-form-item label="读取超时" labelWidth="70px">
-            <el-input-number v-model="formData.readTimeout" :min="0" :max="120" size="mini" label="读取超时"></el-input-number><span>秒</span>
-            <i class="paas-icon-question" v-pop-on-mouse-over="'时间区间：0~120s'"></i>
-          </el-form-item>
+          <div v-if="forDetail" class="detail">
+            <span class="item">连接超时：{{formData.connTimeout}}</span>
+            <span class="item">发送超时：{{formData.sendTimeout}}</span>
+            <span class="item">读取超时：{{formData.readTimeout}}</span>
+          </div>
+          <div v-else>
+            <el-form-item label="连接超时" labelWidth="70px">
+              <el-input-number v-model="formData.connTimeout" :min="0" :max="120" size="mini" label="连接超时"></el-input-number><span>秒</span>
+              <i class="paas-icon-question" v-pop-on-mouse-over="'时间区间：0~120s'"></i>
+            </el-form-item>
+            <el-form-item label="发送超时" labelWidth="70px">
+              <el-input-number v-model="formData.sendTimeout" :min="0" :max="120" size="mini" label="发送超时"></el-input-number><span>秒</span>
+              <i class="paas-icon-question" v-pop-on-mouse-over="'时间区间：0~120s'"></i>
+            </el-form-item>
+            <el-form-item label="读取超时" labelWidth="70px">
+              <el-input-number v-model="formData.readTimeout" :min="0" :max="120" size="mini" label="读取超时"></el-input-number><span>秒</span>
+              <i class="paas-icon-question" v-pop-on-mouse-over="'时间区间：0~120s'"></i>
+            </el-form-item>
+          </div>
         </div>
       </div>
       <div class="el-form-item el-form-item--mini retry-setting" style="margin-bottom: 0px;">
@@ -62,14 +82,20 @@
           <span>重试设置</span>
         </div>
         <div class="el-form-item__content" style="margin-left: 90px;">
-          <el-form-item label="重试次数" labelWidth="70px">
-            <el-input-number v-model="formData.retryNum" :min="0" :max="10"></el-input-number><span>次</span>
-            <i class="paas-icon-question" v-pop-on-mouse-over="'重试次数区间：0~10次'"></i>
-          </el-form-item>
-          <el-form-item label="重试超时时间" labelWidth="100px">
-            <el-input-number v-model="formData.retryTimeout" :min="0" :max="120" label="重试超时时间"></el-input-number><span>秒</span>
-            <i class="paas-icon-question" v-pop-on-mouse-over="'时间区间：0~120s'"></i>
-          </el-form-item>
+          <div v-if="forDetail" class="detail">
+            <span class="item">重试次数：{{formData.retryNum}}</span>
+            <span class="item">重试超时时间：{{formData.retryTimeout}}</span>
+          </div>
+          <div v-else>
+            <el-form-item label="重试次数" labelWidth="70px">
+              <el-input-number v-model="formData.retryNum" :min="0" :max="10"></el-input-number><span>次</span>
+              <i class="paas-icon-question" v-pop-on-mouse-over="'重试次数区间：0~10次'"></i>
+            </el-form-item>
+            <el-form-item label="重试超时时间" labelWidth="100px">
+              <el-input-number v-model="formData.retryTimeout" :min="0" :max="120" label="重试超时时间"></el-input-number><span>秒</span>
+              <i class="paas-icon-question" v-pop-on-mouse-over="'时间区间：0~120s'"></i>
+            </el-form-item>
+          </div>
         </div>
       </div>
       <el-form-item label="缓存器设置" class="cache-setting">
@@ -151,6 +177,16 @@
           .el-form-item {
             display: inline-block;
           }
+          .detail {
+            margin-bottom: 14px;
+            .item {
+              display: inline-block;
+              padding: 0px 4px;
+              margin-right: 6px;
+              background-color: #ddd;
+              line-height: 18px;
+            }
+          }
         }
         &.cache-setting {
           .item {
@@ -185,6 +221,7 @@
   export default {
     components: {},
     created() {
+      this.forDetail = this.$route.name === 'gateway_detail';
       this.forModify = this.$route.name === 'gateway_modify';
 
       var goBack = false;
@@ -209,6 +246,7 @@
     data() {
       return {
         forModify: false,
+        forDetail: false,
         groupId: null,
         appId: null,
         profileId: null,
@@ -284,7 +322,7 @@
           appId: this.appId,
           spaceId: this.profileId,
         };
-        if (this.forModify) {
+        if (this.forModify || this.forDetail) {
           query.gatewayName = decodeURIComponent(this.$route.params['name']);
         }
         // 获取服务端API配置信息

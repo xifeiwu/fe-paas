@@ -107,6 +107,14 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
+                    :class="['flex', 'primary']"
+                    @click="handleTRClick($event, 'gateway_detail', scope.row, scope.$index)"
+            >
+              <span>详情</span><i class="paas-icon-level-up"></i>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
                     :class="['flex', 'danger']"
                     @click="handleTRClick($event, 'gateway_delete', scope.row, scope.$index)"
             >
@@ -377,10 +385,22 @@
       async handleTRClick(evt, action, row, index) {
         switch (action) {
           case 'gateway_modify':
-//            console.log(row);
-//            console.log(this.$route);
             this.$router.push({
               name: 'gateway_modify',
+              params: {
+                name: encodeURIComponent(row.gatewayName)
+              },
+              query: {
+                groupId: this.$storeHelper.groupInfo.id,
+                appId: row.appId,
+                profileId: row.spaceId,
+                gatewayName: row.gatewayName
+              }
+            });
+            break;
+          case 'gateway_detail':
+            this.$router.push({
+              name: 'gateway_detail',
               params: {
                 name: encodeURIComponent(row.gatewayName)
               },
