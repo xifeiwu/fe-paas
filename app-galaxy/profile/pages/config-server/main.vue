@@ -249,7 +249,8 @@
           configList = (await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_list, {
             query: {
               groupId: ''
-            }
+            },
+            data: {}
           }))['data'];
           configList = configList.sort((a, b) => b.updateTime - a.updateTime);
         } catch (err) {
