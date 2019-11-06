@@ -67,8 +67,8 @@ import middlewareRedisModify from './middleware/redis/add.vue';
 import MiddlewareMariadbBackupList from './middleware/mariadb/backup-list.vue';
 
 // config-server
-import ConfigServerMain from './config-server/main.vue';
-import ConfigServerFileList from './config-server/list.vue';
+import configServerDirList from './config-server/list-dir.vue';
+import configServerFileList from './config-server/list-file.vue';
 
 // cdn
 const [CdnMain, CdnList, CdnCreate, CdnEdit, CdnPrefetch, CdnStatistics, CdnDashboard] =
@@ -342,7 +342,7 @@ class Helper extends RouterHelper {
     }, {
       path: '/profile/config-server',
       label: '配置中心',
-      component: ConfigServerMain
+      component: configServerDirList
     }, {
       path: '/profile/config-server/:id(\\d+)',
       messageShow: true,
@@ -353,7 +353,7 @@ class Helper extends RouterHelper {
     }, {
       path: '/profile/config-server/:id(\\d+)/list',
       label: '配置文件列表',
-      component: ConfigServerFileList,
+      component: configServerFileList,
     }, {
       path: '/profile/cdn',
       label: 'cdn加速',
