@@ -97,7 +97,7 @@
                             :msgList="'提示:类似“datasource.*.password”的字段值仅DBA岗位用户可以修改和查看，其他岗位用户只会看到“********”并且无法修改该字段值'"></paas-dismiss-message>
       <el-form size="mini" :model="action.data" ref="updateConfigForm"
                v-loading="action.requesting"
-               element-loading-text="正在保存"
+               element-loading-text="请求中..."
                element-loading-spinner="el-icon-loading"
                element-loading-background="rgba(0, 0, 0, 0.8)">
         <el-form-item class="__editor message-show" labelWidth="0px">
@@ -115,7 +115,7 @@
           <el-button type="danger" size="mini" @click="handleDialogEvent($event, 'remove_config')">删除配置</el-button>
         </div>
         <div class="item">
-          <el-button size="mini" @click="closeDialog">取消修改</el-button>
+          <el-button size="mini" @click="closeDialog">关闭</el-button>
         </div>
       </div>
     </el-dialog>

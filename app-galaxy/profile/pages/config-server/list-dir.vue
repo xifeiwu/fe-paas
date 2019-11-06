@@ -31,8 +31,7 @@
       <!--目录列表-->
       <el-table :data="configListByPage"
                 :height="heightOfTable">
-        <el-table-column prop="configDirName" label="目录名称" :width="320"
-                         :show-overflow-tooltip="true">
+        <el-table-column prop="configDirName" label="目录名称" :minWidth="180">
           <template slot-scope="scope">
             <div>
               <i class="el-icon-folder"></i>
@@ -42,23 +41,23 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="groupId" label="团队名称" :width="180">
+        <el-table-column prop="groupId" label="团队名称" :minWidth="160">
           <template slot-scope="scope">
             {{scope.row.groupName}}
           </template>
         </el-table-column>
-        <el-table-column prop="branchName" label="分支" :width="120">
+        <el-table-column prop="branchName" label="分支" headerAlign="center" align="center" :width="120">
           <template slot-scope="scope">
-            <el-tag size="small" type="danger">{{scope.row.branchName}}</el-tag>
+            <el-tag size="small" type="primary">{{scope.row.branchName}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="lastCommitMessage" label="最后修改">
+        <el-table-column prop="lastCommitMessage" label="最后修改" :minWidth="300">
           <template slot-scope="scope">
             <i class="el-icon-time"></i>
             <span>
-              {{ scope.row.updateTime | localDate }} &emsp;&emsp;
+              {{ scope.row.updateTime | localDate }}
             </span>
-            <span style="margin-left: 6px; font-weight: 800;">
+            <span style="margin-left: 10px; font-weight: 800;">
               {{ scope.row.lastOperateUserName || scope.row.creatorName }} |
               {{ scope.row.lastCommitMessage }}
             </span>
@@ -205,7 +204,7 @@
           branchName: ""
         },
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 15,
         heightOfTable: '',
       };
     },
