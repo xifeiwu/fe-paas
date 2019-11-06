@@ -24,7 +24,7 @@
         <span>{{$storeHelper.groupInfo.asLabel}}</span>
       </el-form-item>
 
-      <el-form-item label="维护者" prop="maintainerIdList" class="group-list" style="width: 340px">
+      <el-form-item label="维护者" prop="maintainerIdList" class="group-list">
         <el-select v-model="createAppForm.maintainerIdList" multiple :multiple-limit="5" placeholder="请选择" filterable>
           <el-option v-for="item in groupUsers" :key="item.id" :label="`${item.realName}(${item.jobDescription}) ${item.enable ? '' : '(已删除)'}`" :value="item.userId">
           </el-option>
@@ -342,7 +342,7 @@
         }
         &.group-list {
           .el-select {
-            width: 550px;
+            width: 100%;
           }
         }
         &.profiles {
