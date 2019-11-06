@@ -99,11 +99,18 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    v-if="true"
                     :class="['flex', 'primary']"
                     @click="handleTRClick($event, 'gateway_modify', scope.row, scope.$index)"
             >
-              <span>修改网关配置</span><i class="paas-icon-level-up"></i>
+              <span>修改配置</span><i class="paas-icon-level-up"></i>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
+                    :class="['flex', 'danger']"
+                    @click="handleTRClick($event, 'gateway_delete', scope.row, scope.$index)"
+            >
+              <span>删除</span>
             </el-button>
             <div class="ant-divider"></div>
           </template>
@@ -328,7 +335,8 @@
       async handleTRClick(evt, action, row, index) {
         switch (action) {
           case 'gateway_modify':
-            // console.log(row);
+//            console.log(row);
+//            console.log(this.$route);
             this.$router.push({
               path: this.$router.helper.pages['/profile/gateway/modify'].fullPath,
               query: {
@@ -338,6 +346,29 @@
                 gatewayName: row.gatewayName
               }
             });
+            break;
+          case 'gateway_delete':
+            try {
+              await this.$confirm(`删除API网关配置 "${row.gatewayName}" 吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_delete, {
+                data: {
+                  groupId: this.$storeHelper.groupInfo.id,
+                  appId: row.appId,
+                  spaceId: row.spaceId,
+                  gatewayName: row.gatewayName
+                }
+              });
+              this.$message.success(`网关配置 "${row.gatewayName}" 已删除！`);
+              this.updateListByPage(true);
+            } catch (err) {
+              console.log(err);
+            }
+
             break;
         }
       },
