@@ -103,11 +103,11 @@
                 </el-table-column>
                 <el-table-column label="真实姓名" prop="realName" headerAlign="center" align="center" width="100">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.enable">
-                      {{scope.row.realName}}
+                    <span v-if="!scope.row.enable && null != scope.row.enable">
+                      {{scope.row.realName}}(已删除)
                     </span>
                     <span v-else>
-                      {{scope.row.realName}} (已删除)
+                      {{scope.row.realName}}
                     </span>
                   </template>
                 </el-table-column>

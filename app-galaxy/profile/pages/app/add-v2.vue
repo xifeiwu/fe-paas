@@ -26,7 +26,7 @@
 
       <el-form-item label="维护者" prop="maintainerIdList" class="group-list">
         <el-select v-model="createAppForm.maintainerIdList" multiple :multiple-limit="5" placeholder="请选择" filterable>
-          <el-option v-for="item in groupUsers" :key="item.id" :label="`${item.realName}(${item.jobDescription}) ${item.enable ? '' : '(已删除)'}`" :value="item.userId">
+          <el-option v-for="item in groupUsers" :key="item.id" :label="`${item.realName}(${item.jobDescription}) ${null!=item.enable && !item.enable ? '(已删除)' : ''}`" :value="item.userId">
           </el-option>
         </el-select>
       </el-form-item>
@@ -607,7 +607,7 @@ export default {
     '$storeHelper.currentGroupID': function (groupID) {
       this.createAppForm.groupID = groupID;
       this.$net.getUsersInGroup({id: groupID}).then(memberList => {
-        console.log(memberList);
+        // console.log(memberList);
         this.groupUsers = memberList;
         if (!this.forModify) {
           this.createAppForm.maintainer = '';
