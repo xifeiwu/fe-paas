@@ -392,7 +392,13 @@
       },
 
       goBack() {
-        this.$router.go(-1);
+        if (!this.$router.helper.preRouter || this.$router.helper.preRouter.name !== 'gateway_list') {
+          this.$router.push({
+            name: 'gateway_list'
+          });
+        } else {
+          this.$router.go(-1);
+        }
       }
     }
   }
