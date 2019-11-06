@@ -274,9 +274,12 @@
      */
     created() {
       const query = this.$route.query;
+      // NOTICE: affect logic: config4ServiceSelector -> onServiceSelected -> profileId -> updateListByPage(true)
+      query.hasOwnProperty('appId') && (this.config4ServiceSelector.appId = parseInt(query.appId));
+      query.hasOwnProperty('profileId') && (this.config4ServiceSelector.profileId = parseInt(query.profileId));
       query.hasOwnProperty('currentPage') && (this.currentPage = parseInt(decodeURIComponent(query.currentPage)));
+      query.hasOwnProperty('pageSize') && (this.pageSize = parseInt(decodeURIComponent(query.pageSize)));
       query.hasOwnProperty('filterKey') && (this.filterKey = decodeURIComponent(query.filterKey));
-
     },
     mounted() {
       this.$nextTick(() => {
@@ -289,12 +292,14 @@
     },
     data() {
       return {
-        config4VersionSelector: null,
-        config4ServiceSelector: null,
+        config4ServiceSelector: {
+          appId: this.$storeHelper.APP_ID_FOR_ALL,
+          profileId: ''
+        },
 
         appInfo: null,
         profileInfo: null,
-        appId: null,
+        appId: this.$storeHelper.APP_ID_FOR_ALL,
         profileId: null,
         filterKey: '',
 
@@ -319,17 +324,22 @@
         },
         gatewayStatusFromNet: [],
         query: {
+          appId: this.$storeHelper.APP_ID_FOR_ALL,
+          profileId: '',
           currentPage: 1,
+          pageSize: 15,
           filterKey: ''
         }
       };
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
-      appId() {
+      appId(appId) {
+        this.setQuery({appId});
         this.updateListByPage(false);
       },
-      profileId() {
+      profileId(profileId) {
+        this.setQuery({profileId});
         this.updateListByPage(true);
       },
       filterKey(filterKey) {
@@ -340,7 +350,8 @@
         this.setQuery({currentPage});
         this.updateListByPage(false);
       },
-      pageSize() {
+      pageSize(pageSize) {
+        this.setQuery({pageSize});
         this.updateListByPage(false);
       },
     },
@@ -384,6 +395,7 @@
         this.profileInfo = selectedProfile;
         this.appId = selectedApp.appId;
         this.profileId = selectedProfile.id;
+        // console.log(selectedApp, selectedProfile);
       },
       getSelectedService() {
         const {selectedApp, selectedProfile} = this.$refs['service-selector'].getSelectedInfo();
@@ -419,9 +431,6 @@
       async updateListByPage(refresh) {
         if (refresh) {
           this.gatewayList = await this._requestList();
-        }
-        if (this.appId == null) {
-          return;
         }
         let filterReg = null;
         if (this.filterKey) {
