@@ -441,6 +441,7 @@ class Net extends NetBase {
       'config_server_file_list': {
         path: '/applicationRemoteConfigFile/get',
         method: 'post',
+        timeout: 20000
       },
       // 远程配置中心——获取配置文件内容 eg. /applicationRemoteConfigFile/content?applicationRemoteConfigId=123123
       'config_server_file_content': {
