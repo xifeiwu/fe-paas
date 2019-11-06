@@ -672,6 +672,10 @@ class Net extends NetBase {
         path: '/gateway/deleteGateway',
         method: 'post'
       },
+      'gateway_update_rate_limiting': {
+        path: '/gateway/createOrUpdateSourceIPLimiting',
+        method: 'post'
+      },
 
       /**工单相关*/
       // 工单列表

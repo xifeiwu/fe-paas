@@ -121,6 +121,13 @@
               <span>删除</span>
             </el-button>
             <div class="ant-divider"></div>
+            <el-button
+                type="text"
+                :class="['flex', 'danger']"
+                @click="handleTRClick($event, 'open_dialog_rate_limiting', scope.row, scope.$index)"
+            >
+              <span>源IP限速</span>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -164,6 +171,51 @@
         </div>
         <div class="item">
           <el-button size="mini" @click="closeDialog">取消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="源IP限速"
+               :visible="action.name === 'open_dialog_rate_limiting'"
+               v-if="action.name === 'open_dialog_rate_limiting'"
+               bodyPadding="6px 10px"
+               :close-on-click-modal="false"
+               @close="closeDialog"
+               class="size-800 update-strategy"
+    >
+      <div class="content">
+        <el-form :model="rateLimiting" size="mini" label-width="240px" >
+          <el-form-item label="应用名称：" prop="limitConnections" class="message-show">
+            <span> {{rateLimiting.appName}} </span>
+          </el-form-item>
+          <el-form-item label="运行环境：" prop="limitConnections" class="message-show">
+            <span> {{rateLimiting.spaceName}} </span>
+          </el-form-item>
+          <el-form-item label="网关名称：" prop="limitConnections" class="message-show">
+            <span> {{rateLimiting.gatewayName}} </span>
+          </el-form-item>
+          <el-form-item label="域名：" prop="limitConnections" class="message-show">
+            <span> {{rateLimiting.host}} </span>
+          </el-form-item>
+
+          <el-form-item label="每个源IP可建立的最大连接数：" prop="limitConnections" class="message-show">
+            <el-input-number v-model="rateLimiting.limitConnections" type="number" :min="0"></el-input-number>
+          </el-form-item>
+          <el-form-item label="每个源IP每分钟最大请求次数：" prop="limitRpm" class="message-show">
+            <el-input-number v-model="rateLimiting.limitRpm" type="number" :min="0"></el-input-number>
+          </el-form-item>
+          <el-form-item label="每个源IP每秒最大请求次数：" prop="limitRps" class="message-show">
+            <el-input-number v-model="rateLimiting.limitRps" type="number" :min="0"></el-input-number>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleDialogEvent($event, 'config_rate_limiting')">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button @click="closeDialog" size="mini">取&nbsp消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -247,6 +299,19 @@
 
         currentPage: 1,
         pageSize: 15,
+
+        rateLimiting: {
+          appName: '',
+          groupId: '',
+          spaceName: '',
+          spaceId: '',
+          gatewayName: '',
+          host: '',
+          limitConnections:'',
+          limitRpm:'',
+          limitRps:''
+        },
+        gatewayStatusFromNet: [],
     };
     },
     watch: {
@@ -435,6 +500,45 @@
             }
 
             break;
+          case 'open_dialog_rate_limiting':
+            if (!row.appId || !row.gatewayName || !row.spaceId || !row.groupId) {
+              this.$message.error('该网关不能设置原IP限速功能！');
+              return;
+            }
+            const query = {
+              groupId: row.groupId,
+              appId: row.appId,
+              spaceId: row.spaceId,
+              gatewayName: row.gatewayName
+            };
+            try {
+              // 获取服务端API配置信息
+              const gatewayStatusFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create_related, {
+                query
+              });
+              console.log(gatewayStatusFromNet);
+              this.gatewayStatusFromNet = gatewayStatusFromNet;
+              this.rateLimiting.appName = this.gatewayStatusFromNet.appName;
+              this.rateLimiting.spaceName = this.gatewayStatusFromNet.spaceName;
+              this.rateLimiting.gatewayName = this.gatewayStatusFromNet.gatewayName;
+              this.rateLimiting.host = this.gatewayStatusFromNet.host;
+              this.rateLimiting.groupId = row.groupId;
+              this.rateLimiting.spaceId = row.spaceId;
+
+              this.rateLimiting.limitConnections = this.gatewayStatusFromNet.limitConnections;
+              this.rateLimiting.limitRpm = this.gatewayStatusFromNet.limitRpm;
+              this.rateLimiting.limitRps = this.gatewayStatusFromNet.limitRps;
+
+              const limitingData = await this.openDialog(action, {
+                errMsg: ''
+              });
+
+            } catch (err) {
+              console.log(err);
+            } finally {
+              this.closeDialog();
+            }
+            break;
         }
       },
 
@@ -472,6 +576,30 @@
             } catch (err) {
               this.action.data.errMsg = err.message;
             } finally {
+            }
+            break;
+          case 'config_rate_limiting':
+            try {
+              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_rate_limiting, {
+                payload: {
+                  gatewayName: this.rateLimiting.gatewayName,
+                  groupId: this.rateLimiting.groupId,
+                  spaceId: this.rateLimiting.spaceId,
+                  limitConnections: this.rateLimiting.limitConnections,
+                  limitRpm: this.rateLimiting.limitRpm,
+                  limitRps: this.rateLimiting.limitRps,
+                }
+              });
+
+              this.action.promise.resolve({
+                gatewayName: this.rateLimiting.gatewayName,
+                profileId: this.rateLimiting.spaceId
+              });
+            } catch (err) {
+              console.log(err);
+              this.action.data.errMsg = err.message;
+            } finally {
+
             }
             break;
         }
