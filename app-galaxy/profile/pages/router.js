@@ -271,19 +271,21 @@ class Helper extends RouterHelper {
       }]
     }, {
       path: '/profile/gateway',
-      name: 'API网关',
+      label: 'API网关',
       redirect: '/profile/gateway/list',
     }, {
+      name: 'gateway_list',
+      label: '列表',
       path: '/profile/gateway/list',
-      name: '列表',
       component: gatewayList
     }, {
       path: '/profile/gateway/add',
-      name: '添加',
+      label: '添加',
       component: gatewayAdd
     }, {
-        path: '/profile/gateway/modify',
-        name: '修改',
+        name: 'gateway_modify',
+        label: '修改',
+        path: '/profile/gateway/:name/modify',
         component: gatewayAdd
     }, {
       path: '/profile/work-order',

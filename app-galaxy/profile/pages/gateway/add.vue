@@ -93,7 +93,7 @@
         <el-button type="primary" size="mini" @click="handleClick($event, forModify ? 'modify' : 'create')">完成</el-button>
       </div>
       <div class="item">
-        <el-button type="primary" size="mini" @click="$router.go(-1)">关闭</el-button>
+        <el-button type="primary" size="mini" @click="goBack">返回</el-button>
       </div>
     </div>
   </div>
@@ -185,14 +185,10 @@
   export default {
     components: {},
     created() {
-      const path = this.$route['path'];
-      this.forModify = this.$router.helper.pages['/profile/gateway/modify'].pathReg.test(path);
+      this.forModify = this.$route.name === 'gateway_modify';
 
       var goBack = false;
       if (!this.$utils.hasProps(this.$route.query, 'groupId', 'appId', 'profileId')) {
-        goBack = true;
-      }
-      if (this.forModify && !this.$utils.hasProps(this.$route.query, 'gatewayName')) {
         goBack = true;
       }
       if (goBack) {
@@ -289,7 +285,7 @@
           spaceId: this.profileId,
         };
         if (this.forModify) {
-          query.gatewayName = this.$route.query['gatewayName'];
+          query.gatewayName = decodeURIComponent(this.$route.params['name']);
         }
         // 获取服务端API配置信息
         const gatewayStatusFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create_related, {
@@ -393,7 +389,10 @@
             }
             break;
         }
+      },
 
+      goBack() {
+        this.$router.go(-1);
       }
     }
   }

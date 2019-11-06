@@ -338,7 +338,10 @@
 //            console.log(row);
 //            console.log(this.$route);
             this.$router.push({
-              path: this.$router.helper.pages['/profile/gateway/modify'].fullPath,
+              name: 'gateway_modify',
+              params: {
+                name: encodeURIComponent(row.gatewayName)
+              },
               query: {
                 groupId: this.$storeHelper.groupInfo.id,
                 appId: row.appId,
