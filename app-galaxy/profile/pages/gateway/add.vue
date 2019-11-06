@@ -26,7 +26,7 @@
         </div>
         <div v-else style="height: 27px">空</div>
         <div class="content">
-          <el-input v-model="formData.pathToAdd" placeholder=""
+          <el-input v-model="formData.pathToAdd" placeholder="路径以/开头"
                     @keydown.native.enter.prevent="handlePath('add', formData.pathToAdd)"></el-input>
           <el-button
                   size="small"
@@ -328,6 +328,10 @@
       handlePath(action, data) {
         switch (action) {
           case 'add':
+            if (!data.startsWith('/')) {
+              this.$message.error('路径以/开头');
+              return;
+            }
             if (this.formData.paths.includes(data)) {
               this.$message.error(`路径"${data}"已经存在！`);
               return;
