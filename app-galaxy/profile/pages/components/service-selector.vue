@@ -136,8 +136,6 @@
         let defaultAppID = null;
         if (this.customConfig && this.customConfig.hasOwnProperty('appId')) {
           defaultAppID = this.customConfig['appId'];
-          // customConfig can only use once
-          delete this.customConfig['appId'];
         }
         // change selectedAppId in next tick to make sure value change can be watched
         setTimeout(() => {
@@ -149,6 +147,7 @@
         });
       },
 
+      // NOTICE: different from onAppInfoListOfGroup, onAppInfoListOfGroup will trigger twice: at mounted; after end of request profileListOfGroup
       onProfileListOfGroup(profileListOfGroup) {
         this.profileList = profileListOfGroup;
         if (this.addItemAll.profile) {
@@ -159,7 +158,6 @@
         var defaultProfileId = null;
         if (this.customConfig && this.customConfig.hasOwnProperty('profileId')) {
           defaultProfileId = this.customConfig['profileId'];
-          delete this.customConfig['profileId'];
         }
         setTimeout(() => {
           if (defaultProfileId && this.profileList.map(it => {
