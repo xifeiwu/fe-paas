@@ -663,6 +663,10 @@ class Net extends NetBase {
         path: '/gateway/addGateway',
         method: 'post'
       },
+      'gateway_modify': {
+        path: '/gateway/updateGateway',
+        method: 'post'
+      },
       // 删除网关
       'gateway_delete': {
         path: '/gateway/deleteGateway',

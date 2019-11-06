@@ -77,7 +77,10 @@
         <span class="item">客户端请求最大长度：{{gatewayStatusFromNet.requestMax}}</span>
         <span class="item">响应数据缓存区大小：{{gatewayStatusFromNet.responseCache}}</span>
       </el-form-item>
-      <el-form-item label="域名" prop="hostList">
+      <el-form-item label="域名" v-if="forModify">
+        {{formData.hostList.join(', ')}}
+      </el-form-item>
+      <el-form-item label="域名" prop="hostList" v-else>
         <el-checkbox-group v-model="formData.hostList" style="display: inline-block;">
           <el-checkbox v-for="(item, index) in gatewayStatusFromNet.domainList" :label="item" :key="index">
             {{item}}
@@ -87,7 +90,7 @@
     </el-form>
     <div class="section-footer">
       <div class="item">
-        <el-button type="primary" size="mini" @click="handleClick($event, forModify ? 'update' : 'create')">完成</el-button>
+        <el-button type="primary" size="mini" @click="handleClick($event, forModify ? 'modify' : 'create')">完成</el-button>
       </div>
       <div class="item">
         <el-button type="primary" size="mini" @click="$router.go(-1)">关闭</el-button>
@@ -200,11 +203,9 @@
       this.groupId = this.$route.query['groupId'];
       this.appId = this.$route.query['appId'];
       this.profileId = this.$route.query['profileId'];
-//      console.log({
-//        groupId: this.groupId,
-//        appId: this.appId,
-//        profileId: this.profileId,
-//      });
+
+      if (this.forModify) {
+      }
       this.requestRelatedInfoFromNet();
     },
     mounted() {
@@ -290,15 +291,16 @@
         if (this.forModify) {
           query.gatewayName = this.$route.query['gatewayName'];
         }
+        // 获取服务端API配置信息
         const gatewayStatusFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create_related, {
           query
         });
-        gatewayStatusFromNet.host = (gatewayStatusFromNet.host && Array.isArray(gatewayStatusFromNet.host)) ? gatewayStatusFromNet.host : [];
         gatewayStatusFromNet.paths = (gatewayStatusFromNet.paths && Array.isArray(gatewayStatusFromNet.paths)) ? gatewayStatusFromNet.paths : [];
         this.gatewayStatusFromNet = gatewayStatusFromNet;
 
         const formData = {
-          hostList: [],
+          gatewayName: '',
+          hostList: [],         // 已选域名列表（domainList为完整的域名列表）
           paths: [],
           pathToAdd: '',
           connTimeout: null,    // 连接超时
@@ -307,15 +309,17 @@
           retryTimeout: null,   // 重试超时时间
           retryNum: null,       // 重试次数
         };
-        this.formData.hostList = gatewayStatusFromNet.host;
-        this.formData.paths = gatewayStatusFromNet.paths;
+        formData.paths = gatewayStatusFromNet.paths;
         if (this.forModify) {
+          formData.gatewayName = gatewayStatusFromNet.gatewayName;
+          formData.hostList = gatewayStatusFromNet.domainList;
           formData.connTimeout = gatewayStatusFromNet.connTimeout;
           formData.sendTimeout = gatewayStatusFromNet.sendTimeout;
           formData.readTimeout = gatewayStatusFromNet.readTimeout;
           formData.retryTimeout = gatewayStatusFromNet.retryTimeout;
           formData.retryNum = gatewayStatusFromNet.retryNum;
         } else {
+          formData.hostList = [];
           formData.connTimeout = gatewayStatusFromNet['defConnTimeout'];
           formData.sendTimeout = gatewayStatusFromNet['defSendTimeout'];
           formData.readTimeout = gatewayStatusFromNet['defReadTimeout'];
@@ -348,11 +352,24 @@
       async handleClick(evt, action) {
         switch (action) {
           case 'create':
+          case 'modify':
+            var status = {
+              urlObj: this.$net.URL_LIST.gateway_create,
+              desc: '添加'
+            };
+            if ('modify' == action) {
+              status = {
+                urlObj: this.$net.URL_LIST.gateway_modify,
+                desc: '修改'
+              }
+            }
             try {
-              await this.$refs['the-form'].validate();
-              console.log(this.formData);
+              if ('create' == action) {
+                await this.$refs['the-form'].validate();
+              }
+              // console.log(this.formData);
               const formData = this.formData;
-              await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create, {
+              await this.$net.requestPaasServer(status.urlObj, {
                 payload: {
                   groupId: this.groupId,
                   appId: this.appId,
@@ -367,15 +384,13 @@
                   gatewayName: formData.gatewayName
                 }
               });
-              this.$message.success(`网关"${formData.gatewayName}"创建成功！`);
+              this.$message.success(`网关"${formData.gatewayName}"${status.desc}成功！`);
               this.$router.push({
                 path: this.$router.helper.pages['/profile/gateway'].fullPath,
               })
             } catch (err) {
               console.log(err);
             }
-            break;
-          case 'update':
             break;
         }
 

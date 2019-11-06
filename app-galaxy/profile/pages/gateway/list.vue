@@ -102,7 +102,7 @@
                     :class="['flex', 'primary']"
                     @click="handleTRClick($event, 'gateway_modify', scope.row, scope.$index)"
             >
-              <span>修改配置</span><i class="paas-icon-level-up"></i>
+              <span>修改</span><i class="paas-icon-level-up"></i>
             </el-button>
             <div class="ant-divider"></div>
             <el-button
