@@ -1,7 +1,7 @@
 <template>
   <div id="oauth">
     <el-tabs v-model="currentPath" type="card" @tab-click="handleClick">
-      <el-tab-pane v-for="item in tabs" :label="item.name" :name="item.fullPath" :key="item.fullPath"></el-tab-pane>
+      <el-tab-pane v-for="item in tabs" :label="item.label" :name="item.fullPath" :key="item.fullPath"></el-tab-pane>
     </el-tabs>
     <router-view v-if="$route.meta.keepAlive"></router-view>
   </div>
