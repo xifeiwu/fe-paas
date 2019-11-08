@@ -103,7 +103,7 @@
         <span class="item">客户端请求最大长度：{{gatewayStatusFromNet.requestMax}}</span>
         <span class="item">响应数据缓存区大小：{{gatewayStatusFromNet.responseCache}}</span>
       </el-form-item>
-      <el-form-item label="域名" v-if="forModify">
+      <el-form-item label="域名" v-if="forModify || forDetail">
         {{formData.hostList.join(', ')}}
       </el-form-item>
       <el-form-item label="域名" prop="hostList" v-else>
@@ -229,7 +229,7 @@
         goBack = true;
       }
       if (goBack) {
-        this.$message.error(`信息不完整：'groupId', 'appId', 'profileId'`);
+        this.$message.message(`信息不完整：'groupId', 'appId', 'profileId'`);
         this.$router.push(this.$router.helper.pages['/profile/gateway'].fullPath);
         return;
       }
@@ -260,7 +260,7 @@
             trigger: ['blur', 'change']
           }, {
             validator: (rule, values, callback) => {
-              const reg = /[0-9a-zA-Z-]{1, 36}/;
+              const reg = /^[0-9a-zA-Z-]{1,36}$/;
               let passed = true;
               if (!reg.test(values)) {
                 passed = false;
@@ -344,7 +344,7 @@
           retryNum: null,       // 重试次数
         };
         formData.paths = gatewayStatusFromNet.paths;
-        if (this.forModify) {
+        if (this.forModify || this.forDetail) {
           formData.gatewayName = gatewayStatusFromNet.gatewayName;
           formData.hostList = gatewayStatusFromNet.domainList;
           formData.connTimeout = gatewayStatusFromNet.connTimeout;

@@ -63,7 +63,7 @@
         </el-table-column>
         <el-table-column
                 label="请求路径"
-                prop="domain"
+                prop="paths"
                 minWidth="100"
                 headerAlign="center" align="center">
         </el-table-column>
@@ -414,6 +414,7 @@
           resData.forEach(it => {
             it.gatewayName = it.gatewayName ? it.gatewayName : '---';
             it.appName = it.appName ? it.appName : '---';
+            it.paths = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths.join(',') : '---';
             // const profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
             // it.profileDescription = profileInfo ? profileInfo.description : '---';
             // it.domain = (Array.isArray(it.domainList) && it.domainList.length > 0) ? it.domainList.join(', ') : '---';
