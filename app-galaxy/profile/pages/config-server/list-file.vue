@@ -104,7 +104,7 @@
           <codemirror v-model="action.data.code" :options="editorOptions"></codemirror>
         </el-form-item>
         <el-form-item label="修改说明" labelWidth="100px" prop="commitMessage" :rules="[{ required: true, message: '修改说明不能为空'}]">
-          <el-input v-model="action.data.commitMessage" placeholder="请输入修改说明,将用于 git 提交"></el-input>
+          <el-input v-model="action.data.commitMessage" placeholder="修改说明，将用于git提交。"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -112,10 +112,10 @@
           <el-button type="warning" size="mini" @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保存修改</el-button>
         </div>
         <div class="item">
-          <el-button type="danger" size="mini" @click="handleDialogEvent($event, 'remove_config')">删除配置</el-button>
+          <el-button type="primary" size="mini" @click="closeDialog">取消修改</el-button>
         </div>
         <div class="item">
-          <el-button size="mini" @click="closeDialog">关闭</el-button>
+          <el-button type="danger" size="mini" @click="handleDialogEvent($event, 'remove_config')">删除配置</el-button>
         </div>
       </div>
     </el-dialog>
@@ -305,6 +305,12 @@
         switch (action) {
           case 'update_config':
             try {
+              if (this.action.data.code == this.action.dataOrigin.code) {
+                this.$message.warning(`无任何修改！`);
+                this.closeDialog();
+                return;
+              }
+              this.action.data.commitMessage = this.action.data.commitMessage.trim();
               await this.$refs['updateConfigForm'].validate();
               this.action.promise.resolve(this.action.data);
             } catch(err) {
@@ -313,7 +319,7 @@
             break;
           case 'remove_config':
             try {
-              await this.$confirm(`确定要删除配置${this.action.data.configDirName}/${this.action.data.configFileName}吗？`, '提示', {
+              await this.$confirm(`删除配置${this.action.data.configDirName}/${this.action.data.configFileName}（文件夹/文件名称）将会造成用到该配置文件的服务不可用，你确定需要这么做吗？`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning',
