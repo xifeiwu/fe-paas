@@ -17,7 +17,7 @@
 
       <el-form-item label="维护者" prop="maintainerIdList" class="group-list">
         <el-select v-model="createAppForm.maintainerIdList" multiple :multiple-limit="5" placeholder="请选择" filterable>
-          <el-option v-for="item in groupUsers" :key="item.id" :label="`${item.realName}(${item.jobDescription}) ${null!=item.enable && !item.enable ? '(已删除)' : ''}`" :value="item.userId">
+          <el-option v-for="item in groupUsers" :key="item.id" :label="`${item.realName}(${item.username}, ${item.jobDescription}) ${null!=item.enable && !item.enable ? '(已删除)' : ''}`" :value="item.userId">
           </el-option>
         </el-select>
       </el-form-item>
@@ -74,8 +74,8 @@
             {{item.description}}
           </el-checkbox>
         </el-checkbox-group>
-        <i class="el-icon-warning" style="display: inline-block; margin-left: 10px; color: #E6A23C;"
-           @mouseover="handleClick($event, 'warning-app-add-profile')"></i>
+        <i style="font-size:12px; line-height: 22px; color: #E6A23C;" class="paas-icon-question"
+           v-pop-on-mouse-over="'应用创建时默认创建所有运行环境'"></i>
       </el-form-item>
 
       <el-form-item label="说明" prop="description">
@@ -201,7 +201,6 @@
     margin: 10px;
     padding: 10px 30px;
     padding-left: 20px;
-    width: 80%;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     max-width: 850px;
     .section-title {
@@ -587,13 +586,6 @@ export default {
 
     // action for submit button
     handleClick(evt, action) {
-      if ('warning-app-add-profile' === action) {
-        this.$storeHelper.globalPopover.show({
-          ref: evt.target,
-          msg: profileUtils.warningList[action]['more']
-        });
-        return;
-      }
       switch (action) {
         case 'show-popover-for-help':
           this.showPopoverForHelp = true;
