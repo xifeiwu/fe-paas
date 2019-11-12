@@ -582,53 +582,31 @@ class Net extends Common {
           return;
         }
 
+        const err = new Error(resData.msg);
+        err.code = resData.code;
         if (resData.hasOwnProperty('level')) {
-          level = resData['level'];
+          err.level = resData['level'];
         }
-        errObj = errObj ? errObj : {
-          code: resData.code,
-          title: '请求失败',
-          message: resData.msg,
-          type: 'error'
-        };
-        if (level === 'LEVEL_IGNORE') {
-          return Promise.resolve(errObj);
-        } else if (level === 'LEVEL_WARNING') {
-          this.showWarning(errObj);
-          return Promise.reject(errObj);
-        } else {
-          this.showError(errObj);
-          return Promise.reject(errObj);
-        }
+        throw err;
       }
     } catch (error) {
-      // 请求过程发生错误（一般是超时）
-      // 请求超时
-      if (level === 'LEVEL_IGNORE') {
-        return Promise.resolve(error);
-      } else if (level === 'LEVEL_WARNING') {
-        errObj = errObj ? errObj : {
-          title: '网络请求失败',
-          message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
-        };
-        this.showWarning(errObj);
-        return Promise.reject(error);
-      } else {
-        if (error.code === 'ECONNABORTED') {
-          errObj = errObj ? errObj : {
-            title: '网络请求失败',
-            message: `网络请求超时，请稍后再试。请求路径：${path.replace(this.PAAS_PREFIX, '')}`
-          };
-          this.debouncedShowError(errObj);
-        } else {
-          errObj = errObj ? errObj : {
-            title: '网络请求失败',
-            message: `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`
-          };
-          this.showError(errObj);
-        }
-        return Promise.reject(error);
+      level = error.level ? error.level : level;
+      const showTip = {
+        LEVEL_IGNORE: () => {},
+        LEVEL_WARNING: this.showWarning,
+        LEVEL_ERROR: this.debouncedShowError
+      }[level];
+      const title = error.isAxiosError ? '网络请求失败' : '请求失败';
+      var message = `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`;
+      if (error.code === 'ECONNABORTED') {
+        message = `网络请求超时，请稍后再试。请求路径：${path.replace(this.PAAS_PREFIX, '')}`;
       }
+      showTip({
+        title,
+        message
+      });
+      error.path = path;
+      throw error;
     } finally {
       this.removeFromRequestingRrlList(path);
     }
