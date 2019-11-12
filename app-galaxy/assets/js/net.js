@@ -592,7 +592,7 @@ class Net extends Common {
         LEVEL_ERROR: this.debouncedShowError
       }[level];
       const title = error.isAxiosError ? '网络请求失败' : '请求失败';
-      var message = `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.toString()}`;
+      var message = `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.message}`;
       if (error.code === 'ECONNABORTED') {
         message = `网络请求超时，请稍后再试。请求路径：${path.replace(this.PAAS_PREFIX, '')}`;
       }

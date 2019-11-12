@@ -207,8 +207,28 @@
                class="size-650 open_dialog_invite_group_number"
     >
       <el-form :model="action.data" :rules="rules" labelWidth="120px" size="mini" ref="inviteGroupNumberForm">
-        <el-form-item label="请输入邮箱" prop="email">
-          <el-input v-model="action.data.email"></el-input>
+        <el-form-item label="成员邮箱" prop="emailList" class="email-group">
+          <div v-if="action.data.emailList.length > 0">
+            <el-tag
+                    v-for="tag in action.data.emailList"
+                    size="small"
+                    :key="tag"
+                    closable
+                    type="success"
+                    @close="handleEmailList('remove', tag)"
+            >{{tag}}</el-tag>
+          </div>
+          <div v-else style="height: 27px">空</div>
+          <div class="content">
+            <el-autocomplete
+                    ref="email-selector"
+                    v-model="userMail"
+                    :fetch-suggestions="querySearchEmail"
+                    placeholder="请输入内容"
+                    @select="handleSelectEmail"
+                    @keydown.native.enter.prevent="handleSelectEmail"
+            ></el-autocomplete>
+          </div>
         </el-form-item>
         <el-form-item label="请输入成员岗位" prop="jobName">
           <el-select v-model="action.data.jobName" placeholder="请选择">
@@ -344,6 +364,19 @@
           margin-right: 3px;
         }
       }
+      &.open_dialog_invite_group_number {
+        .el-form-item {
+          &.email-group {
+            .el-autocomplete {
+              width: 100%;
+            }
+            .el-tag {
+              margin-right: 3px;
+              margin-bottom: 2px;
+            }
+          }
+        }
+      }
     }
   }
 </style>
@@ -408,6 +441,32 @@
             required: true,
             message: '用户角色不能为空',
           }],
+          emailList: [{
+            type: 'array',
+            required: true,
+            message: '请至少填写一个邮件组',
+          },
+            {
+              validator(rule, values, callback) {
+                let passed = true;
+                let mailReg = /^([\w-_]+(?:\.[\w-_]+)*)@((?:[a-z0-9]+(?:-[a-zA-Z0-9]+)*)+\.[a-z]{2,6})$/;
+                if (Array.isArray(values)) {
+                  values.every(it => {
+                    passed = mailReg.exec(it);
+                    if (!passed) {
+                      callback(`${it}格式不正确`);
+                    }
+                    return passed;
+                  })
+                } else {
+                  callback('不是数组');
+                }
+                if (passed) {
+                  callback();
+                }
+              }
+            }
+          ],
           email: [{
             required: true,
             message: '邮箱不能为空',
@@ -433,7 +492,9 @@
             required: true,
             message: '团队标签不能为空',
           }]
-        }
+        },
+        // used to set email of user when invite new gorup_member
+        userMail: '',
       }
     },
     watch: {
@@ -518,6 +579,15 @@
           case 'invite_group_number':
             try {
               await this.$refs['inviteGroupNumberForm'].validate();
+              // NOTICE: logic of request server is hoisted(from handleTRClick) here
+              const dialogData = this.action.data;
+              await this.$net.requestPaasServer(this.$net.URL_LIST.group_member_add, {
+                payload: {
+                  groupId: dialogData.groupId,
+                  emailString: dialogData.emailList.join(', '),
+                  job: dialogData.jobName
+                }
+              });
               this.action.promise.resolve(this.action.data);
             } catch (err) {}
             break;
@@ -590,17 +660,11 @@
             this.groupSelected = row;
             try {
               const dialogData = await this.openDialog(action, {
-                email: '',
+                groupId: row.id,
+                emailList: [],
                 jobName: this.allJobs[0]['name'],
               });
-              await this.$net.requestPaasServer(this.$net.URL_LIST.group_member_add, {
-                payload: {
-                  groupId: row.id,
-                  emailString: dialogData.email,
-                  job: dialogData.jobName
-                }
-              });
-              this.$message.success(`成功邀请成员：${dialogData.email}`);
+              this.$message.success(`成功邀请成员：${dialogData.emailList.join(', ')}`);
               // open group_member_list when invite group_member success
               this.handleTRClick(evt, 'group_member_list', row);
             } catch (err) {
@@ -863,7 +927,71 @@
 
         this.totalSize = sortedGroupList.length;
         this.groupListByPage = sortedGroupList.slice(start, end);
-      }
+      },
+
+      /**
+       * action for add or remove mailGroup
+       * @param action
+       * @param domain
+       */
+      handleEmailList(action, userMail) {
+        let mailList = this.action.data.emailList;
+        switch (action) {
+          case 'remove':
+            mailList.splice(mailList.indexOf(userMail), 1);
+            break;
+          case 'add':
+            const mailReg = this.$utils.getReg('mail');
+            if (!mailReg.test(userMail)) {
+              this.$message.error('邮箱格式不正确');
+              return;
+            }
+            if (mailList.indexOf(userMail) > -1) {
+              mailList.splice(mailList.indexOf(userMail), 1);
+            }
+            mailList.push(userMail);
+            this.userMail = '';
+            this.$nextTick(() => {
+              this.$refs['email-selector'] && (this.$refs['email-selector'].suggestions = []);
+            });
+            break;
+        }
+      },
+      querySearchEmail(qs, cb) {
+        var result = [];
+        if (!qs) {
+          cb(result);
+          return;
+        }
+
+        var [user, suffix] = qs.split('@');
+
+        var suffixList = ['finupgroup.com', 'renmai.com', 'iqianjin.com'].filter(it => {
+          if (!suffix) {
+            return true;
+          }
+          return it.startsWith(suffix)
+        });
+        if (suffixList.length > 0) {
+          result = suffixList.map(it => {
+            return {
+              value:`${user}@${it}`
+            };
+          });
+        } else {
+          result = [{
+            value: qs
+          }]
+        }
+
+        cb(result);
+      },
+      handleSelectEmail(item) {
+        var value = item instanceof KeyboardEvent ? this.userMail : (item && item.value ? item.value : '');
+        if (value) {
+          this.handleEmailList('add', value);
+        }
+      },
     }
   }
 </script>
