@@ -645,7 +645,7 @@ class Net extends Common {
       if (error instanceof Error) {
         error = {
           title: '网络请求错误',
-          message: `请求路径：${path.replace(this.ASSIST_PREFIX, '')}，${error.toString()}`
+          message: `请求路径：${path.replace(this.ASSIST_PREFIX, '')}，${error.message}`
         };
       }
       this.showError(error);

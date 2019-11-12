@@ -62,14 +62,14 @@
           <template slot-scope="scope">
             <el-button
                     v-if="usedInPage === 'manage'"
-                    type="text" class="warning"
+                    type="text" class="danger"
                     @click="handleTRClick($event, 'group_delete', scope.row, scope.$index)">
               <span>解散团队</span>
             </el-button>
             <div class="ant-divider" v-if="usedInPage === 'manage'"></div>
             <el-button
                     v-if="usedInPage === 'manage'"
-                    type="text" class="warning"
+                    type="text" class="danger"
                     @click="handleTRClick($event, 'open_dialog_group_update', scope.row, scope.$index)">
               <span>修改团队</span>
             </el-button>
@@ -121,7 +121,7 @@
                             v-if="!$storeHelper.reason4ActionDisabled('group_member_update_roles')"
                             type="text"
                             @click="handleTRClick($event, 'open_dialog_group_member_update_roles', scope.row, scope.$index)"
-                            :class="{'expand': expandRows.indexOf(scope.row.id) > -1, 'warning': true}"
+                            :class="{'expand': expandRows.indexOf(scope.row.id) > -1, 'primary': true}"
                             :loading="statusOfWaitingResponse('open_dialog_group_member_update_roles') && memberSelected.id == scope.row.id">
                       <span>修改岗位</span>
                     </el-button>
@@ -470,6 +470,37 @@
         }
       },
 
+      // update expandRows
+      isExpanded(row) {
+        const group = row;
+        let hasExpanded = false;
+        if (!group.hasOwnProperty('id')) {
+          return hasExpanded;
+        }
+        let key = group.id;
+        // close it if has expanded
+        if (this.expandRows.indexOf(key) > -1) {
+          this.expandRows.splice(this.expandRows.indexOf(key), 1);
+          hasExpanded = true;
+        }
+        return hasExpanded;
+      },
+      expandRow(row) {
+        const group = row;
+        if (!group.hasOwnProperty('id')) {
+          return;
+        }
+        let key = group.id;
+        if (this.expandRows.indexOf(key) > -1) {
+          this.expandRows.splice(this.expandRows.indexOf(key), 1);
+        } else {
+          this.expandRows = [key];
+        }
+      },
+      closeAllExpand() {
+        this.expandRows = [];
+      },
+
       async handleDialogEvent(evt, action) {
         switch (action) {
           case 'group_member_update_roles':
@@ -562,7 +593,6 @@
                 email: '',
                 jobName: this.allJobs[0]['name'],
               });
-
               await this.$net.requestPaasServer(this.$net.URL_LIST.group_member_add, {
                 payload: {
                   groupId: row.id,
@@ -570,9 +600,9 @@
                   job: dialogData.jobName
                 }
               });
-
               this.$message.success(`成功邀请成员：${dialogData.email}`);
-              this.updateMemberListByPage(true);
+              // open group_member_list when invite group_member success
+              this.handleTRClick(evt, 'group_member_list', row);
             } catch (err) {
             } finally {
               this.closeDialog();
@@ -580,43 +610,14 @@
             break;
           case 'group_member_list':
             this.groupSelected = row;
-            let group = row;
             if (!row.hasOwnProperty('id')) {
               return;
             }
-
-            // update expandRows
-            const checkIfExpanded = () => {
-              let hasExpanded = false;
-              if (!group.hasOwnProperty('id')) {
-                hasExpanded = true;
-                return hasExpanded;
-              }
-              let key = group.id;
-              // close it if has expanded
-              if (this.expandRows.indexOf(key) > -1) {
-                this.expandRows.splice(this.expandRows.indexOf(key), 1);
-                hasExpanded = true;
-              }
-              return hasExpanded;
-            };
-            const updateExpandRows = () => {
-              if (!group.hasOwnProperty('id')) {
-                return;
-              }
-              let key = group.id;
-              if (this.expandRows.indexOf(key) > -1) {
-                this.expandRows.splice(this.expandRows.indexOf(key), 1);
-              } else {
-//                this.expandRows.push(key);
-                this.expandRows = [key];
-              }
-            };
-            if (checkIfExpanded()) {
+            if (this.isExpanded(row)) {
               return;
             }
+            this.expandRow(row);
             this.updateMemberListByPage(true);
-            updateExpandRows();
             break;
           case 'group_delete':
             this.groupSelected = row;
@@ -803,6 +804,8 @@
           this.tableSort = defaultTableSort;
           await this.requestGroupList();
         }
+        // close current expanded row when refresh group list
+        this.closeAllExpand();
         if (currentPage) {
           this.currentPage = currentPage;
         }
