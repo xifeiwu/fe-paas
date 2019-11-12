@@ -342,7 +342,7 @@
             break;
           case 'remove_config':
             try {
-              await this.$confirm(`删除配置${this.action.data.configDirName}/${this.action.data.configFileName}（文件夹/文件名称）将会造成用到该配置文件的服务不可用，你确定需要这么做吗？`, '提示', {
+              await this.$confirm(`删除配置${this.action.data.configDirName}/${this.action.data.configFileName}将会造成用到该配置文件的服务不可用，你确定需要这么做吗？`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning',
