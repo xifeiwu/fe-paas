@@ -120,35 +120,6 @@
           </el-form-item>
         </div>
       </div>
-      <el-form-item label="滚动升级" prop="rollingUpdate" v-if="false">
-        <el-radio-group v-model="createAppForm.rollingUpdate">
-          <el-radio :label="true">需要</el-radio>
-          <el-radio :label="false">不需要</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <transition name="script-4-rolling-update">
-        <el-form-item label="滚动升级脚本" prop="script4RollingUpdate"
-                      class="script-4-rolling-update"
-                      v-if="false"
-        >
-          <el-input v-model="createAppForm.script4RollingUpdate"
-                    type="textarea"
-                    :rows="16"
-                    placeholder="滚动升级脚本"
-                    v-if="editScript"
-          ></el-input>
-          <div class="formatted-script-4-rolling-update" v-else>
-            <el-scrollbar>
-              <pre><code class="bash hljs" v-if="formattedScript4RollingUpdate.length > 0"
-                         v-html="formattedScript4RollingUpdate"></code></pre>
-            </el-scrollbar>
-          </div>
-          <div class="toggle-edit-script" @click="toggleEditScript">
-            <span v-if="editScript">预览</span>
-            <span v-else>编辑</span>
-          </div>
-        </el-form-item>
-      </transition>
       <transition name="max-age-4-script">
         <el-form-item label="超时时间" prop="maxAge4Script"
                       class="max-age-4-script"
@@ -191,41 +162,6 @@
     .el-textarea {
       textarea {
         font-size: 12px;
-      }
-    }
-    &.script-4-rolling-update {
-      .el-form-item__content {
-        /*overflow: scroll;*/
-        .toggle-edit-script {
-          font-size: 12px;
-          line-height: 20px;
-          background: #E6A23C;
-          padding: 0px 3px;
-          border-radius: 4px;
-          display: inline-block;
-          position: absolute;
-          top: 0px;
-          right: 0px;
-          &:hover {
-            font-weight: bold;
-          }
-        }
-        .formatted-script-4-rolling-update {
-          margin: 0px;
-          padding: 0px;
-          width: 100%;
-          box-sizing: border-box;
-          height: 300px;
-          border: 1px solid gray;
-          border-radius: 5px;
-          .el-scrollbar {
-            width: 100%;
-            height: 300px;
-          }
-          overflow: scroll;
-          font-size: 12px;
-          line-height: 14px;
-        }
       }
     }
   }
@@ -453,16 +389,12 @@ export default {
           socket: 8080
         },
         initialDelaySeconds: 120,
-        rollingUpdate: true,
-        script4RollingUpdate: '',
         maxAge4Script: '30',
         loadBalance: profileUtils.getSupportedLoadBalance()[0],
         agree: false,
         description:'',
       },
       productionProfileTip: '',
-      editScript: true,
-      formattedScript4RollingUpdate: '',
       rules: profileUtils.rules,
       language: {
         list: [],
@@ -606,29 +538,6 @@ export default {
         } else {
           this.createAppForm.languageVersion = this.language.versionList[0].version;
         }
-      }
-    },
-
-    toggleEditScript() {
-      if (this.editScript) {
-        Promise.all([this.$utils.lazyLoad('js', this.$url['highlight.js']),
-          this.$utils.lazyLoad('css', this.$url['highlight.css'])]).then(content => {
-            console.log(content);
-          // lib highlight.js will expose hljs to window
-          if (hljs) {
-            let result = hljs.highlightAuto(this.createAppForm.script4RollingUpdate, ['bash']);
-            if (result && result.value) {
-              this.formattedScript4RollingUpdate = result.value;
-            } else {
-              this.formattedScript4RollingUpdate = '';
-            }
-            this.editScript = false;
-          }
-        }).catch(err => {
-          console.log(err);
-        });
-      } else {
-        this.editScript = true;
       }
     },
 
