@@ -664,8 +664,12 @@
           case 'app_delete':
             this.addToWaitingResponseQueue(action);
             try {
-              await this.warningConfirm(`删除应用"${row.appName}"将会销毁所有环境的代码和配置信息，解绑所有公网域名、IP白名单，删除后应用数据不可恢复！`);
-              await this.warningConfirm(`您确认要删除应用"${row.appName}"，并清除该应用的一切数据？`);
+              await this.$confirm(`删除应用"${row.appName}"，将会销毁该应用下所有环境的代码和配置信息，解绑所有公网域名，删除IP白名单、删除关联的Pipeline，且删除后应用数据不可恢复！继续吗？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              });
+              // await this.warningConfirm(`您确认要删除应用"${row.appName}"，并清除该应用的一切数据？`);
               await this.$net.requestPaasServer(this.$net.URL_LIST.app_delete, {
                 payload: {
                   groupId: this.$storeHelper.currentGroupID,
