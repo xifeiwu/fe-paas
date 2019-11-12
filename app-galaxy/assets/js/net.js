@@ -95,7 +95,8 @@ class Net extends Common {
       // 团队成员添加
       'group_member_add': {
         path: '/group/addUser',
-        method: 'post'
+        method: 'post',
+        level: 'LEVEL_WARNING'
       },
       // 团队成员删除
       'group_member_remove': {
@@ -394,17 +395,14 @@ class Net extends Common {
    * show error
    * @param err: {title, message}
    */
-  showError (err) {
-    if (err instanceof Error) {
-      err = {
-        title: '请求失败',
-        message: err.toString()
-      }
+  showError ({title = '', message = ''}) {
+    if (!title || !message) {
+      console.log(`title or message not found`);
+      return;
     }
-    const title = `${err.title}!`;
     Vue.prototype.$notify.error({
       title,
-      message: err.message,
+      message,
       duration: 3000
     })
   };
@@ -412,17 +410,14 @@ class Net extends Common {
    * show error
    * @param err: {title, message}
    */
-  showWarning (err) {
-    if (err instanceof Error) {
-      err = {
-        title: '请求失败',
-        message: err.toString()
-      }
+  showWarning ({title = '', message = ''}) {
+    if (!title || !message) {
+      console.log(`title or message not found`);
+      return;
     }
-    const title = `${err.title}`;
     Vue.prototype.$notify.warning({
       title,
-      message: err.message,
+      message,
       duration: 3000
     })
   };
@@ -647,8 +642,7 @@ class Net extends Common {
         return Promise.reject(err);
       }
     } catch (error) {
-      if (error.hasOwnProperty('title') && error.hasOwnProperty('message')) {
-      } else if (error instanceof Error) {
+      if (error instanceof Error) {
         error = {
           title: '网络请求错误',
           message: `请求路径：${path.replace(this.ASSIST_PREFIX, '')}，${error.toString()}`
