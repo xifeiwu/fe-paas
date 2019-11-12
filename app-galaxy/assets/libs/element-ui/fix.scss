@@ -39,60 +39,14 @@
     .el-dialog {
       width: 90%;
     }
-    &.size-500 {
-      .el-dialog {
-        max-width: 500px;
+    $width: 500;
+    @while $width <= 1200 {
+      &.size-#{$width} {
+        .el-dialog {
+          max-width: #{$width + 'px'};
+        }
       }
-    }
-    &.size-550 {
-      .el-dialog {
-        max-width: 550px;
-      }
-    }
-    &.size-600 {
-      .el-dialog {
-        max-width: 600px;
-      }
-    }
-    &.size-650 {
-      .el-dialog {
-        max-width: 650px;
-      }
-    }
-    &.size-700 {
-      .el-dialog {
-        max-width: 700px;
-      }
-    }
-    &.size-750 {
-      .el-dialog {
-        max-width: 750px;
-      }
-    }
-    &.size-800 {
-      .el-dialog {
-        max-width: 800px;
-      }
-    }
-    &.size-850 {
-      .el-dialog {
-        max-width: 850px;
-      }
-    }
-    &.size-900 {
-      .el-dialog {
-        max-width: 900px;
-      }
-    }
-    &.size-950 {
-      .el-dialog {
-        max-width: 950px;
-      }
-    }
-    &.size-1000 {
-      .el-dialog {
-        max-width: 1000px;
-      }
+      $width: $width + 50
     }
     .el-dialog {
       .el-dialog__header {
