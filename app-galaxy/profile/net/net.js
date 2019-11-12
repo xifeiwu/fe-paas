@@ -1435,37 +1435,19 @@ class Net extends NetBase {
       appModelList: []
     };
 
-    // // 应用列表解析依赖语言相关配置信息
-    // if (!this.$storeHelper.languageInfo) {
-    //   console.log('未找到语言相关信息！');
-    //   return result;
-    // }
-    // const languageNameToId = {};
-    // this.$storeHelper.languageInfo.forEach(it => {
-    //   languageNameToId[it.language] = it.id;
-    // });
-
     if (!resContent.hasOwnProperty('data') || !Array.isArray(resContent['data']) || !resContent.hasOwnProperty('recordsTotal')) {
       return result;
     }
     result.total = resContent['recordsTotal'];
     result.data = resContent['data'];
     result.appList = resContent['data'].map(app => {
-      var createTime = this.$utils.formatDate(app.createTime, 'yyyy-MM-dd hh:mm:ss');
-      // if (createTime) {
-      //   createTime = createTime.split(' ');
-      // }
+      var formattedCreateTime = this.$utils.formatDate(app.createTime, 'yyyy-MM-dd hh:mm:ss');
+      if (formattedCreateTime) {
+        formattedCreateTime = formattedCreateTime.split(' ');
+      }
       const language = {
         version: app.languageVersion,
         type: app.language,
-        // get id() {
-        //   if (languageNameToId.hasOwnProperty(this.type)) {
-        //     return languageNameToId[this.type];
-        //   } else {
-        //     console.log(`未找到${this.type}的信息`);
-        //     return null;
-        //   }
-        // },
         get name() {
           var name = '';
           switch (this.type) {
@@ -1495,7 +1477,8 @@ class Net extends NetBase {
         maintainer: app.maintainer,
         maintainerId: app.maintainerId,
         maintainerList: app.maintainerList,
-        createTime,
+        formattedCreateTime,
+        createTime: app.createTime,
         language,
         packageType: app.packageType,
         profileList: profileListOfGroup,
@@ -1506,7 +1489,7 @@ class Net extends NetBase {
     });
     result.appModelList = result.appList.map(app => {
       var result = {};
-      ['appId', 'appName', 'projectName', 'serviceName', 'creator', 'maintainer', 'maintainerId', 'maintainerList', 'userName', 'createTime', 'language', 'packageType', 'lobId', 'scrumId','description'].forEach(key => {
+      ['appId', 'appName', 'projectName', 'serviceName', 'creator', 'maintainer', 'maintainerId', 'maintainerList', 'userName', 'formattedCreateTime', 'createTime', 'language', 'packageType', 'lobId', 'scrumId','description'].forEach(key => {
         result[key] = app[key];
       });
       return result;

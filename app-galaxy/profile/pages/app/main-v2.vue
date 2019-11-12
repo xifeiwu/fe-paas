@@ -4,14 +4,14 @@
       <el-row type="flex" justify="center" align="middle">
         <el-col :span="10">
           <el-button
-                  size="mini-extral"
+                  size="mini"
                   :type="'primary'"
                   :class="{'disabled': $storeHelper.permission['app_create'].disabled}"
                   @click="handleButtonClick($event, 'app_create')">
             创建应用
           </el-button>
           <el-button v-if="true"
-                     size="mini-extral"
+                     size="mini"
                      type="primary"
                      @click="handleButtonClick($event, 'refreshAppList')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
         </el-col>
@@ -38,7 +38,7 @@
       <el-table :data="appModelListByPage"
                 stripe
                 :height="heightOfTable">
-        <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center" width="100">
+        <el-table-column label="语言版本" prop="languageVersion" headerAlign="center" align="center" width="80">
           <template slot-scope="scope">
             <svg v-if="scope.row.language.name"
                  :class="['paas-icon-svg', 'paas-icon-' + scope.row.language.name]" aria-hidden="true">
@@ -66,9 +66,9 @@
             <span>{{scope.row.serviceName}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="100">
+        <el-table-column label="创建者" prop="creator" headerAlign="center" align="center" width="80">
         </el-table-column>
-        <el-table-column label="维护者" prop="maintainerList" headerAlign="center" align="center" width="120">
+        <el-table-column label="维护者" prop="maintainerList" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
             <div v-if="Array.isArray(scope.row.maintainerList) && scope.row.maintainerList.length > 1">
               <span>
@@ -86,17 +86,16 @@
             <div v-else-if="Array.isArray(scope.row.maintainerList) && scope.row.maintainerList.length === 1">
               {{scope.row.maintainerList[0]['realName']}}
             </div>
-
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" prop="createTime" headerAlign="center" align="center" width="160">
+        <el-table-column label="创建时间" headerAlign="center" align="center" width="100">
           <template slot-scope="scope">
-            <div v-if="Array.isArray(scope.row.createTime)">
-              <div v-for="(item, index) in scope.row.createTime" :key="index">
+            <div v-if="Array.isArray(scope.row.formattedCreateTime)">
+              <div v-for="(item, index) in scope.row.formattedCreateTime" :key="index">
                 {{item}}
               </div>
             </div>
-            <div v-else>{{scope.row.createTime}}</div>
+            <div v-else>{{scope.row.formattedCreateTime}}</div>
           </template>
         </el-table-column>
         <el-table-column label="应用说明" prop="description" headerAlign="center" align="center" width="60">

@@ -2,7 +2,6 @@
  * Created by xifei.wu on 2017/12/4.
  */
 import Vue from 'vue';
-const debug = browserDebug('pass-fe:net');
 import globalStore from 'assets/js/store';
 
 /**

@@ -2,16 +2,7 @@
   <div id="app-add"
        v-loading="showLoading"
        :element-loading-text="loadingText">
-    <div class="section-title"><span>{{pageType == 'update'? '修改应用':'创建应用'}}</span>
-      <el-popover v-if="false"
-              width="300"
-              v-model="showPopoverForHelp"
-              placement="bottom"
-              popperClass="el-popover--small">
-        <div>1. 健康检查/延迟时间：延迟时间以秒为单位，取值范围在30-1800之间</div>
-        <i class="paas-icon-fa-question" slot="reference" @click="handleClick('show-popover-for-help')"></i>
-      </el-popover>
-    </div>
+    <div class="section-title"><span>{{pageType == 'update'? '修改应用':'创建应用'}}</span></div>
     <el-form :model="createAppForm" :rules="rules" size="mini"
              ref="createAppForm" label-width="130px">
       <el-form-item label="团队" prop="groupID" class="group-list" v-if="pageType != 'update'">
@@ -304,9 +295,10 @@
     background: white;
     margin: 10px;
     padding: 10px 30px;
+    padding-left: 20px;
     width: 80%;
-    max-width: 850px;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    max-width: 850px;
     .section-title {
       margin: 15px 0px;
       font-size: 18px;
