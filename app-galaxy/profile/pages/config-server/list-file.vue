@@ -104,7 +104,7 @@
           <codemirror v-model="action.data.code" :options="editorOptions"></codemirror>
         </el-form-item>
         <el-form-item label="修改说明" labelWidth="100px" prop="commitMessage" :rules="[{ required: true, message: '修改说明不能为空'}]">
-          <el-input v-model="action.data.commitMessage" placeholder="修改说明，将用于git提交。"></el-input>
+          <el-input v-model="action.data.commitMessage" placeholder="修改说明，将用于git提交。" style="padding-right: 6px; max-width: 800px;"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -312,9 +312,32 @@
               }
               this.action.data.commitMessage = this.action.data.commitMessage.trim();
               await this.$refs['updateConfigForm'].validate();
-              this.action.promise.resolve(this.action.data);
+              // as dialog is closed util all action is done(include request server for update),
+              // so the logic of requesting server is hoist(from handleTRClick) here
+              const dialogData = this.action.data;
+              this.action.requesting = true;
+              await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_edit, {
+                query: {
+                  applicationRemoteConfigFileId: dialogData.id
+                }
+              });
+              await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_save, {
+                payload: {
+                  applicationRemoteConfigFileId: dialogData.id,
+                  commitMessage: dialogData.commitMessage,
+                  fileContent: dialogData.code,
+                  groupId: dialogData.groupId,
+                }
+              });
+              this.action.promise.resolve(dialogData);
             } catch(err) {
-              console.log(err);
+              if (err.path === this.$net.URL_LIST.config_server_file_save.path) {
+                this.$message.error(err.message);
+              } else {
+                throw err;
+              }
+            } finally {
+              this.action.requesting = false;
             }
             break;
           case 'remove_config':
@@ -348,14 +371,13 @@
           case 'open_dialog_update_config':
             // editor mode
             this.editorOptions.mode = /yml/.test(row.configFileName) ? 'text/yaml' : 'text/x-properties';
-
             try {
               const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_content, {
                 query: {
                   applicationRemoteConfigFileId: row.id
                 }
               });
-              const dialogData = await this.openDialog(action, {
+              await this.openDialog(action, {
                 id: resData.id,
                 groupId: resData.groupId,
                 configDirName: resData.configDirName,
@@ -363,24 +385,9 @@
                 code: resData.fileContent,
                 commitMessage: '',
               });
-              this.action.requesting = true;
-              await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_edit, {
-                query: {
-                  applicationRemoteConfigFileId: dialogData.id
-                }
-              });
-              await this.$net.requestPaasServer(this.$net.URL_LIST.config_server_file_save, {
-                payload: {
-                  applicationRemoteConfigFileId: dialogData.id,
-                  commitMessage: dialogData.commitMessage,
-                  fileContent: dialogData.code,
-                  groupId: dialogData.groupId,
-                }
-              });
             } catch (err) {
               console.log(err);
             } finally {
-              this.action.requesting = false;
               this.closeDialog();
             }
             break;

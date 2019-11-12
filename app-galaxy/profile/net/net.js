@@ -452,6 +452,8 @@ class Net extends NetBase {
       'config_server_file_save': {
         path: '/applicationRemoteConfigFile/update',
         method: 'post',
+        // NOTICE: use message for tip other than notify
+        level: 'LEVEL_IGNORE',
       },
       // 远程配置中心——编辑配置文件 eg. /applicationRemoteConfigFile/update/edit-status?applicationRemoteConfigFileId=1123
       'config_server_file_edit': {
