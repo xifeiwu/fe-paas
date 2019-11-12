@@ -584,7 +584,7 @@
               await this.$net.requestPaasServer(this.$net.URL_LIST.group_member_add, {
                 payload: {
                   groupId: dialogData.groupId,
-                  emailString: dialogData.emailList.join(', '),
+                  emailString: dialogData.emailList.join(','),
                   job: dialogData.jobName
                 }
               });
