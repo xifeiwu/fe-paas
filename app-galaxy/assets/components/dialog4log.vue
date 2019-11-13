@@ -144,6 +144,9 @@
     created() {
     },
     mounted() {
+      if (this.showStatus.visible) {
+        this.show();
+      }
     },
     beforeDestroy() {
     },
