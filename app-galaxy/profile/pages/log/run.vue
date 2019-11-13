@@ -109,7 +109,7 @@
       <el-scrollbar>
         <div v-for="(item,index) in runLogs" :key="index" class="log-item">
           <span class="time">{{item.timestamp}}</span>
-          <span class="thread">{{item.thread}}</span>
+          <span>[</span><span class="thread">{{item.thread}}/{{item.logger}}</span><span>]</span>
           <span class="level">{{item.level}}</span>
           <span class="content">{{item.content}}</span>
           <span class="exception" v-if="item.exception">{{item.exception}}</span>
@@ -117,13 +117,16 @@
       </el-scrollbar>
       <i class="paas-icon-screen-expand" @click="dialogStatus.visible = true"></i>
     </div>
-    <paas-dialog-for-log class="log-run-log" title="运行日志" :showStatus="dialogStatus" @scrollBottom="requestLog">
-      <div slot="log-list" v-for="(item,index) in runLogs" :key="index" class="log-item">
-        <span class="time">{{item.timestamp}}</span>
-        <span class="thread">{{item.thread}}</span>
-        <span class="level">{{item.level}}</span>
-        <span class="content">{{item.content}}</span>
-        <div class="exception" v-if="item.exception">{{item.exception}}</div>
+    <paas-dialog-for-log :showStatus="dialogStatus" @close="dialogStatus.visible = false" @scrollBottom="requestLog"
+                         v-if="dialogStatus.visible">
+      <div slot="content">
+        <div v-for="(item,index) in runLogs" :key="index" class="log-item">
+          <span class="time">{{item.timestamp}}</span>
+          <span>[</span><span class="thread">{{item.thread}}/{{item.logger}}</span><span>]</span>
+          <span class="level">{{item.level}}</span>
+          <span class="content">{{item.content}}</span>
+          <div class="exception" v-if="item.exception">{{item.exception}}</div>
+        </div>
       </div>
     </paas-dialog-for-log>
   </div>
@@ -168,6 +171,25 @@
   }
 </style>
 <style lang="scss">
+  @mixin log-item() {
+    font-family: Consolas, Menlo, Courier, monospace;
+    -webkit-font-smoothing: antialiased;
+    font-size: 12px;
+    line-height: 16px;
+    color: white;
+    .time {
+      color: #FFFF00;
+    }
+    .thread {
+      color: #00FFCC;
+    }
+    .level {
+      color: #FF0000;
+    }
+    /*.content, .exception {*/
+      /*color: white;*/
+    /*}*/
+  }
   #log-run {
     .header {
       .el-select .el-input__inner {
@@ -206,31 +228,21 @@
             background-color: #409EFF;
           }
         }
-        .el-scrollbar__view {
-          .log-item {
-            font-size: 12px;
-            line-height: 16px;
-            .time {
-              color: #FFFF00;
-            }
-            .thread {
-              color: #00FFCC;
-            }
-            .level {
-              color: #FF0000;
-            }
-            .content, .exception {
-              color: white;
-            }
-          }
+        .log-item {
+          @include log-item
         }
+      }
+    }
+    .el-dialog__wrapper.dialog-for-log {
+      .log-item {
+        @include log-item
       }
     }
   }
 </style>
 <script>
   import paasVersionSelector from '../components/version-selector';
-  import paasDialogForLog from '../components/dialog4log.vue';
+  import paasDialogForLog from 'assets/components/dialog4log.vue';
   import { addResizeListener, removeResizeListener } from 'element-ui/src/utils/resize-event';
   export default {
     components: {paasVersionSelector, paasDialogForLog},
@@ -381,9 +393,11 @@
         },
 
         dialogStatus: {
+          title: '',
           visible: false,
-          full: true,
-          showLoading: false,
+          fullScreen: true,
+          loading: false,
+          // logList: []
         },
         runLogs: [],
         requestPage: 1,
@@ -401,13 +415,13 @@
         this.resetSearchCondition();
       },
       'searchForm.dateTimeRange': function (value) {
-        console.log(value);
+        // console.log(value);
         const threeDays = 1000 * 3600 * 24 * 3;
         const start = this.searchForm.dateTimeRange[0];
         const end = this.searchForm.dateTimeRange[1];
         if ((end.getTime() - start.getTime()) > threeDays) {
           end.setTime(start.getTime() + threeDays);
-          console.log(start, end);
+          // console.log(start, end);
           this.searchForm.dateTimeRange[1] = end;
           this.$message.warning('为减轻后台压力，默认截取从开始日期三天内的数据。');
         }
@@ -487,7 +501,7 @@
         });
         // some action to avoid request for more than one
         if (this.dialogStatus.visible) {
-          if (this.dialogStatus.showLoading) {
+          if (this.dialogStatus.loading) {
             return;
           }
         } else {
@@ -496,10 +510,10 @@
           }
         }
         if (this.dialogStatus.visible) {
-          this.dialogStatus.showLoading = true;
+          this.dialogStatus.loading = true;
           this.showLoading = false;
         } else {
-          this.dialogStatus.showLoading = false;
+          this.dialogStatus.loading = false;
           this.showLoading = true;
         }
         if (this.searchForm.queryType === 'default' &&
@@ -526,14 +540,14 @@
           this.runLogs = this.runLogs.concat(logs);
           this.requestPage += 1;
           this.showLoading = false;
-          this.dialogStatus.showLoading = false;
+          this.dialogStatus.loading = false;
           if (Array.isArray(logs) && logs.length === 0) {
             this.$message.warning('没有最新日志');
           }
         }).catch(err => {
           console.log(err);
           this.showLoading = false;
-          this.dialogStatus.showLoading = false;
+          this.dialogStatus.loading = false;
         });
       },
 
