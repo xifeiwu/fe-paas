@@ -497,6 +497,7 @@
           visible: false,
           loading: false,
           isLoading: false,
+          fullScreen: false,
           logList: []
         }
       }

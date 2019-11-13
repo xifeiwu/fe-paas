@@ -383,6 +383,7 @@
         buildLogStatus: {
           title: '日志',
           visible: false,
+          fullScreen: false,
           isLoading: false,
           logList: [],
           hasMoreData: false
