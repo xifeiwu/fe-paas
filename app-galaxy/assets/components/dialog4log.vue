@@ -4,7 +4,7 @@
              class="dialog-for-log"
              customClass="dialog-for-log"
              :appendToBody="false"
-             :fullscreen="fullScreen"
+             :fullscreen="showStatus.fullScreen"
              :closeOnClickModal="false"
              ref="dialog-for-log"
              top="80px"
@@ -14,7 +14,7 @@
       <slot name="icons"></slot>
       <!--class="icons slot"-->
       <div class="icons fixed">
-        <i :class="['paas-icon', fullScreen ? 'paas-icon-screen-shrink':'paas-icon-screen-expand']"
+        <i :class="['paas-icon', showStatus.fullScreen ? 'paas-icon-screen-shrink':'paas-icon-screen-expand']"
            @click="handleIconClick('expand-or-shrink')"></i>
         <i class="el-icon el-icon-close" @click="handleIconClick('close')"></i>
       </div>
@@ -41,7 +41,7 @@
       text-align: left;
       &.is-fullscreen {
         width: 100%;
-        max-width: none;
+        max-width: unset;
         margin-top: 0;
         margin-bottom: 0;
         height: 100%;
@@ -154,6 +154,7 @@
           return {
             title: '日志',
             visible: false,
+            fullScreen: false,
             loading: false
           };
         }
@@ -171,7 +172,6 @@
     data() {
       return {
         top: '80px',
-        fullScreen: false,
         dialog: null,
         scrollWrap: null,
         // 是否滚动到了最底端
@@ -206,7 +206,7 @@
       handleIconClick(action) {
         switch (action) {
           case 'expand-or-shrink':
-            this.fullScreen = !this.fullScreen;
+            this.showStatus.fullScreen = !this.showStatus.fullScreen;
             break;
           case 'close':
             this.showStatus.visible = false;
