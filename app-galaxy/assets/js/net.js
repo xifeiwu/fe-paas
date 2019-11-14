@@ -496,7 +496,7 @@ class Net extends Common {
       responseType, onUploadProgress, onDownloadProgress
     };
     if (['post', 'put', 'patch', 'delete'].indexOf(method) > -1) {
-      config['data'] = data;
+      config['data'] = data ? data : {};
     }
     return instance.request(config);
   }
