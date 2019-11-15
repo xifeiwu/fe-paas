@@ -95,9 +95,8 @@ export default class XtermHelper extends EventEmitter{
     // adapt to current screen after xterm is inited
     setTimeout(term.onScreenResize, 200);
 
-    // 当向web终端敲入字符时候的回调
+    // 当向web终端敲入字符时候的触发，input为用户输入的字符
     term.on('data', (input) => {
-      // 写给服务端, 由服务端发给container
       term.emit('rich-data', {
         type: "input",
         input: input
@@ -128,6 +127,15 @@ export default class XtermHelper extends EventEmitter{
     });
   }
 
+  // send input to server
+  sendInput(value) {
+    console.log(value);
+    if (this.websocket) {
+      var msg = {type: "input", input: value};
+      this.websocket.send(JSON.stringify(msg));
+    }
+  }
+
   async connectToXterm(assistInfo, target, sayHello, listenXterm = true) {
     const xterm = await this.getTerminal(target);
     const ws = await this.getWebSocket(assistInfo);
@@ -143,11 +151,12 @@ export default class XtermHelper extends EventEmitter{
     }
     if (sayHello) {
       setTimeout(() => {
-        var msg = {type: "input", input: sayHello}
+        var msg = {type: "input", input: sayHello};
         ws.send(JSON.stringify(msg));
       }, 200);
     }
 
+    // 用户在前端敲入的数据通过websocket发送给服务端, 服务端接受到后将数据返回前端（ws.onmessage捕获），再通过xterm展示给用户
     ws.onmessage = evt => {
       const data = evt.data;
       // 服务端ssh输出, 写到web shell展示
