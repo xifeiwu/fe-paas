@@ -1,8 +1,7 @@
 <template>
   <div id="app-main">
     <div class="header" v-if="showAppList">
-      <el-row type="flex" justify="center" align="middle">
-        <el-col :span="10">
+        <div class="item">
           <el-button
                   size="mini"
                   :type="'primary'"
@@ -14,11 +13,8 @@
                      size="mini"
                      type="primary"
                      @click="handleButtonClick($event, 'refreshAppList')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
-        </el-col>
-        <el-col :span="1">
-          <span>&nbsp</span>
-        </el-col>
-        <el-col :span="13">
+        </div>
+        <div class="item app-filter">
           <el-checkbox v-model="filterMyApp">
             <span>我的应用</span>
             <span>(共{{myAppCount}}个)</span>
@@ -31,8 +27,7 @@
                slot="suffix"
                @click="evt => filterKey=''"></i>
           </el-input>
-        </el-col>
-      </el-row>
+        </div>
     </div>
     <div class="app-list" v-if="showAppList">
       <el-table :data="appModelListByPage"
@@ -328,17 +323,17 @@
     flex-direction: column;
     max-width: 1300px;
     background: white;
-    .header {
+    & > .header {
       padding: 3px 5px;
       font-size: 14px;
-      .el-row {
-        .el-col {
-          &:nth-child(3) {
-            text-align: right;
-            .el-input {
-              margin-left: 5px;
-            }
-          }
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .item {
+        display: inline-block;
+        &.app-filter {
+          flex: 1;
+          text-align: right;
         }
       }
     }
