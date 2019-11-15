@@ -32,7 +32,7 @@
         </el-input>
       </div>
       <div class="item">
-        <el-button type="primary" size="mini-extral" @click="handleClick('search')">搜索</el-button>
+        <el-button type="primary" size="mini" @click="handleClick('search')">搜索</el-button>
       </div>
     </div>
     <div class="detail-list">

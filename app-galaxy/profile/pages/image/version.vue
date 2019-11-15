@@ -2,7 +2,7 @@
   <div id="image-detail">
     <div class="header">
         <el-input size="mini" style="max-width: 300px" v-model="keyFilter" placeholder="搜索镜像" suffix-icon="el-icon-search"></el-input>
-        <el-button size="mini-extral" type="primary" style="margin-left: 5px;"
+        <el-button size="mini" type="primary" style="margin-left: 5px;"
                    @click="handleClick($event, 'refresh')"><i class="el-icon el-icon-refresh" style="margin-right: 3px;"></i>刷新</el-button>
     </div>
     <div class="version-list">

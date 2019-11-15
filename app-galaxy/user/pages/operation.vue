@@ -54,10 +54,10 @@
           <el-form-item class="el-form-keyword" v-if="false">
             <label>关键字:</label>
             <el-input placeholder="可按应用名称搜索" v-model="searchValue"></el-input>
-            <el-button size="mini-extral" type="primary" @click="handleTick('search')" @keyup.enter.native="handleTick('search')">搜索</el-button>
+            <el-button size="mini" type="primary" @click="handleTick('search')" @keyup.enter.native="handleTick('search')">搜索</el-button>
           </el-form-item>
-          <el-button type="primary" size="mini-extral" @click="handleRefresh('false')">刷新</el-button>
-          <el-button type="danger" size="mini-extral" @click="handleRefresh('true')" v-if="isAdmin">强制刷新</el-button>
+          <el-button type="primary" size="mini" @click="handleRefresh('false')">刷新</el-button>
+          <el-button type="danger" size="mini" @click="handleRefresh('true')" v-if="isAdmin">强制刷新</el-button>
           <el-tooltip content="强制刷新将会强制生成新的索引，可以立即看到最近的操作记录，但可能引起接口超时" v-if="isAdmin">
           <i class="el-icon-info" style="color: #E6A23C"></i>
           </el-tooltip>

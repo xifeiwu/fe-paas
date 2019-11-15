@@ -45,8 +45,8 @@
         <div v-if="userInputInfo">{{userInputInfo.message}}</div>
         <div v-else>继续吗？</div>
         <div style="display: flex; justify-content: space-around; margin-top: 8px;">
-          <el-button type="primary" size="mini-extral" @click="handleUserInput('go-on')">同意</el-button>
-          <el-button type="danger" size="mini-extral" @click="handleUserInput('cancel')">中止</el-button>
+          <el-button type="primary" size="mini" @click="handleUserInput('go-on')">同意</el-button>
+          <el-button type="danger" size="mini" @click="handleUserInput('cancel')">中止</el-button>
         </div>
       </div>
     </paas-popover-element-with-modal-mask>

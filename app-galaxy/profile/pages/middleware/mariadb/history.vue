@@ -2,7 +2,7 @@
   <div id="middleware-mariadb-history">
     <div class="history-title">
       <span> {{instanceInfo.name}}操作历史</span>
-      <el-button size="mini-extral"
+      <el-button size="mini"
                  type="primary"
                  @click="handleButtonClick($event, 'middleware_mariadb_history_refresh')">
         <span>刷新</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>

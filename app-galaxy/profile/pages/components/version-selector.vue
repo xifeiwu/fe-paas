@@ -2,14 +2,14 @@
   <div class="paas-version-selector">
     <div class="item app-list">
       <label>应用名称:</label>
-      <el-select filterable v-model="selectedAppId" size="mini-extral" placeholder="请选择">
+      <el-select filterable v-model="selectedAppId" size="mini" placeholder="请选择">
         <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
         </el-option>
       </el-select>
     </div>
     <div class="item">
       <label>运行环境:</label>
-      <el-select v-model="selectedProfileId" size="mini-extral" placeholder="请选择">
+      <el-select v-model="selectedProfileId" size="mini" placeholder="请选择">
         <el-option v-for="item in currentProfileList" :key="item.id" :label="item.description" :value="item.id">
         </el-option>
       </el-select>

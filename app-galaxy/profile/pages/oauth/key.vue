@@ -16,14 +16,14 @@
                     style="display:block; width: 200px; margin-left: 60px;"
                     @keyup.enter.native="handleButtonClick($event, 'search')"></el-input>
         </div>
-        <el-button size="mini-extral"
+        <el-button size="mini"
                    type="primary"
                    :loading="statusOfWaitingResponse('search')"
                    @click="handleButtonClick($event, 'search')">搜索</el-button>
       </el-col>
       <el-col :span="4">
         <el-button
-                size="mini-extral"
+                size="mini"
                 type="primary"
                 :class="{'disabled': $storeHelper.permission['oauth_create_access_key'].disabled}"
                 :loading="statusOfWaitingResponse('oauth_create_access_key')"
@@ -275,9 +275,9 @@
                 <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的"{{item.targetOauth}}"权限吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
-                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-target-oauth', index, item)">确定</el-button>
+                  <el-button type="danger" size="mini" @click="handlePopoverButton('delete-target-oauth', index, item)">确定</el-button>
                 </div>
-                <el-button type="primary" size="mini-extral"
+                <el-button type="primary" size="mini"
                            round
                            slot="reference"
                            @click="handleDialogButton('delete-access-config', index, item)">删除</el-button>
@@ -317,7 +317,7 @@
             </el-col>
             <el-col :span="3" style="text-align: right">
               <el-button
-                      size="mini-extral"
+                      size="mini"
                       type="primary"
                       round
                       style="margin-bottom: 3px"
@@ -373,7 +373,7 @@
             </el-col>
             <el-col :span="2" class="operation" style="text-align: center">
               <el-button
-                      size="mini-extral"
+                      size="mini"
                       type="primary"
                       :loading="statusOfWaitingResponse('add-url-permission')"
                       @click="handleDialogButton('add-url-permission')">添加
@@ -404,9 +404,9 @@
                 <p style="color: #fa5555">删除受管控的权限将会造成对应的资源URL不受访问限制，确定要这样做吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
-                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-url-permission', index, item)">确定</el-button>
+                  <el-button type="danger" size="mini" @click="handlePopoverButton('delete-url-permission', index, item)">确定</el-button>
                 </div>
-                <el-button type="warning" size="mini-extral"
+                <el-button type="warning" size="mini"
                            slot="reference"
                            round
                            :loading="statusOfWaitingResponse('delete-url-permission') && updateUrlPermissionInfo.urlPermissionToDelete.id == item.id">

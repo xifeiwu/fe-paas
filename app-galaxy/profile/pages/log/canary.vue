@@ -7,7 +7,7 @@
                              @version-selected="onVersionSelected"></paas-version-selector-non-production>
       <el-button
               style="display: inline-block"
-              size="mini-extral"
+              size="mini"
               :type="'primary'"
               @click="handleButtonClick($event, 'refresh')">
         刷新

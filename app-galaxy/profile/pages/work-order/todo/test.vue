@@ -32,7 +32,7 @@
               <p style="color: #fa5555">确定要删除测试报告《{{item.name}}》吗？</p>
               <div style="text-align: right; margin: 0">
                 <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
-                <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-test-log', index, item)">确定</el-button>
+                <el-button type="danger" size="mini" @click="handlePopoverButton('delete-test-log', index, item)">确定</el-button>
               </div>
               <i slot="reference" class="el-icon-close" @click="handleButtonClick('delete-test-log', index, item)"></i>
             </el-popover>
@@ -54,7 +54,7 @@
                   @onUploadFiles="onUploadFiles"
           >
             <el-button slot="trigger" type="primary" size="mini">选取文件</el-button>
-            <!--<el-button style="margin-left: 10px;" type="success" size="mini-extral" @click="handleSubmitUpload">上传到服务器</el-button>-->
+            <!--<el-button style="margin-left: 10px;" type="success" size="mini" @click="handleSubmitUpload">上传到服务器</el-button>-->
           </el-upload>
         </el-form-item>
         <el-form-item label="审批意见" prop="comment" class="comment">

@@ -31,7 +31,7 @@
             <el-option value="INVALIDATED" label="已失效"></el-option>
           </el-select>
         </div>
-        <el-button size="mini-extral"
+        <el-button size="mini"
                    type="primary"
                    v-if="true"
                    :loading="statusOfWaitingResponse('search')"
@@ -247,9 +247,9 @@
                 <p style="color: #fa5555">确定要删除该条授权吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
-                  <el-button type="danger" size="mini-extral" @click="handlePopoverButton('delete-authorize-url', index, item)">确定</el-button>
+                  <el-button type="danger" size="mini" @click="handlePopoverButton('delete-authorize-url', index, item)">确定</el-button>
                 </div>
-                <el-button type="warning" size="mini-extral" round
+                <el-button type="warning" size="mini" round
                            slot="reference">删除</el-button>
               </el-popover>
             </el-col>
@@ -265,7 +265,7 @@
               </el-select>
             </el-col>
             <el-col :span="6">
-              <el-button type="primary" size="mini-extral"
+              <el-button type="primary" size="mini"
                          @click="handleDialogButton('add-authorize-url')">添加</el-button>
             </el-col>
           </el-row>

@@ -19,7 +19,7 @@
             <span>我的应用</span>
             <span>(共{{myAppCount}}个)</span>
           </el-checkbox>
-          <el-input size="mini-extral" placeholder="按名称搜索应用" class="search"
+          <el-input size="mini" placeholder="按名称搜索应用" class="search"
                     style="max-width: 360px;"
                     v-model="filterKey">
             <i slot="prefix" class="el-icon-search"></i>
@@ -264,7 +264,7 @@
               <p style="color: #fa5555">{{profileChangeStatus.popperContent}}</p>
               <div style="text-align: right; margin: 0">
                 <el-button size="mini" type="text" @click="handlePopoverButton('cancel-update-profile-name')">取消</el-button>
-                <el-button type="danger" size="mini-extral"
+                <el-button type="danger" size="mini"
                            @click="handlePopoverButton('update-profile-name')">确定</el-button>
               </div>
               <el-button type="primary"

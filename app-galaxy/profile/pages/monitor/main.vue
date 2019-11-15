@@ -22,7 +22,7 @@
           </el-date-picker>
         </div>
         <el-button
-                size="mini-extral"
+                size="mini"
                 type="primary"
                 @click="handleButtonClick('search')">查询</el-button>
       </div>

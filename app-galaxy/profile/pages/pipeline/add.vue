@@ -16,16 +16,16 @@
           <div class="config">
             <el-form labelWidth="120px" size="mini" :model="formData" :rules="formDataRules" class="clear-fix" ref="basic-info-form">
               <el-form-item label="Pipeline名称" prop="pipelineName">
-                <el-input size="mini-extral" v-model="formData.pipelineName"></el-input>
+                <el-input size="mini" v-model="formData.pipelineName"></el-input>
               </el-form-item>
               <el-form-item label="Pipeline描述" prop="pipelineDescription">
-                <el-input size="mini-extral" v-model="formData.pipelineDescription"></el-input>
+                <el-input size="mini" v-model="formData.pipelineDescription"></el-input>
               </el-form-item>
               <el-form-item label="gitlab_ssh地址" prop="gitLabPath">
-                <el-input size="mini-extral" v-model="formData.gitLabPath"></el-input>
+                <el-input size="mini" v-model="formData.gitLabPath"></el-input>
               </el-form-item>
               <el-form-item label="gitlab分支" prop="gitLabBranch">
-                <el-input size="mini-extral" v-model="formData.gitLabBranch" placeholder="请输入项目的gitLab分支，支持正表达式"></el-input>
+                <el-input size="mini" v-model="formData.gitLabBranch" placeholder="请输入项目的gitLab分支，支持正表达式"></el-input>
               </el-form-item>
               <el-form-item label="webhook配置" v-if="pipelineInfoFromNet && pipelineInfoFromNet.webHooks" class="webhook-config big">
                 <div class="webhook-config-content" :style="{color: formData.webHooks.selected ? 'inherit':'#b4bccc'}">
@@ -72,7 +72,7 @@
                     <el-col :span="7" class="value">{{item.defaultValue}}</el-col>
                     <el-col :span="8" class="remark">{{item.description}}</el-col>
                     <el-col :span="2" style="text-align: center" class="delete">
-                      <el-button type="warning" round size="mini-extral" @click="handleParameter('delete', index)">删除</el-button>
+                      <el-button type="warning" round size="mini" @click="handleParameter('delete', index)">删除</el-button>
                     </el-col>
                   </el-row>
                   <el-row :gutter="10">
@@ -86,7 +86,7 @@
                       <el-input v-model="paramRemark" size="mini"></el-input>
                     </el-col>
                     <el-col :span="2" style="text-align: center">
-                      <el-button type="primary" size="mini-extral" round
+                      <el-button type="primary" size="mini" round
                                  @click="handleParameter('add', paramKey, paramValue, paramRemark)">添加</el-button>
                     </el-col>
                   </el-row>
@@ -188,7 +188,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['unitTestSelected']"></el-checkbox>
                             <span>单元测试行覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheck.unitTestRatio" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.unitTestRatio" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -197,7 +197,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['branchCoverageSelected']"></el-checkbox>
                             <span>单元测试条件覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheck.branchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.branchCoverage" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -206,7 +206,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['itLineCoverageSelected']"></el-checkbox>
                             <span>集成测试行覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheck.itLineCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.itLineCoverage" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -215,7 +215,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['itBranchCoverageSelected']"></el-checkbox>
                             <span>集成测试条件覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheck.itBranchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.itBranchCoverage" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -224,7 +224,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['blockerViolationsSelected']"></el-checkbox>
                             <span>阻断问题数量≤</span>
-                            <el-input v-model="formData.sonarCheck.blockerViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.blockerViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -233,7 +233,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['criticalViolationsSelected']"></el-checkbox>
                             <span>严重问题数量≤</span>
-                            <el-input v-model="formData.sonarCheck.criticalViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.criticalViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -242,7 +242,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['majorViolationsSelected']"></el-checkbox>
                             <span>主要问题数量≤</span>
-                            <el-input v-model="formData.sonarCheck.majorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.majorViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -251,7 +251,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['minorViolationsSelected']"></el-checkbox>
                             <span>次要问题数量≤</span>
-                            <el-input v-model="formData.sonarCheck.minorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.minorViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -260,7 +260,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheck']['codeDebtSelected']"></el-checkbox>
                             <span>技术债时间≤</span>
-                            <el-input v-model="formData.sonarCheck.codeDebt" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheck.codeDebt" size="mini" style="max-width: 60px;"></el-input>
                             <span>分钟</span>
                           </div>
                         </el-form-item>
@@ -312,28 +312,28 @@
                     <!--自动化测试[test]-start-->
                     <el-form-item label="gitlab_ssh地址：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.gitLabPath"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVOTest.gitLabPath"></el-input>
                     </el-form-item>
                     <el-form-item label="gitlab分支：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.gitLabBranch"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.gitLabBranch"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVOTest.gitLabBranch"></el-input>
                     </el-form-item>
                     <el-form-item label="自动化覆盖率报告路径：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.itTestReportAddress"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.itTestReportAddress"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVOTest.itTestReportAddress"></el-input>
                     </el-form-item>
                     <el-form-item label="项目根目录：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.relativePath"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.relativePath"
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVOTest.relativePath"
                                 placeholder="不能超过256个字符，不能以/开头"></el-input>
                     </el-form-item>
                     <el-form-item label="jacoco includes：" labelWidth="220px"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.includes"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVOTest.includes"></el-input>
                     </el-form-item>
                     <el-form-item label="脚本：" labelWidth="220px" prop="ciPipelineAutoTestVOTest.script"
                                   v-show="stageName === 'ciPipelineAutoTestVOTest'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVOTest.script"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVOTest.script"></el-input>
                     </el-form-item>
                     <el-form-item label="手工确认：" labelWidth="220px" v-show="stageName === 'ciPipelineAutoTestVOTest'">
                       <el-checkbox v-model="formData.ciPipelineAutoTestVOTest.inputChecked"></el-checkbox>
@@ -358,7 +358,7 @@
                     </el-form-item>
                     <el-form-item label="脚本：" labelWidth="200px" prop="uploadUnitTestReportAndAutoTestReportTestEnv.script"
                                   v-show="stageName === 'uploadUnitTestReportAndAutoTestReportTestEnv'">
-                      <el-input size="mini-extral" v-model="formData.uploadUnitTestReportAndAutoTestReportTestEnv.script"></el-input>
+                      <el-input size="mini" v-model="formData.uploadUnitTestReportAndAutoTestReportTestEnv.script"></el-input>
                     </el-form-item>
                     <el-form-item label="手工确认：" labelWidth="200px" v-show="stageName === 'uploadUnitTestReportAndAutoTestReportTestEnv'">
                       <el-checkbox v-model="formData.uploadUnitTestReportAndAutoTestReportTestEnv.inputChecked"></el-checkbox>
@@ -391,7 +391,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckTestEnv']['unitTestSelected']"></el-checkbox>
                             <span>单元测试行覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheckTestEnv.unitTestRatio" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckTestEnv.unitTestRatio" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -400,7 +400,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckTestEnv']['branchCoverageSelected']"></el-checkbox>
                             <span>单元测试条件覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheckTestEnv.branchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckTestEnv.branchCoverage" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -409,7 +409,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckTestEnv']['itLineCoverageSelected']"></el-checkbox>
                             <span>集成测试行覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheckTestEnv.itLineCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckTestEnv.itLineCoverage" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -418,7 +418,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckTestEnv']['itBranchCoverageSelected']"></el-checkbox>
                             <span>集成测试条件覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheckTestEnv.itBranchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckTestEnv.itBranchCoverage" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -427,7 +427,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckTestEnv']['blockerViolationsSelected']"></el-checkbox>
                             <span>阻断问题数量≤</span>
-                            <el-input v-model="formData.sonarCheckTestEnv.blockerViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckTestEnv.blockerViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -436,7 +436,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckTestEnv']['criticalViolationsSelected']"></el-checkbox>
                             <span>严重问题数量≤</span>
-                            <el-input v-model="formData.sonarCheckTestEnv.criticalViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckTestEnv.criticalViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -445,7 +445,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckTestEnv']['majorViolationsSelected']"></el-checkbox>
                             <span>主要问题数量≤</span>
-                            <el-input v-model="formData.sonarCheckTestEnv.majorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckTestEnv.majorViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -454,7 +454,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckTestEnv']['minorViolationsSelected']"></el-checkbox>
                             <span>次要问题数量≤</span>
-                            <el-input v-model="formData.sonarCheckTestEnv.minorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckTestEnv.minorViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -463,7 +463,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckTestEnv']['codeDebtSelected']"></el-checkbox>
                             <span>技术债时间≤</span>
-                            <el-input v-model="formData.sonarCheckTestEnv.codeDebt" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckTestEnv.codeDebt" size="mini" style="max-width: 60px;"></el-input>
                             <span>分钟</span>
                           </div>
                         </el-form-item>
@@ -491,28 +491,28 @@
                     <!--自动化测试[beta]-start-->
                     <el-form-item label="gitlab_ssh地址：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabPath"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVO.gitLabPath"></el-input>
                     </el-form-item>
                     <el-form-item label="gitlab分支：" labelWidth="220px" prop="ciPipelineAutoTestVO.gitLabBranch"
                                     v-show="stageName === 'ciPipelineAutoTestVO'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.gitLabBranch"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVO.gitLabBranch"></el-input>
                     </el-form-item>
                     <el-form-item label="自动化覆盖率报告路径：" labelWidth="220px" prop="ciPipelineAutoTestVO.itTestReportAddress"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.itTestReportAddress"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVO.itTestReportAddress"></el-input>
                     </el-form-item>
                     <el-form-item label="项目根目录：" labelWidth="220px" prop="ciPipelineAutoTestVO.relativePath"
                       v-show="stageName === 'ciPipelineAutoTestVO'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.relativePath"
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVO.relativePath"
                                 placeholder="不能超过256个字符，不能以/开头"></el-input>
                     </el-form-item>
                     <el-form-item label="jacoco includes：" labelWidth="220px"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.includes"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVO.includes"></el-input>
                     </el-form-item>
                     <el-form-item label="脚本：" labelWidth="220px" prop="ciPipelineAutoTestVO.script"
                       v-show="stageName === 'ciPipelineAutoTestVO'">
-                      <el-input size="mini-extral" v-model="formData.ciPipelineAutoTestVO.script"></el-input>
+                      <el-input size="mini" v-model="formData.ciPipelineAutoTestVO.script"></el-input>
                     </el-form-item>
                     <!-- <el-form-item label="自动化测试：" class="ciPipelineAutoTestVO" prop="ciPipelineAutoTestVO" :multiFields="true"
                                   v-show="stageName === 'ciPipelineAutoTestVO'">
@@ -541,7 +541,7 @@
                     </el-form-item>
                     <el-form-item label="脚本：" labelWidth="200px" prop="uploadUnitTestReportAndAutoTestReport.script"
                                   v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
-                      <el-input size="mini-extral" v-model="formData.uploadUnitTestReportAndAutoTestReport.script"></el-input>
+                      <el-input size="mini" v-model="formData.uploadUnitTestReportAndAutoTestReport.script"></el-input>
                     </el-form-item>
                     <el-form-item label="手工确认：" labelWidth="200px" v-show="stageName === 'uploadUnitTestReportAndAutoTestReport'">
                       <el-checkbox v-model="formData.uploadUnitTestReportAndAutoTestReport.inputChecked"></el-checkbox>
@@ -574,7 +574,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckAutoTestScript']['unitTestSelected']"></el-checkbox>
                             <span>单元测试行覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheckAutoTestScript.unitTestRatio" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckAutoTestScript.unitTestRatio" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -583,7 +583,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckAutoTestScript']['branchCoverageSelected']"></el-checkbox>
                             <span>单元测试条件覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheckAutoTestScript.branchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckAutoTestScript.branchCoverage" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -592,7 +592,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckAutoTestScript']['itLineCoverageSelected']"></el-checkbox>
                             <span>集成测试行覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheckAutoTestScript.itLineCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckAutoTestScript.itLineCoverage" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -601,7 +601,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckAutoTestScript']['itBranchCoverageSelected']"></el-checkbox>
                             <span>集成测试条件覆盖率≥</span>
-                            <el-input v-model="formData.sonarCheckAutoTestScript.itBranchCoverage" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckAutoTestScript.itBranchCoverage" size="mini" style="max-width: 60px;"></el-input>
                             <span>%</span>
                           </div>
                         </el-form-item>
@@ -610,7 +610,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckAutoTestScript']['blockerViolationsSelected']"></el-checkbox>
                             <span>阻断问题数量≤</span>
-                            <el-input v-model="formData.sonarCheckAutoTestScript.blockerViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckAutoTestScript.blockerViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -619,7 +619,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckAutoTestScript']['criticalViolationsSelected']"></el-checkbox>
                             <span>严重问题数量≤</span>
-                            <el-input v-model="formData.sonarCheckAutoTestScript.criticalViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckAutoTestScript.criticalViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -628,7 +628,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckAutoTestScript']['majorViolationsSelected']"></el-checkbox>
                             <span>主要问题数量≤</span>
-                            <el-input v-model="formData.sonarCheckAutoTestScript.majorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckAutoTestScript.majorViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -637,7 +637,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckAutoTestScript']['minorViolationsSelected']"></el-checkbox>
                             <span>次要问题数量≤</span>
-                            <el-input v-model="formData.sonarCheckAutoTestScript.minorViolations" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckAutoTestScript.minorViolations" size="mini" style="max-width: 60px;"></el-input>
                             <span>个</span>
                           </div>
                         </el-form-item>
@@ -646,7 +646,7 @@
                           <div>
                             <el-checkbox v-model="formData['sonarCheckAutoTestScript']['codeDebtSelected']"></el-checkbox>
                             <span>技术债时间≤</span>
-                            <el-input v-model="formData.sonarCheckAutoTestScript.codeDebt" size="mini-extral" style="max-width: 60px;"></el-input>
+                            <el-input v-model="formData.sonarCheckAutoTestScript.codeDebt" size="mini" style="max-width: 60px;"></el-input>
                             <span>分钟</span>
                           </div>
                         </el-form-item>
@@ -660,13 +660,13 @@
                   </el-form>
                   <div class="stage-change-selection">
                     <span>删除节点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
-                    <el-button size="mini-extral" type="danger" @click="handleStageActiveChange($event, 'stage-remove')">删除</el-button>
+                    <el-button size="mini" type="danger" @click="handleStageActiveChange($event, 'stage-remove')">删除</el-button>
                   </div>
                 </div>
                 <div class="stage-change-selection" v-show="!currentStage.selected">
                   <!--:key="stageName"-->
                   <span>添加节点 "{{Array.isArray(currentStage.description) ? currentStage.description.join('') : currentStage.description}}"?</span>
-                  <el-button size="mini-extral" type="primary" @click="handleStageActiveChange($event, 'stage-add')">添加</el-button>
+                  <el-button size="mini" type="primary" @click="handleStageActiveChange($event, 'stage-add')">添加</el-button>
                 </div>
               <!--</transition>-->
             </div>

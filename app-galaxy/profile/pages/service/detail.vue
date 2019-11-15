@@ -263,7 +263,7 @@
             >
             </el-date-picker>
             <el-button
-                  size="mini-extral"
+                  size="mini"
                   type="primary"
                   @click="handleButtonClick('search')">查询</el-button>
             </div>
@@ -304,7 +304,7 @@
               :enableClose="false">
       </el-date-picker>
         <el-button
-                size="mini-extral"
+                size="mini"
                 type="primary" @click="requestTopNException">查询</el-button>
         <span style="float: right;">错误总数：{{topNException.count}}</span>
       </div>

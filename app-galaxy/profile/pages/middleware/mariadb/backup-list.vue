@@ -17,7 +17,7 @@
       </el-col>
     
       <el-col :span="7" style="text-align: right;">
-        <el-button size="mini-extral"
+        <el-button size="mini"
                    type="primary"
                    @click="handleClick($event, 'backup_refresh')">
           <span>刷新</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>

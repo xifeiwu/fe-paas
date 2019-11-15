@@ -152,9 +152,9 @@
         <div>{{userInputInfo.message}}</div>
         <div>继续吗？</div>
         <div style="display: flex; justify-content: space-around; margin-top: 8px;">
-          <el-button type="primary" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'go-on'"
+          <el-button type="primary" size="mini" :loading="userInputInfo && userInputInfo.action == 'go-on'"
                      @click="handleUserInput('go-on')">同意</el-button>
-          <el-button type="danger" size="mini-extral" :loading="userInputInfo && userInputInfo.action == 'cancel'"
+          <el-button type="danger" size="mini" :loading="userInputInfo && userInputInfo.action == 'cancel'"
                      @click="handleUserInput('cancel')">中止</el-button>
         </div>
       </div>
@@ -178,7 +178,7 @@
                       style="margin-bottom: 5px;">
           <el-row :gutter="10" style="margin-bottom: 5px;">
             <el-col :span="20">
-              <el-input size="mini-extral" v-model="item.defaultValue"></el-input>
+              <el-input size="mini" v-model="item.defaultValue"></el-input>
             </el-col>
             <el-col :span="4" style="text-align: center">
             </el-col>

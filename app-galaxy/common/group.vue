@@ -18,7 +18,7 @@
           <span>&nbsp</span>
         </el-col>
         <el-col :span="13" class="search">
-          <el-input size="mini-extral" placeholder="按名称搜索团队"
+          <el-input size="mini" placeholder="按名称搜索团队"
                     style="max-width: 360px;"
                     v-model="filterKey">
             <i slot="prefix" class="el-icon-search"></i>

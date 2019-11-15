@@ -1,11 +1,11 @@
 <template>
   <div id="k8s-warning">
     <div class="header">
-      <el-button type="primary" size="mini-extral"
+      <el-button type="primary" size="mini"
            :loading="statusOfWaitingResponse('add')"
            @click="handleRowButtonClick('add')">设置k8s事件报警
       </el-button>
-      <el-button type="primary" size="mini-extral"
+      <el-button type="primary" size="mini"
                  :loading="statusOfWaitingResponse('refresh')"
                  @click="handleRowButtonClick('refresh')">刷新
       </el-button>

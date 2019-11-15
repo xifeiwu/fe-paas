@@ -49,10 +49,10 @@
         </el-date-picker>
       </div>
       <div class="item">
-        <el-button type="primary" size="mini-extral" @click="handleClick('search')">查询</el-button>
+        <el-button type="primary" size="mini" @click="handleClick('search')">查询</el-button>
       </div>
       <div class="item">
-        <el-button size="mini-extral" plain type="primary" @click="handleClick('download-analyze')">
+        <el-button size="mini" plain type="primary" @click="handleClick('download-analyze')">
           <i class="el-icon-download"></i><span>导出表格</span>
         </el-button>
       </div>

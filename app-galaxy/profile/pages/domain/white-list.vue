@@ -43,8 +43,8 @@
         </div>
       </div>
       <div class="add-ip" style="display: flex; align-items: center">
-        <el-input size="mini-extral" placeholder="IP地址" v-model="itemToAdd.ip" style="max-width: 200px; margin-right: 5px;"></el-input>
-        <el-input size="mini-extral" placeholder="说明" v-model="itemToAdd.description" style="max-width: 500px; margin-right: 5px;"></el-input>
+        <el-input size="mini" placeholder="IP地址" v-model="itemToAdd.ip" style="max-width: 200px; margin-right: 5px;"></el-input>
+        <el-input size="mini" placeholder="说明" v-model="itemToAdd.description" style="max-width: 500px; margin-right: 5px;"></el-input>
         <el-button
                 size="mini"
                 type="warning"

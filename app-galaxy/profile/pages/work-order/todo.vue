@@ -25,7 +25,7 @@
             <label style="width: 68px; line-height: 26px; color: black">申请人：</label>
             <el-input
                     v-model="searchForm.userName"
-                    size="mini-extral" style="display: inline-block; width: 160px;"></el-input>
+                    size="mini" style="display: inline-block; width: 160px;"></el-input>
           </div>
           <div class="item">
             <label style="width: 72px; line-height: 26px; color: black">申请时间：</label>

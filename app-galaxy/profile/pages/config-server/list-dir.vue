@@ -16,7 +16,7 @@
           <span>&nbsp</span>
         </el-col>
         <el-col :span="13">
-          <el-input size="mini-extral" placeholder="按关键字搜索目录" class="search"
+          <el-input size="mini" placeholder="按关键字搜索目录" class="search"
                     style="max-width: 360px;"
                     v-model="filterKey">
             <i slot="prefix" class="el-icon-search"></i>

@@ -4,14 +4,14 @@
       <div class="item" v-if="false">
         <label>
           <span style="line-height: 24px">应用名称:</span>
-          <el-select filterable placeholder="请选择" size="mini-extral" v-model="selectedAppId" class="select">
+          <el-select filterable placeholder="请选择" size="mini" v-model="selectedAppId" class="select">
             <el-option v-for="(item,index) in appListWithAll" :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
           </el-select>
         </label>
       </div>
       <div class="item">
-        <el-input size="mini-extral" placeholder="关键字包括Pipeline名称和应用名称" class="search"
+        <el-input size="mini" placeholder="关键字包括Pipeline名称和应用名称" class="search"
                   style="min-width: 360px;"
                   v-model="filterKey">
           <i slot="prefix" class="el-icon-search"></i>
@@ -23,7 +23,7 @@
       <div class="item">
         <label>
           <span style="line-height: 24px">最近一次执行状态:</span>
-          <el-select placeholder="请选择" size="mini-extral" v-model="selectedStatus" class="select">
+          <el-select placeholder="请选择" size="mini" v-model="selectedStatus" class="select">
             <el-option v-for="(item,index) in STATUS_LIST" :key="item.index" :label="item.statusName" :value="item.status"></el-option>
           </el-select>
         </label>
@@ -175,7 +175,7 @@
                        :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
           </el-select>
-          <el-button type="primary" style="margin-left: 8px;" size="mini-extral"
+          <el-button type="primary" style="margin-left: 8px;" size="mini"
                      @click="handleDialogButtonClick('dialog4SelectApp', 'yes')">确定&nbsp>></el-button>
         </el-form-item>
       </el-form>

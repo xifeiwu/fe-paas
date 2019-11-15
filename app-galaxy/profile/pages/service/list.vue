@@ -291,7 +291,7 @@
                        :key="index"></el-option>
           </el-select>
           <el-button :class="['add-domain-btn', props4CreateDomain.domainToAdd.length > 0 ? 'disabled': '']"
-                     size="mini-extral" type="primary" @click="handleDomainInDialog($event, 'add')">添加</el-button>
+                     size="mini" type="primary" @click="handleDomainInDialog($event, 'add')">添加</el-button>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -464,9 +464,9 @@
       <div slot="content">
         <div style="font-size: 14px;">您确定要部署当前镜像吗？</div>
         <div style="display: flex; justify-content: space-around; margin-top: 8px;">
-          <el-button type="danger" size="mini-extral"
+          <el-button type="danger" size="mini"
                      @click="$refs['rolling-up-image-confirm'] && $refs['rolling-up-image-confirm'].doClose()">取消</el-button>
-          <el-button type="primary" size="mini-extral" :loading="statusOfWaitingResponse('rolling-up-deploy-image')"
+          <el-button type="primary" size="mini" :loading="statusOfWaitingResponse('rolling-up-deploy-image')"
                      @click="handleDialogRollingUp($event, 'rolling-up-deploy-image')">确定</el-button>
         </div>
       </div>

@@ -69,7 +69,7 @@
 
           <div class="item" v-if="searchForm.queryType=='all'">
             <label>运行环境:</label>
-            <el-select v-model="searchForm.spaceId" size="mini-extral" placeholder="请选择">
+            <el-select v-model="searchForm.spaceId" size="mini" placeholder="请选择">
               <el-option v-for="item in $storeHelper.profileListOfGroup" :key="item.id" :label="item.description" :value="item.id">
               </el-option>
             </el-select>
@@ -88,12 +88,12 @@
           </div>
           <el-button
               style="margin-bottom: 4px;"
-              size="mini-extral"
+              size="mini"
               type="primary"
               @click="handleButtonClick('search')">查询</el-button>
           <el-button
               style="margin-bottom: 4px;"
-              size="mini-extral"
+              size="mini"
               type="primary"
               @click="handleButtonClick('refresh')">刷新</el-button>
         </el-col>

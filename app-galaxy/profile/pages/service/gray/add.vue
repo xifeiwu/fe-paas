@@ -252,7 +252,7 @@
                 <el-input v-model="environmentRemark" size="mini"></el-input>
               </el-col>
               <el-col :span="2" style="text-align: center">
-                <el-button type="primary" size="mini-extral" round
+                <el-button type="primary" size="mini" round
                            @click="handleEnvironment('add', environmentKey, environmentValue, environmentRemark)">添加</el-button>
               </el-col>
             </el-row>
@@ -283,7 +283,7 @@
                 <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
               </el-col>
               <el-col :span="2" style="text-align: center">
-                <el-button type="primary" size="mini-extral" round
+                <el-button type="primary" size="mini" round
                            @click="handleHost('add', hostKey, hostValue)">添加</el-button>
               </el-col>
             </el-row>

@@ -1,25 +1,25 @@
 <template>
   <div id="middleware-mariadb-backup" @click="handleButtonClick($event, 'click-on-page')">
     <div class="header">
-      <el-button size="mini-extral"
+      <el-button size="mini"
                  type="warning"
                  :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_create'].disabled}"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_create')">
         <span>立即备份</span>
       </el-button>
-      <el-button size="mini-extral"
+      <el-button size="mini"
                  type="danger"
                  :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_delete'].disabled}"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_delete')">
         <span>删除</span>
       </el-button>
-      <el-button size="mini-extral"
+      <el-button size="mini"
                  type="primary"
                  :class="{'disabled': $storeHelper.permission['middleware_mariadb_backup_restore'].disabled}"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_restore')">
           <span>恢复</span>
       </el-button>
-      <el-button size="mini-extral"
+      <el-button size="mini"
                  type="primary"
                  @click="handleButtonClick($event, 'middleware_mariadb_backup_refresh')">
         <span>刷新</span><i class="el-icon el-icon-refresh" style="margin-left: 3px;"></i>
