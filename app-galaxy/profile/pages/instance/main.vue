@@ -1,15 +1,11 @@
 <template>
   <div id="instance-main">
-    <el-row class="header" type="flex" justify="center" align="middle">
-      <el-col :span="12">
+    <div class="header">
+      <div class="item">
         <paas-version-selector :customConfig="config4VersionSelector" ref="version-selector"
                              @version-selected="onVersionSelected"></paas-version-selector>
-      </el-col>
-      <el-col :span="8">
-          <span v-if="!instanceStatus.isCanary">运行实例数/总实例数：{{`${instanceStatus['runningCnt']} / ${instanceStatus['totalCnt']}`}}</span>
-          <span v-if="instanceStatus.isCanary">运行实例数/总实例数(主服务)：{{`${instanceStatus['runningCnt']} / ${instanceStatus['totalCnt']}`}}&nbsp;&nbsp;|&nbsp;&nbsp;运行实例数/总实例数(灰度)：{{`${instanceStatus['canaryRunningCnt']} / ${instanceStatus['canaryTotalCnt']}`}}</span>
-      </el-col>
-      <el-col :span="4">
+      </div>
+      <div class="item">
         <el-button v-if="true"
                    size="mini"
                    type="primary"
@@ -18,8 +14,12 @@
                    type="primary"
                    :class="{'disabled': $storeHelper.permission['instance_change_count'].disabled || publishStatus}"
                    @click="handleButtonClick($event, 'instance_change_count')">手动伸缩</el-button>
-      </el-col>
-    </el-row>
+      </div>
+      <div class="item instance-count">
+        <span v-if="!instanceStatus.isCanary">运行实例数/总实例数：{{`${instanceStatus['runningCnt']} / ${instanceStatus['totalCnt']}`}}</span>
+        <span v-if="instanceStatus.isCanary">运行实例数/总实例数(主服务)：{{`${instanceStatus['runningCnt']} / ${instanceStatus['totalCnt']}`}}&nbsp;&nbsp;|&nbsp;&nbsp;运行实例数/总实例数(灰度)：{{`${instanceStatus['canaryRunningCnt']} / ${instanceStatus['canaryTotalCnt']}`}}</span>
+      </div>
+    </div>
     <div class="instance-list"
          v-clickoutside="handleClickOutsideOfInstanceList">
       <el-table
@@ -319,10 +319,20 @@
     /*margin:0px 6px;*/
     max-width: 1500px;
     height: 100%;
-    .el-row.header {
+    & > .header {
       padding: 3px 5px;
       font-size: 14px;
-      min-height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .item {
+        display: inline-block;
+        margin-right: 5px;
+        &.instance-count {
+          flex: 1;
+          text-align: center;
+        }
+      }
     }
     .instance-list {
       position: relative;
