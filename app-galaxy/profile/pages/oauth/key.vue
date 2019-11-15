@@ -3,17 +3,18 @@
     <el-row class="header" type="flex" justify="center" align="middle">
       <el-col :span="20" class="key-selector">
         <div class="item">
-          <label style="float: left; width: 72px; line-height: 26px">访问环境：</label>
-          <el-select v-model="searchCondition.production" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
+          <label style="float: left; width: 72px;">访问环境：</label>
+          <el-select size="mini" v-model="searchCondition.production" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
             <el-option :value="null" label="全部"></el-option>
             <el-option :value="true" label="生产环境"></el-option>
             <el-option :value="false" label="非生产环境"></el-option>
           </el-select>
         </div>
         <div class="item">
-          <label style="float: left; width: 60px; line-height: 26px">ClientId：</label>
+          <label style="float: left; width: 60px;">ClientId：</label>
           <el-input v-model="searchCondition.accessKey"
                     style="display:block; width: 200px; margin-left: 60px;"
+                    size="mini"
                     @keyup.enter.native="handleButtonClick($event, 'search')"></el-input>
         </div>
         <el-button size="mini"
@@ -579,16 +580,6 @@
         vertical-align: middle;
       }
     }
-    .el-row.header {
-      .el-input {
-        input {
-          height: 26px;
-        }
-      }
-      .el-select .el-input__inner {
-        height: 26px;
-      }
-    }
   }
 </style>
 <style lang="scss" scoped>
@@ -603,16 +594,17 @@
     border-radius: 4px;
   }
   .el-row.header {
-    padding: 5px;
+    padding: 3px 5px;
     font-size: 14px;
-    line-height: 20px;
     i {
       font-size: 14px;
     }
     .el-col {
       vertical-align: middle;
       .item {
-        margin: 1px;
+        label {
+          line-height: 24px;
+        }
         display: inline-block;
       }
     }
