@@ -1,10 +1,18 @@
 <template>
   <div id="instance-terminal">
     <div class="header" v-if="instanceInfo">
-      <div class="instance-info">
+      <div class="state">
         <div class="item">当前实例：{{instanceInfo.instanceName}}</div>
         <div class="item">实例IP：{{instanceInfo.intranetIP}}</div>
         <div class="item">操作员：{{instanceInfo.realName}}</div>
+      </div>
+      <div class="operation">
+        <el-button
+                type="primary"
+                size="mini-extral"
+                @click="handleButtonClick($event, 'download_file')">
+          下载文件
+        </el-button>
       </div>
     </div>
     <div class="content">
@@ -31,13 +39,21 @@
     flex-direction: column;
     .header {
       background: black;
+      padding: 2px;
       color: #5DF504;
-      padding-bottom: 4px 4px;
-      .instance-info {
-        max-width: 1000px;
-        font-size: 12px;
-        display: flex;
-        justify-content: space-between;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .state {
+        .item {
+          display: inline-block;
+          margin-right: 36px;
+        }
+      }
+      .operation {
+        flex: 1;
+        text-align: left;
       }
     }
     .content {
@@ -215,6 +231,45 @@
         } else {
           return null;
         }
+      },
+
+      async handleButtonClick(evt, action) {
+        switch (action) {
+          case 'download_file':
+            const h = this.$createElement;
+            try {
+              const {value, action} = await this.$msgbox({
+                title: '提示',
+                message: h('div', null, ['1）输入路径，点击确定后，会在终端运行相关指令',
+                  '2）指令运行成功后，会在终端生成文件的下载路径，点击下载路径即可下载到本地',
+                  ].map(it => {
+                  return h('div', null, it);
+                })),
+                showCancelButton: true,
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                $type: 'prompt',
+                showInput: true,
+                inputPlaceholder: '请输入相对文件（针对当前目录的）相对路径',
+                inputValidator: (inputValue) => {
+                  return true;
+                },
+                beforeClose(action, component, done) {
+                  if (action === 'confirm') {
+                    setTimeout(() => {
+                      done();
+                    }, 800);
+                  } else {
+                    done();
+                  }
+                }
+              });
+              this.xtermHelper.sendInput(`curl -sSL http://minio.puhuitech.cn:9001/public/oss-tools.sh | sh -s ${value.trim()}\r`);
+            } catch (err) {
+            }
+            break;
+        }
+
       }
     }
   }
