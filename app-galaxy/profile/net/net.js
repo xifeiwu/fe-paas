@@ -417,6 +417,13 @@ class Net extends NetBase {
         method: 'get'
       },
 
+      /** oauth相关 */
+      // oauth列表
+      'oauth_get_access_key_list': {
+        path: '/application/authorization/query',
+        method: 'post'
+      },
+
       /** 应用配置 */
       'config_server_branch': {
         path: '/remote-config/branches',
@@ -2328,7 +2335,8 @@ class Net extends NetBase {
   }
 
   /**
-   * oauth相关
+   * TODO: not used
+   * oauth相关，根据当前团队id获取可以绑定的目标团队列表?
    */
   // 获取绑定
   oAuthGetTargetGroupList(options) {
@@ -2387,77 +2395,6 @@ class Net extends NetBase {
         })
       })
     });
-  }
-
-  // 获取Access Key列表
-  getAccessKeyList(options) {
-    /**
-     * transfer name of props
-     * 我的应哟：requestApplicationName -> myApp
-     * Access Key: clientId -> accessKey
-     * produceEnv -> profileName
-     * @param it
-     */
-    let transfer = function(it) {
-      it.accessKey = it.clientId;
-      it.myApp = it['applicationName'] ? it['applicationName'] : '--';
-      // 访问应用状态信息
-      it.appAccessStatus = '';
-      if (null == it.produceEnv) {
-        it.profileName = null;
-      } else {
-        if (true == it.produceEnv) {
-          it.profileName = '生产环境';
-        } else if (false == it.produceEnv) {
-          it.profileName = '非生产环境';
-        }
-      }
-      it.production = it.produceEnv;
-      it.accessConfigList = it['requestUaaAuthoritiesList'];
-      if (it.accessConfigList.length > 0) {
-        it.accessConfigDesc = it.accessConfigList.map(it => {
-          return `${it.targetGroupName} - ${it.targetOauth}，${it.status}`;
-        });
-      } else {
-        it.accessConfigDesc = [];
-      }
-      it.createTime =  this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
-      if (it.createTime) {
-        it.createTime = it.createTime.split(' ');
-      }
-    };
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.oauth_get_access_key_list.url, options).then(response => {
-        // console.log(response);
-        let resContent = this.getResponseContent(response);
-        if (resContent) {
-          if (resContent.hasOwnProperty('uaaList')) {
-            let uaaList = resContent['uaaList'];
-            if (Array.isArray(uaaList)) {
-              uaaList.forEach(transfer.bind(this));
-            }
-            resolve(resContent);
-          } else {
-            reject({
-              title: '数据格式不正确',
-              msg: '未找到uaaList'
-            });
-          }
-        } else {
-          let resMsg = this.getResponseMsg(response, {
-            successMsg: '',
-            errorMsg: '获取数据失败'
-          });
-          reject(resMsg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject({
-          title: '网络请求错误',
-          msg: `请求路径：${URL_LIST.oauth_get_access_key_list.path}；${err.toString()}`
-        });
-      })
-    })
   }
 
   // 修改secret

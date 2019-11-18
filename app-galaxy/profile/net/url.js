@@ -196,10 +196,6 @@ class URL extends BaseURL {
         url: API_PATH + '/application/authorization/queryByAppId',
         path: '/application/authorization/queryByAppId'
       },
-      'oauth_get_access_key_list': {
-        url: API_PATH + '/application/authorization/query',
-        path: '/application/authorization/query'
-      },
       // 修改秘钥
       'oauth_update_secret': {
         url: API_PATH + '/application/authorization/{id}',

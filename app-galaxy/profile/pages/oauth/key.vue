@@ -830,8 +830,7 @@ export default {
   },
 
   watch: {
-    '$storeHelper.currentGroupID': 'getTargetGroupList',
-    '$storeHelper.currentGroupID': function () {
+    '$storeHelper.currentGroupId': function () {
       this.currentPage = 1;
       this.requestAccessKeyList();
     },
@@ -1066,9 +1065,7 @@ export default {
         case 'search':
           this.currentPage = 1;
           this.addToWaitingResponseQueue(action);
-          this.requestAccessKeyList(() => {
-            this.hideWaitingResponse(action);
-          });
+          this.requestAccessKeyList();
           break;
       }
     },
@@ -1206,7 +1203,7 @@ export default {
           this.addToWaitingResponseQueue(action);
           this.warningConfirm('删除CliendId',
             `删除ClientId：${row.clientId}，将会造成已经授权的配置失效，你确定需要这么做吗？`).then(() => {
-            this.$net.oauthDeleteAccessKey(this.selected.row.id,{groupId: this.$storeHelper.currentGroupID}).then(msg => {
+            this.$net.oauthDeleteAccessKey(this.selected.row.id,{groupId: this.$storeHelper.currentGroupId}).then(msg => {
               this.hideWaitingResponse(action);
               this.$message.success(msg);
               this.requestAccessKeyList();
@@ -1441,7 +1438,7 @@ export default {
             }
           });
           let dataToPost = {
-            groupId: this.$storeHelper.currentGroupID,
+            groupId: this.$storeHelper.currentGroupId,
             outerApp: this.modifyAccessKeyInfo.isExternalApp,
             productEnv: this.modifyAccessKeyInfo.production,
             applyList: targetAuthInfoList,
@@ -1509,7 +1506,7 @@ export default {
               accessKeyId: this.updateUrlPermissionInfo.accessKeyId,
               oauth: newItem.oauth,
               oauthUrl: newItem.resource,
-              groupId: this.$storeHelper.currentGroupID,
+              groupId: this.$storeHelper.currentGroupId,
             }).then(content => {
               this.hideWaitingResponse(action);
               this.$message.success(`权限${newItem.oauth}添加成功`);
@@ -1576,7 +1573,7 @@ export default {
         case 'secret':
           this.$net.oauthUpdateSecret(this.selected.row.id, {
             secret: this.newProps[prop],
-            groupId: this.$storeHelper.currentGroupID,
+            groupId: this.$storeHelper.currentGroupId,
           }).then(msg => {
             this.hideWaitingResponse(action + '-in-dialog');
             this.selected.operation = null;
@@ -1605,7 +1602,7 @@ export default {
             }
           });
           this.$net.oauthUpdateTargetApp(this.selected.row.id, {
-            groupId: this.$storeHelper.currentGroupID,
+            groupId: this.$storeHelper.currentGroupId,
             applicationId: this.modifyAccessKeyInfo.appID,
             productEnv: this.modifyAccessKeyInfo.production,
             applyList: appListToPost
@@ -1669,45 +1666,55 @@ export default {
      * 4. success callback of delete access-key
      * @param cb
      */
-    requestAccessKeyList(cb) {
-      if (typeof(cb) != 'function') {
-        cb = function() {};
-      }
-      if (null === this.$storeHelper.currentGroupID) {
-//        this.$message.error('数据不完整，请刷新页面重试！');
-        cb(false);
+    async requestAccessKeyList() {
+      if (null === this.$storeHelper.currentGroupId) {
+        console.log('数据不完整');
         return;
       }
       let page = this.currentPage - 1;
       page = page >= 0 ? page : 0;
       let start = page * this.pageSize;
       let length = this.pageSize;
-      let options = {
-        groupId: this.$storeHelper.currentGroupID,
+      const options = {
+        groupId: this.$storeHelper.currentGroupId,
         targetGroupId: '',
         accessKey: this.searchCondition.accessKey,
         start: start,
         length: length,
+        productEnv: this.searchCondition.production   // NOTICE: if productEnv is supported in server?
       };
-      // options will not have property productEnv if searchCondition.production is null
-      if (null !== this.searchCondition.production) {
-        options.productEnv = this.searchCondition.production;
-      }
-      this.$net.getAccessKeyList(options).then(content => {
-        if (content.hasOwnProperty('uaaList')) {
-          this.accessKeyListByPage = content['uaaList'];
-          this.totalSize = content.total;
-        }
-        cb(true)
-      }).catch(err => {
-          console.error(err)
-        cb(false);
-        this.$notify.error({
-          title: err.title,
-          message: err.message,
-          duration: 0
-        })
+      const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.oauth_get_access_key_list, {
+        payload: options
       });
+      resData.uaaList.forEach(it => {
+        it.accessKey = it.clientId;
+        it.myApp = it['applicationName'] ? it['applicationName'] : '---';
+        // 访问应用状态信息
+        it.appAccessStatus = '';
+
+        it.profileName = '---';
+        if (true == it.produceEnv) {
+          it.profileName = '生产环境';
+        } else if (false == it.produceEnv) {
+          it.profileName = '非生产环境';
+        }
+
+        it.production = it.produceEnv;
+        it.accessConfigList = it['requestUaaAuthoritiesList'];
+        if (it.accessConfigList.length > 0) {
+          it.accessConfigDesc = it.accessConfigList.map(it => {
+            return `${it.targetGroupName} - ${it.targetOauth}，${it.status}`;
+          });
+        } else {
+          it.accessConfigDesc = [];
+        }
+        it.createTime =  this.$utils.formatDate(it.createTime, 'yyyy-MM-dd hh:mm:ss');
+        if (it.createTime) {
+          it.createTime = it.createTime.split(' ');
+        }
+      });
+      this.accessKeyListByPage = resData.uaaList;
+      this.totalSize = resData.total;
     },
 
     refreshAccessKeyList() {
