@@ -38,8 +38,6 @@
               :data="accessKeyListByPage"
               stripe
               :height="heightOfAccessKeyList"
-              v-loading="showLoading"
-              element-loading-text="加载中"
       >
         <el-table-column
           prop="accessKey"
@@ -179,7 +177,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="totalSize > pageSize" :class="{'disable': showLoading}">
+      <div class="pagination-container" v-if="totalSize > pageSize">
         <div class="pagination">
           <el-pagination
                   :current-page="currentPage"
@@ -681,9 +679,6 @@ export default {
       this.requestAccessKeyList();
     }
 
-    if (!this.targetGroupList || this.targetGroupList.length === 0) {
-      this.getTargetGroupList(this.$storeHelper.currentGroupID)
-    }
     // adjust element height after resize
     try {
       let header = this.$el.querySelector('.header:first-child');
@@ -710,11 +705,8 @@ export default {
 
       queueForWaitingResponse: [],
 
-      targetGroupList: [],
-      showLoading: false,
 //      createAccessKeyTag: null,
       searchCondition: {
-        groupID: '',
         production: null,
         accessKey: ''
       },
@@ -840,10 +832,6 @@ export default {
   watch: {
     '$storeHelper.currentGroupID': 'getTargetGroupList',
     '$storeHelper.currentGroupID': function () {
-      this.currentPage = 1;
-      this.requestAccessKeyList();
-    },
-    'searchCondition.groupID': function () {
       this.currentPage = 1;
       this.requestAccessKeyList();
     },
@@ -975,30 +963,6 @@ export default {
   },
 
   methods: {
-    // called at: 1. start of page, 2. change of groupID
-    getTargetGroupList (groupID) {
-      if (!groupID) {
-        return;
-      }
-      this.$net.oAuthGetTargetGroupList({
-        requestGroupId: groupID
-      }).then(groupList => {
-        this.targetGroupList = groupList;
-        this.targetGroupList.unshift({
-          targetGroupId: this.$storeHelper.GROUP_ID_FOR_ALL,
-          targetGroupName: '全部'
-        });
-        this.searchCondition.groupID = this.$storeHelper.GROUP_ID_FOR_ALL;
-      }).catch(err => {
-//        console.log(err);
-        this.targetGroupList = [{
-          targetGroupId: this.$storeHelper.GROUP_ID_FOR_ALL,
-          targetGroupName: '全部'
-        }];
-        this.searchCondition.groupID = this.$storeHelper.GROUP_ID_FOR_ALL;
-      });
-    },
-
     // helper for loading action of el-button
     addToWaitingResponseQueue(action) {
       if (this.queueForWaitingResponse.indexOf(action) === -1) {
@@ -1718,10 +1682,9 @@ export default {
       page = page >= 0 ? page : 0;
       let start = page * this.pageSize;
       let length = this.pageSize;
-      let searchGroupID = this.searchCondition.groupID;
       let options = {
         groupId: this.$storeHelper.currentGroupID,
-        targetGroupId: searchGroupID == this.$storeHelper.GROUP_ID_FOR_ALL ? '' : searchGroupID,
+        targetGroupId: '',
         accessKey: this.searchCondition.accessKey,
         start: start,
         length: length,
@@ -1730,17 +1693,14 @@ export default {
       if (null !== this.searchCondition.production) {
         options.productEnv = this.searchCondition.production;
       }
-      this.showLoading = true;
       this.$net.getAccessKeyList(options).then(content => {
         if (content.hasOwnProperty('uaaList')) {
           this.accessKeyListByPage = content['uaaList'];
           this.totalSize = content.total;
         }
-        this.showLoading = false;
         cb(true)
       }).catch(err => {
           console.error(err)
-        this.showLoading = false;
         cb(false);
         this.$notify.error({
           title: err.title,
