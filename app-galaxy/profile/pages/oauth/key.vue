@@ -660,6 +660,7 @@
 
 export default {
   components: {paasDismissMessage},
+  mixins: [commonUtils],
   created() {
 //    console.log(this.appInfoListOfGroup);
   },
@@ -958,21 +959,6 @@ export default {
   },
 
   methods: {
-    // helper for loading action of el-button
-    addToWaitingResponseQueue(action) {
-      if (this.queueForWaitingResponse.indexOf(action) === -1) {
-        this.queueForWaitingResponse.push(action);
-      }
-    },
-    hideWaitingResponse(action) {
-      let index = this.queueForWaitingResponse.indexOf(action);
-      if (index > -1) {
-        this.queueForWaitingResponse.splice(index, 1);
-      }
-    },
-    statusOfWaitingResponse(action) {
-      return this.queueForWaitingResponse.indexOf(action) > -1;
-    },
     handleDialogClose(action) {
       this.refreshAccessKeyList();
       this.selected.operation = null;
