@@ -110,6 +110,23 @@
           headerAlign="center" align="center">
         </el-table-column>
         <el-table-column
+            label="我的应用"
+            width="100"
+            headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div>
+              <span>{{scope.row.myApp}}</span>
+              <span v-if="scope.row.outerApp" class="outer-app-tag">外</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+            prop="description"
+            label="备注"
+            minWidth="180"
+            headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
                 label="创建时间"
                 prop="createTime"
                 width="100"
@@ -178,11 +195,12 @@
     </div>
 
     <el-dialog title="创建ClientId" :visible="selected.operation == 'oauth_create_access_key'"
-               class="create-access-key size-800"
+               class="create-access-key size-700"
                :close-on-click-modal="false"
+               bodyPadding="4px 16px"
                @close="handleDialogClose('create-access-key')"
     >
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="140px" size="mini"
+      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="120px" size="mini"
                ref="createAccessKeyForm">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
@@ -210,16 +228,19 @@
             <el-radio :label="false">非生产环境</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="备注" prop="description">
+          <el-input v-model="modifyAccessKeyInfo.description" placeholder="不超过200个字符"></el-input>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
           <div class="item">
-            <el-button type="primary"
+            <el-button type="primary" size="mini"
                        :loading="statusOfWaitingResponse('create-access-key')"
                        @click="handleDialogButton('create-access-key')"
             >保&nbsp存</el-button>
           </div>
           <div class="item">
-            <el-button @click="handleDialogClose('create-access-key')">取&nbsp消</el-button>
+            <el-button size="mini" @click="handleDialogClose('create-access-key')">取&nbsp消</el-button>
           </div>
       </div>
     </el-dialog>
@@ -742,7 +763,8 @@ export default {
         targetOauthId:null,
         targetAppID: null,
         targetAppName: '',
-        targetAuthInfoList:[]
+        targetAuthInfoList:[],
+        description: ''
       },
       rulesForAccessConfig: {
         appID: [{
@@ -1458,7 +1480,8 @@ export default {
             groupId: this.$storeHelper.currentGroupID,
             outerApp: this.modifyAccessKeyInfo.isExternalApp,
             productEnv: this.modifyAccessKeyInfo.production,
-            applyList: targetAuthInfoList
+            applyList: targetAuthInfoList,
+            description: this.modifyAccessKeyInfo.description
           };
           if (this.modifyAccessKeyInfo.isExternalApp) {
             dataToPost['outerAppName'] = this.modifyAccessKeyInfo.externalAppName;
