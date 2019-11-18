@@ -194,7 +194,7 @@
                bodyPadding="4px 16px"
                @close="handleDialogClose('create-access-key')"
     >
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="120px" size="mini"
+      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="110px" size="mini"
                ref="createAccessKeyForm">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
@@ -730,6 +730,16 @@ export default {
           message: '应用名不能为空',
         }, {
           validator: utils.generateValidator(true, true, 2, 30, true)
+        }],
+        description: [{
+          trigger: ['blur', 'change'],
+          validator(rule, values, callback) {
+            if (values.length >= 200) {
+              callback('不能超过200个字符');
+              return;
+            }
+            callback();
+          }
         }],
       },
 
