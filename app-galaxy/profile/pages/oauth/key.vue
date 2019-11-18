@@ -1,38 +1,34 @@
 <template>
   <div id="oauth-key">
-    <el-row class="header" type="flex" justify="center" align="middle">
-      <el-col :span="20" class="key-selector">
-        <div class="item">
-          <label style="float: left; width: 72px;">访问环境：</label>
-          <el-select size="mini" v-model="searchCondition.production" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
-            <el-option :value="null" label="全部"></el-option>
-            <el-option :value="true" label="生产环境"></el-option>
-            <el-option :value="false" label="非生产环境"></el-option>
-          </el-select>
-        </div>
-        <div class="item">
-          <label style="float: left; width: 60px;">ClientId：</label>
-          <el-input v-model="searchCondition.accessKey"
-                    style="display:block; width: 200px; margin-left: 60px;"
-                    size="mini"
-                    @keyup.enter.native="handleButtonClick($event, 'search')"></el-input>
-        </div>
-        <el-button size="mini"
-                   type="primary"
-                   :loading="statusOfWaitingResponse('search')"
-                   @click="handleButtonClick($event, 'search')">搜索</el-button>
-      </el-col>
-      <el-col :span="4">
-        <el-button
-                size="mini"
-                type="primary"
-                :class="{'disabled': $storeHelper.permission['oauth_create_access_key'].disabled}"
-                :loading="statusOfWaitingResponse('oauth_create_access_key')"
-                @click="handleButtonClick($event, 'oauth_create_access_key')">
-          创建ClientId
-        </el-button>
-      </el-col>
-    </el-row>
+    <div class="header">
+      <div class="item selector profile">
+        <label style="float: left; width: 72px;">访问环境：</label>
+        <el-select size="mini" v-model="searchCondition.production" placeholder="请选择" style="display:block; max-width: 200px; margin-left: 72px;">
+          <el-option :value="null" label="全部"></el-option>
+          <el-option :value="true" label="生产环境"></el-option>
+          <el-option :value="false" label="非生产环境"></el-option>
+        </el-select>
+      </div>
+      <div class="item selector key">
+        <label style="float: left; width: 60px;">ClientId：</label>
+        <el-input v-model="searchCondition.accessKey"
+                  style="display:block; width: 200px; margin-left: 60px;"
+                  size="mini"
+                  @keyup.enter.native="handleButtonClick($event, 'search')"></el-input>
+      </div>
+      <el-button class="item button search" size="mini"
+                 type="primary"
+                 :loading="statusOfWaitingResponse('search')"
+                 @click="handleButtonClick($event, 'search')">搜索</el-button>
+      <el-button class="item button create"
+              size="mini"
+              type="primary"
+              :class="{'disabled': $storeHelper.permission['oauth_create_access_key'].disabled}"
+              :loading="statusOfWaitingResponse('oauth_create_access_key')"
+              @click="handleButtonClick($event, 'oauth_create_access_key')">
+        创建ClientId
+      </el-button>
+    </div>
     <div class="access-key-list">
       <el-table
               :data="accessKeyListByPage"
@@ -612,19 +608,19 @@
     border: 1px solid #409EFF;
     border-radius: 4px;
   }
-  .el-row.header {
+  & > .header {
     padding: 3px 5px;
     font-size: 14px;
-    i {
-      font-size: 14px;
-    }
-    .el-col {
-      vertical-align: middle;
-      .item {
+    display: flex;
+    align-items: center;
+    /*justify-content: space-between;*/
+    justify-content: flex-start;
+    .item {
+      margin-right: 6px;
+      &.selector {
         label {
           line-height: 24px;
         }
-        display: inline-block;
       }
     }
   }
@@ -999,7 +995,7 @@ export default {
       this.modifyAccessKeyInfo.targetAppName = '';
     },
 
-    handleButtonClick(evt, action) {
+    async handleButtonClick(evt, action) {
       if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
         this.$storeHelper.globalPopover.show({
           ref: evt.target,
@@ -1065,7 +1061,8 @@ export default {
         case 'search':
           this.currentPage = 1;
           this.addToWaitingResponseQueue(action);
-          this.requestAccessKeyList();
+          await this.requestAccessKeyList();
+          this.hideWaitingResponse(action);
           break;
       }
     },
