@@ -30,6 +30,24 @@ class StoreHelper extends BaseHelper{
     }
   }
 
+
+  set currentGroupId(groupId) {
+    this.$store.dispatch('user/toGroupId', groupId);
+  }
+  get currentGroupId() {
+    var groupId = null;
+    if (this.groupInfo) {
+      groupId = this.groupInfo['id'];
+    }
+    try {
+      groupId = parseInt(groupId);
+    } catch(err) {
+      groupId = null;
+    }
+    return groupId;
+  }
+
+  // TODO: replaced by currentGroupId
   set currentGroupID(groupId) {
     this.$store.dispatch('user/toGroupId', groupId);
   }
@@ -45,11 +63,12 @@ class StoreHelper extends BaseHelper{
     }
     return groupId;
   }
+
   changeGroup(groupId) {
-    if (this.currentGroupID == groupId) {
+    if (this.currentGroupId == groupId) {
       return Promise.resolve();
     }
-    this.currentGroupID = groupId;
+    this.currentGroupId = groupId;
     setTimeout(() => {
       this.promiseChangeGroup.reject(new Error('time out'));
     }, 15 * 1000);
@@ -104,7 +123,7 @@ class StoreHelper extends BaseHelper{
     // if (!appInfoListOfGroup) {
     //   this.$store.dispatch('user/appInfoListOfGroup', {
     //     from: 'vue.$storeHelper',
-    //     groupID: this.currentGroupID
+    //     groupID: this.currentGroupId
     //   });
     // }
     return appInfoListOfGroup;
