@@ -159,9 +159,9 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="[$storeHelper.permission['oauth_update_secret'].disabled ? 'disabled' : 'warning']"
-                    :loading="statusOfWaitingResponse('oauth_update_secret') && selected.row.id === scope.row.id"
-                    @click="handleTRClick($event, 'oauth_update_secret', scope.$index, scope.row)">修改秘钥
+                    :class="[$storeHelper.reason4ActionDisabled('open_dialog_oauth_secret_change') ? 'disabled' : 'warning']"
+                    :loading="statusOfWaitingResponse('open_dialog_oauth_secret_change') && selected.row.id === scope.row.id"
+                    @click="handleTRClick($event, 'open_dialog_oauth_secret_change', scope.$index, scope.row)">修改秘钥
             </el-button>
             <div class="ant-divider"></div>
             <el-button
@@ -447,31 +447,29 @@
       </div>
     </el-dialog>
 
-  <el-dialog title="更改秘钥" :visible="selected.operation == 'oauth_update_secret'"
-               class="modify-secret"
-               :close-on-click-modal="false"
-               @close="selected.operation = null"
-               v-if="selected.row"
+    <el-dialog title="更改秘钥" :visible="action.name == 'open_dialog_oauth_secret_change'"
+             v-if="action.name == 'open_dialog_oauth_secret_change'"
+             class="oauth_secret_change size-600"
+               bodyPadding="4px 10px"
+             :close-on-click-modal="false"
+             @close="closeDialog"
     >
-      <el-form :model="newProps" :rules="rulesForNewProps" labelWidth="160px" size="mini" ref="modifySecretForm">
+      <el-form :model="action.data" :rules="rulesForAccessConfig" labelWidth="100px" size="mini" ref="modifySecretForm">
         <el-form-item label="ClientId：">
-          {{selected.row.accessKey}}
+          {{action.data.accessKey}}
         </el-form-item>
         <el-form-item label="Secret：" prop="secret">
-          <el-input v-model="newProps.secret" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+          <el-input v-model="action.data.secret" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
-            <el-button type="primary"
-                       @click="handleDialogButton('modify-secret')"
-                       :loading="statusOfWaitingResponse('modify-secret-in-dialog')">确&nbsp定</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="selected.operation = null">取&nbsp消</el-button>
-          </el-col>
-        </el-row>
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
+            <el-button type="primary" size="mini"
+                       @click="handleDialogButton(action.name.replace('open_dialog_', ''))">确&nbsp定</el-button>
+          </div>
+          <div class="item">
+            <el-button size="mini" @click="closeDialog">取&nbsp消</el-button>
+          </div>
       </div>
     </el-dialog>
   </div>
@@ -504,7 +502,7 @@
           }
         }
       }
-      &.modify-secret {
+      &.oauth_secret_change {
         width: 80%;
         max-width: 600px;
         margin: 15px auto;
@@ -782,6 +780,11 @@ export default {
           required: true,
           message: '应用名不能为空',
         }],
+        // 修改秘钥使用
+        secret: [{
+          required: true,
+          message: '内容不能为空',
+        }],
       },
       dataForSelectApp: {
         groupListAll: null,
@@ -808,12 +811,6 @@ export default {
         secret: '',
         accessConfigList: [],
         accessConfigDesc: []
-      },
-      rulesForNewProps: {
-        secret: [{
-          required: true,
-          message: '内容不能为空',
-        }],
       },
 
       totalSize: 0,
@@ -1077,7 +1074,14 @@ export default {
      * @param index
      * @param row
      */
-    handleTRClick(evt, action, index, row) {
+    async handleTRClick(evt, action, index, row) {
+      if (this.$storeHelper.reason4ActionDisabled('open_dialog_oauth_secret_change')) {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: this.$storeHelper.reason4ActionDisabled('open_dialog_oauth_secret_change')
+        });
+        return;
+      }
       if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
         this.$storeHelper.globalPopover.show({
           ref: evt.target,
@@ -1197,9 +1201,31 @@ export default {
             });
           });
           break;
-        case 'oauth_update_secret':
-          this.newProps.secret = row.secret;
-          this.selected.operation = action;
+        case 'open_dialog_oauth_secret_change':
+          try {
+            const dialogData = await this.openDialog(action, {
+              accessKey: row.accessKey,
+              secret: row.secret
+            });
+            // console.log(dialogData);
+            this.addToWaitingResponseQueue(action);
+            const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.oauth_update_secret, {
+              params: {
+                id: row.id
+              },
+              data: {
+                groupId: this.$storeHelper.currentGroupId,
+                secret: dialogData.secret,
+              }
+            });
+            // console.log(resData);
+            row.secret = dialogData.secret;
+            this.$message.success(`秘钥更新成功！`);
+            this.closeDialog();
+          } catch (err) {
+          } finally {
+            this.hideWaitingResponse(action);
+          }
           break;
         case 'oauth_delete_access_key':
           this.addToWaitingResponseQueue(action);
@@ -1500,26 +1526,20 @@ export default {
             });
           }
           break;
-        case 'modify-secret':
-          let prop = 'secret';
-          let formName = 'modify' + prop.replace(/^[a-z]/g, (L) => L.toUpperCase()) + 'Form';
-          this.$refs[formName].validate((valid) => {
-            if (!valid) {
-              return;
-            }
-            if (!this.newProps.hasOwnProperty(prop) || !this.selected.row.hasOwnProperty(prop)) {
-              return;
-            }
-            if (this.newProps[prop] == this.selected.row[prop]) {
-              this.selected.operation = null;
+        case 'oauth_secret_change':
+          try {
+            await this.$refs['modifySecretForm'].validate();
+            if (this.action.dataOrigin.secret === this.action.data.secret) {
               this.$message({
                 type: 'warning',
                 message: '您没有做修改'
               });
-            } else {
-              this.requestUpdate(action, prop);
+              return;
             }
-          });
+            this.action.promise.resolve(this.action.data);
+          } catch (err) {
+
+          }
           break;
         case 'delete-access-config':
           // debugger
@@ -1539,27 +1559,6 @@ export default {
       }
       this.addToWaitingResponseQueue(action + '-in-dialog');
       switch (prop) {
-        case 'secret':
-          this.$net.oauthUpdateSecret(this.selected.row.id, {
-            secret: this.newProps[prop],
-            groupId: this.$storeHelper.currentGroupId,
-          }).then(msg => {
-            this.hideWaitingResponse(action + '-in-dialog');
-            this.selected.operation = null;
-            this.updateModelInfo(prop);
-            this.$message.success(msg);
-          }).catch(msg => {
-            this.hideWaitingResponse(action + '-in-dialog');
-            this.selected.operation = null;
-            this.$notify.error({
-              title: '修改失败！',
-              message: msg,
-              duration: 0,
-              onClose: function () {
-              }
-            });
-          });
-          break;
         case 'accessConfigList':
           let appListToPost = this.modifyAccessKeyInfo.targetAuthInfoList.map((it) => {
             return {

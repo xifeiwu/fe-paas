@@ -428,6 +428,11 @@ class Net extends NetBase {
         path: '/application/authorization/query',
         method: 'post'
       },
+      // 修改秘钥
+      'oauth_update_secret': {
+        path: '/application/authorization/{id}',
+        method: 'patch'
+      },
 
       /** 应用配置 */
       'config_server_branch': {
@@ -2382,25 +2387,6 @@ class Net extends NetBase {
         })
       })
     });
-  }
-
-  // 修改secret
-  oauthUpdateSecret(id, options) {
-    return new Promise((resolve, reject) => {
-      let url = this.$utils.formatUrl(URL_LIST.oauth_update_secret.url, {id});
-      axios[URL_LIST.oauth_update_secret.method](url, options).then(response => {
-        // console.log(response);
-        let resMsg = this.getResponseMsg(response);
-        if (resMsg.success) {
-          resolve(resMsg.msg);
-        } else {
-          reject(resMsg.msg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
-      })
-    })
   }
 
   //删除access key
