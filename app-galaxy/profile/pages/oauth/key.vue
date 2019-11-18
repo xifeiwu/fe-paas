@@ -23,9 +23,9 @@
       <el-button class="item button create"
               size="mini"
               type="primary"
-              :class="{'disabled': $storeHelper.permission['oauth_create_access_key'].disabled}"
-              :loading="statusOfWaitingResponse('oauth_create_access_key')"
-              @click="handleButtonClick($event, 'oauth_create_access_key')">
+              :class="{'disabled': $storeHelper.reason4ActionDisabled('open_dialog_oauth_access_key_create')}"
+              :loading="statusOfWaitingResponse('open_dialog_oauth_access_key_create')"
+              @click="handleButtonClick($event, 'open_dialog_oauth_access_key_create')">
         创建ClientId
       </el-button>
     </div>
@@ -188,53 +188,53 @@
       </div>
     </div>
 
-    <el-dialog title="创建ClientId" :visible="selected.operation == 'oauth_create_access_key'"
+    <el-dialog title="创建ClientId"
+               :visible="action.name == 'open_dialog_oauth_access_key_create'"
+               v-if="action.name == 'open_dialog_oauth_access_key_create'"
                class="create-access-key size-700"
                :close-on-click-modal="false"
                bodyPadding="4px 16px"
-               @close="handleDialogClose('create-access-key')"
+               @close="closeDialog"
     >
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForCreateAccessKey" labelWidth="110px" size="mini"
-               ref="createAccessKeyForm">
+      <el-form :model="action.data" :rules="rulesForCreateAccessKey" labelWidth="110px" size="mini"
+               ref="oauthCreateForm">
         <el-form-item label="我的团队" v-if="groupInfo">
           {{groupInfo.name}}
         </el-form-item>
         <el-form-item label="是否外部应用">
-          <el-radio-group v-model="modifyAccessKeyInfo.isExternalApp">
+          <el-radio-group v-model="action.data.isExternalApp" @change="handleDialogButton('as_external_app_or_not')">
             <el-radio :label="true">是</el-radio>
             <el-radio :label="false">否</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="外部应用名称" prop="externalAppName"
-                      :class="{'external-app-name': true, 'hidden': !modifyAccessKeyInfo.isExternalApp}">
-          <el-input v-model="modifyAccessKeyInfo.externalAppName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
+        <el-form-item label="外部应用名称" prop="appName" v-if="action.data.isExternalApp"
+                      :class="{'external-app-name': true}">
+          <el-input v-model="action.data.appName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
         </el-form-item>
-        <el-form-item label="我的应用" prop="appID" v-if="!modifyAccessKeyInfo.isExternalApp" class="app">
-          <el-select filterable v-model="modifyAccessKeyInfo.appID" placeholder="请选择"
-                     style="display:block; max-width: 280px;">
+        <el-form-item label="我的应用" prop="appId" class="app" v-else>
+          <el-select filterable v-model="action.data.appId" placeholder="请选择"
+                     style="display:block; max-width: 360px;">
             <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.appName" :value="item.appId">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="访问环境" prop="production" class="profile">
-          <el-radio-group v-model="modifyAccessKeyInfo.production">
+          <el-radio-group v-model="action.data.isProduction">
             <el-radio :label="true">生产环境</el-radio>
             <el-radio :label="false">非生产环境</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="description">
-          <el-input v-model="modifyAccessKeyInfo.description" placeholder="不超过200个字符"></el-input>
+          <el-input v-model="action.data.description" placeholder="不超过200个字符"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
           <div class="item">
             <el-button type="primary" size="mini"
-                       :loading="statusOfWaitingResponse('create-access-key')"
-                       @click="handleDialogButton('create-access-key')"
-            >保&nbsp存</el-button>
+                       @click="handleDialogButton(action.name.replace('open_dialog_', ''))">保存</el-button>
           </div>
           <div class="item">
-            <el-button size="mini" @click="handleDialogClose('create-access-key')">取&nbsp消</el-button>
+            <el-button size="mini" @click="closeDialog">取消</el-button>
           </div>
       </div>
     </el-dialog>
@@ -717,15 +717,15 @@ export default {
       },
 
       rulesForCreateAccessKey: {
-        appID: [{
+        appId: [{
           required: false,
           message: '必须选择应用',
         }],
-        production: [{
+        isProduction: [{
           required: true,
           message: '必须选择访问环境',
         }],
-        externalAppName: [{
+        appName: [{
           required: true,
           message: '应用名不能为空',
         }, {
@@ -749,9 +749,9 @@ export default {
       // prop for add or modify app access config
       modifyAccessKeyInfo: {
         isExternalApp: false,
-        appID: null,
+        appId: null,
         production: null,
-        externalAppName: '',
+        appName: '',
         requestingAppList: false,
         targetAppList: [],
         targetGroupID: null,
@@ -766,7 +766,7 @@ export default {
         description: ''
       },
       rulesForAccessConfig: {
-        appID: [{
+        appId: [{
           required: false,
           message: '应用不能为空',
         }],
@@ -949,7 +949,7 @@ export default {
       }
       this.isTargetAppOK();
     },
-    'modifyAccessKeyInfo.appID': function() {
+    'modifyAccessKeyInfo.appId': function() {
       // if current app is ok?
       this.isTargetAppOK();
     },
@@ -979,9 +979,9 @@ export default {
 
     initModifyAccessKeyInfo () {
       this.modifyAccessKeyInfo.isExternalApp = false;
-      this.modifyAccessKeyInfo.appID = null;
+      this.modifyAccessKeyInfo.appId = null;
       this.modifyAccessKeyInfo.production = false;
-      this.modifyAccessKeyInfo.externalAppName = '';
+      this.modifyAccessKeyInfo.appName = '';
       this.modifyAccessKeyInfo.targetAuthInfoList = [];
       this.modifyAccessKeyInfo.targetGroupID = null;
       this.modifyAccessKeyInfo.targetGroupName = '';
@@ -992,6 +992,13 @@ export default {
     },
 
     async handleButtonClick(evt, action) {
+      if (this.$storeHelper.reason4ActionDisabled('open_dialog_oauth_access_key_create')) {
+        this.$storeHelper.globalPopover.show({
+          ref: evt.target,
+          msg: this.$storeHelper.reason4ActionDisabled('open_dialog_oauth_access_key_create')
+        });
+        return;
+      }
       if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
         this.$storeHelper.globalPopover.show({
           ref: evt.target,
@@ -1000,8 +1007,7 @@ export default {
         return;
       }
       switch (action) {
-        case 'oauth_create_access_key':
-//          console.log(this.appListOfCurrentGroup);
+        case 'open_dialog_oauth_access_key_create':
           let errorMsg = null;
           if (!this.groupInfo) {
             errorMsg = '团队信息获取失败';
@@ -1014,44 +1020,47 @@ export default {
             return;
           }
 
-          this.addToWaitingResponseQueue(action);
-          this.initModifyAccessKeyInfo();
-          this.modifyAccessKeyInfo.appID = this.appListOfCurrentGroup[0].appId;
-          // get dataForSelectApp
-          if (!this.dataForSelectApp.groupListAll) {
-            this.$net.getAllGroupList().then(content => {
-              if (content.hasOwnProperty('groupList')) {
-                let groupList = content.groupList;
-                if (Array.isArray(groupList) && groupList.length > 0) {
-                  this.dataForSelectApp.groupListAll = groupList;
-                  if (groupList.length > 0) {
-                    this.modifyAccessKeyInfo.targetGroupID = groupList[0].id;
-                    this.modifyAccessKeyInfo.targetGroupName = groupList[0].name;
-                  }
-                  this.hideWaitingResponse(action);
-                  // open dialog for submit-access-config
-                  this.selected.operation = action;
-                } else {
-                  this.$message.error('获取组列表信息失败！');
-                }
-              }
-            }).catch(err => {
+          try {
+            const defaultAppId = this.appListOfCurrentGroup[0].appId;
+            const dialogData = await this.openDialog(action, {
+              isExternalApp: false,
+              appName: '',
+              appId: defaultAppId,
+              isProduction: false,
+              description: ''
+            });
+            this.addToWaitingResponseQueue(action);
+            setTimeout(() => {
               this.hideWaitingResponse(action);
-//              this.selected.operation = action;
-            })
-          } else {
-            this.hideWaitingResponse(action);
-            this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
-            this.modifyAccessKeyInfo.targetGroupName = this.dataForSelectApp.groupListAll[0].name;
-            if(this.dataForSelectApp.uaaList.length > 0){
-              this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
-              this.modifyAccessKeyInfo.targetClientId = this.dataForSelectApp.uaaList[0].clientId;
-              if(this.dataForSelectApp.oauthList.length > 0){
-                this.modifyAccessKeyInfo.targetOauthId = this.dataForSelectApp.oauthList[0].id;
-                this.modifyAccessKeyInfo.targetOauth = this.dataForSelectApp.oauthList[0].oauth;
-              }
+            }, 1000);
+            // console.log(dialogData);
+
+            const payload = {
+              groupId: this.$storeHelper.currentGroupId,
+              outerApp: dialogData.isExternalApp,
+              productEnv: dialogData.isProduction,
+              description: dialogData.description
+            };
+            if (dialogData.isExternalApp) {
+              payload['outerAppName'] = dialogData.appName;
+            } else {
+              payload['applicationId'] = dialogData.appId;
             }
-            this.selected.operation = action;
+
+            const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.oauth_access_key_create, {
+              payload
+            });
+            this.closeDialog();
+            // console.log(resData);
+            this.$message({
+              duration: 6000,
+              message: "ClientId（" + resData.client_id + "）创建成功！如您需要申请了其他团队的权限，请及时联系您想访问的团队来给您的ClientId授权，并在三天内完成授权，逾期将是视为失效，需重新申请!",
+              type: 'success'
+            });
+            this.refreshAccessKeyList();
+          } catch (err) {
+            console.log(err);
+          } finally {
           }
           break;
         case 'search':
@@ -1107,7 +1116,7 @@ export default {
           }
           this.addToWaitingResponseQueue(action);
           this.initModifyAccessKeyInfo();
-//          this.modifyAccessKeyInfo.appID = this.appListOfCurrentGroup[0].appId;
+//          this.modifyAccessKeyInfo.appId = this.appListOfCurrentGroup[0].appId;
           // get dataForSelectApp
           if (!this.dataForSelectApp.groupListAll) {
             this.$net.getAllGroupList().then(content => {
@@ -1228,7 +1237,7 @@ export default {
      * 1. appId exist(some group does not have app)
      * 2. the appId not in the has-add-app-id-list
      *
-     * trigger by watch: modifyAccessKeyInfo.appID, modifyAccessKeyInfo.targetAppID
+     * trigger by watch: modifyAccessKeyInfo.appId, modifyAccessKeyInfo.targetAppID
      */
     isTargetAppOK() {
       let errMsg = '';
@@ -1417,51 +1426,18 @@ export default {
           break;
       }
     },
-    handleDialogButton(action, index, item) {
+    async handleDialogButton(action, index, item) {
       switch (action) {
-        case 'create-access-key':
-//          console.log(this.modifyAccessKeyInfo);
-          let targetAuthInfoList = this.modifyAccessKeyInfo.targetAuthInfoList.map((it) => {
-            return {
-              groupId: it.targetGroupId,
-              uaaId: it.targetUaaId,
-              clientId:it.targetClientId,
-              uaaOauthId:it.targetOauthId,
-              oauth:it.targetOauth
+        case 'as_external_app_or_not':
+          // update validate check
+        case 'oauth_access_key_create':
+          try {
+            await this.$refs['oauthCreateForm'].validate();
+            if (action == 'oauth_access_key_create') {
+              this.action.promise.resolve(this.action.data);
             }
-          });
-          let dataToPost = {
-            groupId: this.$storeHelper.currentGroupId,
-            outerApp: this.modifyAccessKeyInfo.isExternalApp,
-            productEnv: this.modifyAccessKeyInfo.production,
-            applyList: targetAuthInfoList,
-            description: this.modifyAccessKeyInfo.description
-          };
-          if (this.modifyAccessKeyInfo.isExternalApp) {
-            dataToPost['outerAppName'] = this.modifyAccessKeyInfo.externalAppName;
-          } else {
-            dataToPost['applicationId'] = this.modifyAccessKeyInfo.appID;
+          } catch (err) {
           }
-          this.addToWaitingResponseQueue(action);
-          this.$net.oAuthCreateAccessKey(dataToPost).then(content => {
-            this.handleDialogClose();
-            this.$message({
-              duration: 6000,
-              message: "ClientId（" + content.client_id + "）创建成功！如您需要申请了其他团队的权限，请及时联系您想访问的团队来给您的ClientId授权，并在三天内完成授权，逾期将是视为失效，需重新申请!",
-              type: 'success'
-            });
-            this.refreshAccessKeyList();
-          }).catch(msg => {
-            this.$notify.error({
-              title: '创建AccessKey失败！',
-              message: msg,
-              duration: 0,
-              onClose: function () {
-              }
-            });
-          }).finally(() => {
-            this.hideWaitingResponse(action);
-          });
           break;
         case 'add-target-oauth':
           if (this.isTargetAppOK()) {
@@ -1596,7 +1572,7 @@ export default {
           });
           this.$net.oauthUpdateTargetApp(this.selected.row.id, {
             groupId: this.$storeHelper.currentGroupId,
-            applicationId: this.modifyAccessKeyInfo.appID,
+            applicationId: this.modifyAccessKeyInfo.appId,
             productEnv: this.modifyAccessKeyInfo.production,
             applyList: appListToPost
           }).then(msg => {
@@ -1639,7 +1615,7 @@ export default {
           this.selected.row['accessConfigList'] = JSON.parse(JSON.stringify(targetAuthInfoList));
           this.selected.row['accessConfigDesc'] = JSON.parse(JSON.stringify(accessConfigDesc));
           if (!this.selected.row.myApp) {
-            let app = this.$storeHelper.getAppByID(this.modifyAccessKeyInfo.appID);
+            let app = this.$storeHelper.getAppByID(this.modifyAccessKeyInfo.appId);
             if (app) {
               this.selected.row.myApp = app.appName;
             }

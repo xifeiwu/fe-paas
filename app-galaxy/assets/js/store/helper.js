@@ -207,7 +207,8 @@ export default class StoreHelper extends Common {
   actionToPermission(action) {
     const actionMap = {
       domain_add_open_dialog: 'domain_add',
-      open_dialog_update_pod_spec: 'get_affinity'
+      open_dialog_update_pod_spec: 'get_affinity',
+      open_dialog_oauth_access_key_create: 'oauth_access_key_create'
     };
     return actionMap.hasOwnProperty(action) ? actionMap[action] : action
   }

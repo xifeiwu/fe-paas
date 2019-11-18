@@ -827,7 +827,7 @@ class Net extends Common {
 
       /** oauth / accessKey相关 */
       // 创建accessKey
-      '/2.x/keys/AccessKey/create': 'oauth_create_access_key',
+      '/2.x/keys/AccessKey/create': 'oauth_access_key_create',
       // 删除accessKey
       '/2.x/keys/AccessKey/delete': 'oauth_delete_access_key',
       // 修改访问配置

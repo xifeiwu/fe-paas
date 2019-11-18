@@ -418,6 +418,11 @@ class Net extends NetBase {
       },
 
       /** oauth相关 */
+      // 创建Access Key
+      'oauth_access_key_create': {
+        path: '/application/authorization/create',
+        method: 'post'
+      },
       // oauth列表
       'oauth_get_access_key_list': {
         path: '/application/authorization/query',
@@ -2355,24 +2360,6 @@ class Net extends NetBase {
       })
     })
   }
-
-  // 创建Access Key
-  oAuthCreateAccessKey(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.oauth_create_access_key.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          resolve(content);
-        } else {
-          reject('oAuthCreateAccessKey, not found content');
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
-      })
-    })
-  }
-
 
   // 通过应用和运行环境获取AccessKey列表
   oAuthGetAccessKeyListByApp(options) {

@@ -187,11 +187,6 @@ class URL extends BaseURL {
         url: API_PATH + '/application/authorization/targetGroups',
         path: '/application/authorization/targetGroups'
       },
-      // 创建Access Key
-      'oauth_create_access_key': {
-        url: API_PATH + '/application/authorization/create',
-        path: '/application/authorization/create'
-      },
       'oauth_access_key_list_by_app': {
         url: API_PATH + '/application/authorization/queryByAppId',
         path: '/application/authorization/queryByAppId'
