@@ -143,9 +143,9 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['oauth_update_access_config'].disabled ? 'disabled' : 'warning'"
-                    :loading="statusOfWaitingResponse('oauth_update_access_config') && selected.row.id === scope.row.id"
-                    @click="handleTRClick($event, 'oauth_update_access_config', scope.$index, scope.row)">
+                    :class="$storeHelper.reason4ActionDisabled('open_dialog_oauth_access_key_and_config_update') ? 'disabled' : 'warning'"
+                    :loading="statusOfWaitingResponse('open_dialog_oauth_access_key_and_config_update') && selected.row.id === scope.row.id"
+                    @click="handleTRClick($event, 'open_dialog_oauth_access_key_and_config_update', scope.$index, scope.row)">
               修改访问配置
             </el-button>
             <div class="ant-divider"></div>
@@ -219,7 +219,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="访问环境" prop="production" class="profile">
-          <el-radio-group v-model="action.data.isProduction">
+          <el-radio-group v-model="action.data.isProductionEnv">
             <el-radio :label="true">生产环境</el-radio>
             <el-radio :label="false">非生产环境</el-radio>
           </el-radio-group>
@@ -239,50 +239,64 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="修改访问配置" :visible="selected.operation == 'oauth_update_access_config'"
-               class="update-target-app size-1000"
+    <el-dialog title="修改访问配置" :visible="action.name == 'open_dialog_oauth_access_key_and_config_update'"
+               v-if="action.name == 'open_dialog_oauth_access_key_and_config_update'"
+               class="oauth_access_key_and_config_update size-1000"
                :close-on-click-modal="false"
-               @close="handleDialogClose('add-access-config-in-dialog')"
-               v-if="selected.row"
+               bodyPadding="0px 10px"
+               v-loading="this.data4KeyAndConfigUpdate.requestingList.length > 0"
+               element-loading-spinner="el-icon-loading"
+               @close="closeDialog"
     >
-      <paas-dismiss-message :toExpand="true" showSeconds="0"
+      <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: 2px -10px 0px -10px"
                             :msgList="[
                               '初次添加的“申请访问权限”需对方团队审批，状态变为“已授权”状态，访问权限才能生效！',
                               '访问权限授权通过后，注意需要重启服务！'
                             ]"></paas-dismiss-message>
-      <el-form labelWidth="140px" size="mini" class="message-show">
-        <el-form-item label="我的团队" v-if="groupInfo">
-          {{groupInfo.name}}
+      <el-form :model="action.data" :rules="rulesForCreateAccessKey" labelWidth="130px" size="mini"
+               ref="oauthKeyAndConfigUpdate">
+        <el-form-item label="我的团队/访问环境" v-if="groupInfo">
+          {{groupInfo.name}} / {{action.data.isProductionEnv ? '生产环境' : '非生产环境'}}
         </el-form-item>
-        <el-form-item label="我的应用">
-          <span>{{selected.row.myApp}}</span>
-          <span v-if="selected.row.outerApp" class="outer-app-tag">外</span>
+        <el-form-item label="是否外部应用">
+          <el-radio-group v-model="action.data.isExternalApp" @change="handleDialogButton('as_external_app_or_not')">
+            <el-radio :label="true">是</el-radio>
+            <el-radio :label="false">否</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="访问环境">
-          {{selected.row.profileName}}
+        <el-form-item label="外部应用名称" prop="appName" style="max-width: 600px;" v-if="action.data.isExternalApp"
+                      :class="{'external-app-name': true}">
+          <el-input v-model="action.data.appName" placeholder="中文，英文，数字，下划线，中划线。2-30个字符"></el-input>
         </el-form-item>
-      </el-form>
-      <el-form :model="modifyAccessKeyInfo" :rules="rulesForAccessConfig" labelWidth="140px"
-               size="mini" ref="modifyAccessKeyInfoForm">
+        <el-form-item label="我的应用" prop="appId" class="app" v-else>
+          <el-select filterable v-model="action.data.appId" placeholder="请选择"
+                     style="display:block; max-width: 600px;">
+            <el-option v-for="(item, index) in appListOfCurrentGroup" :key="item.appId" :label="item.appName" :value="item.appId">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="description">
+          <el-input v-model="action.data.description" placeholder="不超过200个字符" style="max-width: 600px;"></el-input>
+        </el-form-item>
         <el-form-item label="已申请访问的权限" class="target-app-list" >
           <el-row class="title">
-            <el-col :span="6" class="group">团队</el-col>
-            <el-col :span="6" class="app">ClientId</el-col>
-            <el-col :span="6" class="app">权限</el-col>
-            <el-col :span="3" class="app">状态</el-col>
-            <el-col :span="3"></el-col>
+            <el-col :span="7" class="group">团队</el-col>
+            <el-col :span="7" class="app">ClientId</el-col>
+            <el-col :span="7" class="app">权限</el-col>
+            <el-col :span="2" class="app">状态</el-col>
+            <el-col :span="1"></el-col>
           </el-row>
           <el-row class="has-exist"
-                  v-for="(item, index) in modifyAccessKeyInfo.targetAuthInfoList"
+                  v-for="(item, index) in action.data.accessConfigList"
                   :key="index"
           >
-            <el-col :span="6" class="group">{{item.targetGroupName}}</el-col>
-            <el-col :span="6" class="app">{{item.targetOauth.substr(0,item.targetOauth.indexOf("."))}}</el-col>
-            <el-col :span="6" class="app">{{item.targetOauth}}</el-col>
-            <el-col :span="3" class="app">{{item.status}}</el-col>
-            <el-col :span="3" style="text-align: right">
+            <el-col :span="7" class="group">{{item.targetGroupName}}</el-col>
+            <el-col :span="7" class="app">{{item.targetOauth.substr(0,item.targetOauth.indexOf("."))}}</el-col>
+            <el-col :span="7" class="app">{{item.targetOauth}}</el-col>
+            <el-col :span="2" class="app">{{item.status}}</el-col>
+            <el-col :span="1" style="text-align: right">
               <el-popover
-                      width="160"
+                      width="360"
                       v-model="item.openPopover"
                       placement="left"
                       trigger="click"
@@ -290,54 +304,47 @@
                       content="复制成功">
                 <p style="color: #fa5555">确定要删除"{{item.targetGroupName}}"下的"{{item.targetOauth}}"权限吗？</p>
                 <div style="text-align: right; margin: 0">
-                  <el-button size="mini" type="text" @click="handlePopoverButton('cancel', index, item)">取消</el-button>
-                  <el-button type="danger" size="mini" @click="handlePopoverButton('delete-target-oauth', index, item)">确定</el-button>
+                  <el-button size="mini" type="text" style="margin-right: 8px" @click="item.openPopover = false">取消</el-button>
+                  <el-button type="danger" size="mini" style="margin-right: 8px" @click="handleDialogButton('oauth_access_config_delete', index, item)">确定</el-button>
                 </div>
-                <el-button type="primary" size="mini"
-                           round
-                           slot="reference"
-                           @click="handleDialogButton('delete-access-config', index, item)">删除</el-button>
+                <i class="paas-icon-close" slot="reference" @click="handleDialogButton('oauth_access_config_open_popover_for_delete', index, item)"></i>
               </el-popover>
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item label="申请访问权限" prop="accessGroupID" class="add-target-app"
                       style="margin-bottom: 20px"
-                      :error="errorMsgForAddTargetApp">
+                      :error="data4KeyAndConfigUpdate.errMsgForConfigAdd">
           <el-row>
             <el-col :span="7" style="padding-right:4px;">
-              <el-select filterable v-model="modifyAccessKeyInfo.targetGroupID" placeholder="请选择" style="display:block; max-width: 280px;">
-                <el-option v-for="(item, index) in dataForSelectApp.groupListAll" :key="item.id" :label="item.name" :value="item.id">
+              <el-select filterable v-model="data4KeyAndConfigUpdate.selectedGroupId" placeholder="请选择" style="display:block; max-width: 280px;">
+                <el-option v-for="(item, index) in data4KeyAndConfigUpdate.allGroupList" :key="item.id" :label="item.name" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
             <el-col :span="7" style="padding-right:4px;">
               <el-select
-                      v-loading="modifyAccessKeyInfo.requestingAppList"
-                      element-loading-spinner="el-icon-loading"
-                      filterable v-model="modifyAccessKeyInfo.targetUaaId"
-                      :placeholder="dataForSelectApp.uaaList.length==0?'列表为空':'请选择'" style="display:block; max-width: 280px;">
-                <el-option v-for="(item, index) in dataForSelectApp.uaaList" :key="item.id" :label="item.clientId" :value="item.id">
+                      filterable v-model="data4KeyAndConfigUpdate.selectedUaaId"
+                      :placeholder="data4KeyAndConfigUpdate.uaaList.length == 0 ? '列表为空' : '请选择'" style="display:block; max-width: 280px;">
+                <el-option v-for="(item, index) in data4KeyAndConfigUpdate.uaaList" :key="item.id" :label="item.clientId" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
             <el-col :span="7" style="padding-right:4px;">
               <el-select
-                      v-loading="modifyAccessKeyInfo.loadingOauthList"
-                      element-loading-spinner="el-icon-loading"
-                      filterable v-model="modifyAccessKeyInfo.targetOauthId"
-                      :placeholder="dataForSelectApp.oauthList.length==0?'列表为空':'请选择'" style="display:block; max-width: 280px;">
-                <el-option v-for="(item, index) in dataForSelectApp.oauthList" :key="item.id" :label="item.oauth" :value="item.id">
+                      filterable v-model="data4KeyAndConfigUpdate.selectedOauthId"
+                      :placeholder="data4KeyAndConfigUpdate.oauthList.length == 0 ? '列表为空' : '请选择'" style="display:block; max-width: 280px;">
+                <el-option v-for="(item, index) in data4KeyAndConfigUpdate.oauthList" :key="item.id" :label="item.oauth" :value="item.id">
                 </el-option>
               </el-select>
             </el-col>
-            <el-col :span="3" style="text-align: right">
+            <el-col :span="3" style="text-align: center">
               <el-button
                       size="mini"
                       type="primary"
                       round
                       style="margin-bottom: 3px"
-                      @click="handleDialogButton('add-target-oauth')">添加
+                      @click="handleDialogButton('oauth_access_config_add')">添加
               </el-button>
             </el-col>
           </el-row>
@@ -346,12 +353,12 @@
       <div slot="footer" class="dialog-footer flex">
           <div class="item">
             <el-button type="primary" size="mini"
-                       :loading="statusOfWaitingResponse('submit-target-app-list-in-dialog')"
-                       @click="handleDialogButton('submit-target-app-list')"
-                       >保&nbsp存</el-button>
+                       :loading="statusOfWaitingResponse('oauth_access_key_and_config_updateg')"
+                       @click="handleDialogButton('oauth_access_key_and_config_update')"
+                       >保存</el-button>
           </div>
           <div class="item">
-            <el-button size="mini" @click="handleDialogClose('add-access-config-in-dialog')">取&nbsp消</el-button>
+            <el-button size="mini" @click="closeDialog">取消</el-button>
           </div>
       </div>
     </el-dialog>
@@ -454,7 +461,7 @@
              :close-on-click-modal="false"
              @close="closeDialog"
     >
-      <el-form :model="action.data" :rules="rulesForAccessConfig" labelWidth="100px" size="mini" ref="modifySecretForm">
+      <el-form :model="action.data" :rules="rulesForCreateAccessKey" labelWidth="100px" size="mini" ref="modifySecretForm">
         <el-form-item label="ClientId：">
           {{action.data.accessKey}}
         </el-form-item>
@@ -531,27 +538,20 @@
           }
         }
       }
-      &.update-target-app {
-        .el-dialog {
-          .el-form {
-            .el-form-item--mini {
-            }
-          }
-        }
-        .el-tag {
-          display: block;
-          line-height: 26px;
-          height: 26px;
-          text-align: left;
-          .el-icon-warning {
-            vertical-align: middle;
-          }
-        }
+      &.oauth_access_key_and_config_update {
         .el-form {
           margin: 5px;
+          .paas-icon-close {
+            color: #aaa;
+            font-size: 14px;
+            cursor: pointer;
+            &:hover {
+              color: gray;
+            }
+          }
           .el-form-item {
             .group, .app {
-              text-align: center;
+              text-align: left;
             }
             .el-row.title {
               font-weight: bold;
@@ -739,10 +739,13 @@ export default {
             callback();
           }
         }],
+        // 修改秘钥使用
+        secret: [{
+          required: true,
+          message: '内容不能为空',
+        }],
       },
 
-      // prop used for dialog update-target-app
-      errorMsgForAddTargetApp: '',
       disableMyAppSelectInDialogModifyAccessConfig: false,
       // prop for add or modify app access config
       modifyAccessKeyInfo: {
@@ -763,34 +766,31 @@ export default {
         targetAuthInfoList:[],
         description: ''
       },
-      rulesForAccessConfig: {
-        appId: [{
-          required: false,
-          message: '应用不能为空',
-        }],
-        production: [{
-          required: true,
-          message: '请选择访问环境',
-        }],
-        targetGroupID: [{
-          required: true,
-          message: '用户组不能为空',
-        }],
-        targetAppID: [{
-          required: true,
-          message: '应用名不能为空',
-        }],
-        // 修改秘钥使用
-        secret: [{
-          required: true,
-          message: '内容不能为空',
-        }],
-      },
       dataForSelectApp: {
-        groupListAll: null,
+        groupListAll: [],
         appList: [],
         uaaList: [],
-        oauthList:[]
+        oauthList:[],
+      },
+
+      // prop used for dialog oauth_access_key_and_config_update
+      data4KeyAndConfigUpdate: {
+        isProductionEnv: null,
+        allGroupList: null,       // 所有团队列表
+        selectedGroup: null,
+        selectedGroupId: null,
+        selectedGroupName: null,
+        uaaList: [],
+        selectedUaa: null,
+        selectedUaaId: null,
+        selectedClientId: null,
+
+        oauthList:[],
+        selectedOauth: null,
+        selectedOauthId: null,
+
+        requestingList: [],
+        errMsgForConfigAdd: ''
       },
 
       updateUrlPermissionInfo: {
@@ -842,113 +842,98 @@ export default {
       this.currentPage = 1;
       this.requestAccessKeyList();
     },
-    'modifyAccessKeyInfo.targetGroupID': function (groupID) {
-      if (!groupID) {
+    'data4KeyAndConfigUpdate.selectedGroupId': function (groupId) {
+      // sync group related info by group.id
+      this.data4KeyAndConfigUpdate.errMsgForConfigAdd = '';
+      this.data4KeyAndConfigUpdate.selectedGroup = null;
+      this.data4KeyAndConfigUpdate.selectedGroupName = null;
+      this.data4KeyAndConfigUpdate.selectedUaa = null;
+      this.data4KeyAndConfigUpdate.selectedClientId = null;
+      this.data4KeyAndConfigUpdate.selectedOauth = null;
+      const selectedGroup = this.data4KeyAndConfigUpdate.allGroupList.find(it => it.id == groupId);
+      if (!selectedGroup) {
         return;
       }
+      this.data4KeyAndConfigUpdate.selectedGroup = selectedGroup;
+      this.data4KeyAndConfigUpdate.selectedGroupName = selectedGroup.name;
 
-      this.modifyAccessKeyInfo.requestingAppList = true;
+      // format of uaa: {id, clientId, ...}
+      this.data4KeyAndConfigUpdate.uaaList = [];
+      this.data4KeyAndConfigUpdate.selectedUaaId = null;
+
+      this.data4KeyAndConfigUpdate.requestingList.push(this.$net.URL_LIST.uaa_get_by_group.path);
       this.$net.requestPaasServer(this.$net.URL_LIST.uaa_get_by_group, {
-        payload: {groupId: groupID,productEnv:this.modifyAccessKeyInfo.production}
-      }).then(resContent => {
-        // init default value for appList and modifyAccessKeyInfo.targetAppID
-        this.modifyAccessKeyInfo.targetUaaId = this.$storeHelper.APP_ID_FOR_NULL;
-
-        // update uaaList and modifyAccessKeyInfo.targetUaaId
-        if (Array.isArray(resContent)) {
-          this.dataForSelectApp.uaaList = resContent;
-          if (resContent.length > 0) {
-            this.modifyAccessKeyInfo.targetUaaId = resContent[0].id;
-          }else{
-            this.modifyAccessKeyInfo.targetUaaId = null;
-            this.modifyAccessKeyInfo.targetClientId = null;
-            this.modifyAccessKeyInfo.targetOauthId = null;
-            this.modifyAccessKeyInfo.targetOauth = null;
-            this.dataForSelectApp.oauthList = [];
-          }
+        payload: {
+          groupId,
+          productEnv: this.data4KeyAndConfigUpdate.isProductionEnv
         }
-
-        // get targetGroupName by id
-        let target = null;
-        let groupList = this.dataForSelectApp.groupListAll;
-        if (groupList && Array.isArray(groupList)) {
-          groupList.some(it => {
-            target = (it.id == groupID) ? it : null;
-            return target;
-          });
-          if (target && target.hasOwnProperty('id')) {
-            this.modifyAccessKeyInfo.targetGroupName = target.name;
-          } else {
-            this.modifyAccessKeyInfo.targetGroupName = '';
-          }
-        } else {
-          this.modifyAccessKeyInfo.targetGroupName = '';
+      }).then(resContent => {
+        resContent = resContent ? resContent : [];
+        // init default value for appList and modifyAccessKeyInfo.targetAppID
+//        this.modifyAccessKeyInfo.targetUaaId = this.$storeHelper.APP_ID_FOR_NULL;
+        this.data4KeyAndConfigUpdate.uaaList = resContent;
+        if (resContent.length > 0) {
+          this.data4KeyAndConfigUpdate.selectedUaaId = resContent[0].id;
         }
       }).catch(err => {
         this.$message.error('获取团队列表失败！');
       }).finally(() => {
-        this.modifyAccessKeyInfo.requestingAppList = false;
+        this.data4KeyAndConfigUpdate.requestingList.splice( this.data4KeyAndConfigUpdate.requestingList.indexOf(this.$net.URL_LIST.uaa_get_by_group.path), 1);
       })
     },
-    'modifyAccessKeyInfo.targetUaaId': function (uaaId) {
-      this.modifyAccessKeyInfo.loadingOauth = true;
-
-      let uaaList = this.dataForSelectApp.uaaList;
-      if (uaaList && Array.isArray(uaaList)) {
-        let target = null;
-        uaaList.some(it => {
-          target = (it.id == uaaId) ? it : null;
-          return target;
-        });
-        if (null != target && target.id) {
-          let getOauthUrl = encodeURI(this.$utils.formatUrl(this.$net.URL_LIST.oauth_get_by_uaa.path, {
-            uaaId: target.id
-          }));
-
-          this.$net.requestPaasServer({path:getOauthUrl,method:"get"}).then(content => {
-             if(Array.isArray(content) && content.length > 0){
-               this.dataForSelectApp.oauthList = content;
-               this.modifyAccessKeyInfo.targetOauthId = content[0].id;
-               this.modifyAccessKeyInfo.targetOauth = content[0].oauth;
-             }else{
-               this.modifyAccessKeyInfo.targetOauthId = null;
-               this.modifyAccessKeyInfo.targetOauth = null;
-               this.dataForSelectApp.oauthList = [];
-             }
-          }).catch(err=>{
-             console.error(err)
-          }).finally(()=>{
-            this.modifyAccessKeyInfo.loadingOauth = false;
-          });
-          // set targetClientId
-          this.modifyAccessKeyInfo.targetClientId = target.clientId;
-        } else {
-            this.modifyAccessKeyInfo.targetClientId = '';
-        }
+    'data4KeyAndConfigUpdate.selectedUaaId': function (uaaId) {
+      // sync uaa relatedInfo by uaa.id
+      this.data4KeyAndConfigUpdate.errMsgForConfigAdd = '';
+      this.data4KeyAndConfigUpdate.selectedUaa = null;
+      this.data4KeyAndConfigUpdate.selectedClientId = null;
+      this.data4KeyAndConfigUpdate.selectedOauth = null;
+      const uaa = this.data4KeyAndConfigUpdate.uaaList.find(it => it.id == uaaId);
+      if (!uaa) {
+        return;
       }
-      // if current app is ok?
-      this.isTargetAppOK();
+      this.data4KeyAndConfigUpdate.selectedClientId = uaa.clientId;
+      this.data4KeyAndConfigUpdate.selectedUaa = uaa;
+
+      // format of oauth: {id, oauth, oauthUrl}
+      this.data4KeyAndConfigUpdate.oauthList = [];
+      this.data4KeyAndConfigUpdate.selectedOauthId = null;
+
+      let getOauthUrl = encodeURI(this.$utils.formatUrl(this.$net.URL_LIST.oauth_get_by_uaa.path, {
+        uaaId
+      }));
+      this.data4KeyAndConfigUpdate.requestingList.push(this.$net.URL_LIST.oauth_get_by_uaa.path);
+      this.$net.requestPaasServer({
+        path: getOauthUrl,
+        method: 'get'
+      }).then(resContent => {
+        resContent = resContent ? resContent : [];
+        this.data4KeyAndConfigUpdate.oauthList = resContent;
+        if (resContent.length > 0) {
+          this.data4KeyAndConfigUpdate.selectedOauthId = resContent[0].id;
+        }
+      }).catch(err => {
+         console.error(err)
+      }).finally(() => {
+        this.data4KeyAndConfigUpdate.requestingList.splice( this.data4KeyAndConfigUpdate.requestingList.indexOf(this.$net.URL_LIST.oauth_get_by_uaa.path), 1);
+      })
     },
-    'modifyAccessKeyInfo.targetOauthId':function (oauthId) {
-      let oauthList = this.dataForSelectApp.oauthList;
-      if (oauthList && Array.isArray(oauthList)) {
-        let target = null;
-        oauthList.some(o=>{
-           target = (o.id == oauthId)?o:null;
-           return target;
-        });
-
-        if(null != target && target.oauth){
-           this.modifyAccessKeyInfo.targetOauth = target.oauth
-        }
-      } else {
-        this.modifyAccessKeyInfo.targetOauth = '';
+    'data4KeyAndConfigUpdate.selectedOauthId':function (oauthId) {
+      // sync oauth related info by oauth.id
+      this.data4KeyAndConfigUpdate.errMsgForConfigAdd = '';
+      this.data4KeyAndConfigUpdate.selectedOauth = null;
+      // if (!oauthId) {
+      //   return;
+      // }
+      const oauthObj = this.data4KeyAndConfigUpdate.oauthList.find(it => it.id == oauthId);
+      if (!oauthObj) {
+        return;
       }
-      this.isTargetAppOK();
+      this.data4KeyAndConfigUpdate.selectedOauth = oauthObj.oauth;
+//      this.isTargetAppOK();
     },
     'modifyAccessKeyInfo.appId': function() {
       // if current app is ok?
-      this.isTargetAppOK();
+//      this.isTargetAppOK();
     },
     'selected.row': function (row) {
       let disable = false;
@@ -1023,7 +1008,7 @@ export default {
               isExternalApp: false,
               appName: '',
               appId: defaultAppId,
-              isProduction: false,
+              isProductionEnv: false,
               description: ''
             });
             this.addToWaitingResponseQueue(action);
@@ -1035,7 +1020,7 @@ export default {
             const payload = {
               groupId: this.$storeHelper.currentGroupId,
               outerApp: dialogData.isExternalApp,
-              productEnv: dialogData.isProduction,
+              productEnv: dialogData.isProductionEnv,
               description: dialogData.description
             };
             if (dialogData.isExternalApp) {
@@ -1075,105 +1060,95 @@ export default {
      * @param row
      */
     async handleTRClick(evt, action, index, row) {
-      if (this.$storeHelper.reason4ActionDisabled('open_dialog_oauth_secret_change')) {
-        this.$storeHelper.globalPopover.show({
-          ref: evt.target,
-          msg: this.$storeHelper.reason4ActionDisabled('open_dialog_oauth_secret_change')
-        });
-        return;
-      }
-      if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
-        this.$storeHelper.globalPopover.show({
-          ref: evt.target,
-          msg: this.$storeHelper.permission[action].reason
-        });
-        return;
+      if (['open_dialog_oauth_access_key_and_config_update', 'open_dialog_oauth_secret_change'].includes(action)) {
+        if (this.$storeHelper.reason4ActionDisabled(action)) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.reason4ActionDisabled(action)
+          });
+          return;
+        }
+      } else {
+        if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.permission[action].reason
+          });
+          return;
+        }
       }
       this.selected.row = row;
       switch (action) {
-        case 'oauth_update_access_config':
-          let openDialog = ()=>  {
-            let selectedRow = this.selected.row;
-            this.modifyAccessKeyInfo.production = selectedRow.produceEnv;
-            if (Array.isArray(selectedRow.accessConfigList)) {
-              this.modifyAccessKeyInfo.targetAuthInfoList = selectedRow.accessConfigList.map(it => {
-                  return {
+        case 'open_dialog_oauth_access_key_and_config_update':
+          try {
+            if (this.data4KeyAndConfigUpdate.allGroupList == null) {
+              this.data4KeyAndConfigUpdate.allGroupList = (await this.$net.requestPaasServer(this.$net.URL_LIST.get_all_group_list))['groupList'];
+            }
+            this.data4KeyAndConfigUpdate.isProductionEnv = row.isProductionProfile;
+            if (this.data4KeyAndConfigUpdate.allGroupList.length > 0) {
+              this.data4KeyAndConfigUpdate.selectedGroupId = this.data4KeyAndConfigUpdate.allGroupList[0].id;
+            }
+            const defaultAppId = this.appListOfCurrentGroup[0].appId;
+            const appInfo = this.appListOfCurrentGroup.find(it => it.appId == row.applicationId);
+            const dialogData = await this.openDialog(action, {
+              isExternalApp: row.outerApp,
+              appName: row.outerApp ? row.applicationName : '',
+              appId: appInfo ? appInfo.appId : defaultAppId,
+              isProductionProfile: row.isProductionProfile,
+              description: row.description,
+              accessConfigList: row.accessConfigList.map(it => {
+                return {
                   status: it.status,
                   targetOauth: it.targetOauth,
                   targetGroupId: it.targetGroupId,
                   targetGroupName: it.targetGroupName,
-                  targetClientId:it.targetClientId,
+                  targetClientId: it.targetClientId,
                   openPopover: false
                 }
-              });
-            } else {
-              this.modifyAccessKeyInfo.targetAuthInfoList = [];
-            }
-            this.selected.operation = action;
-            // remove error tip for button add-access-config
-            this.errorMsgForAddTargetApp = '';
-          };
-          // check dialog-related-data before open dialog
-          if (!this.groupInfo) {
-            this.$message.error('所需信息不完整！');
-            return;
-          }
-          this.addToWaitingResponseQueue(action);
-          this.initModifyAccessKeyInfo();
-//          this.modifyAccessKeyInfo.appId = this.appListOfCurrentGroup[0].appId;
-          // get dataForSelectApp
-          if (!this.dataForSelectApp.groupListAll) {
-            this.$net.getAllGroupList().then(content => {
-              if (content.hasOwnProperty('groupList')) {
-                let groupList = content.groupList;
-                if (Array.isArray(groupList) && groupList.length > 0) {
-                  this.dataForSelectApp.groupListAll = groupList;
-                  if (groupList.length > 0) {
-                    this.modifyAccessKeyInfo.targetGroupID = groupList[0].id;
-                    this.modifyAccessKeyInfo.targetGroupName = groupList[0].name;
-                  }
-                  this.hideWaitingResponse(action);
-                  // open dialog for submit-access-config
-                  openDialog();
-                } else {
-                  this.$message.error('获取组列表信息失败！');
+              }),
+            });
+            const payload = {
+              groupId: this.$storeHelper.currentGroupId,
+              outerApp: dialogData.isExternalApp,
+              productEnv: dialogData.isProductionEnv,
+              description: dialogData.description,
+              applyList: dialogData.accessConfigList.map((it) => {
+                return {
+                  groupId: it.targetGroupId,
+                  uaaId: it.targetUaaId,
+                  clientId:it.targetClientId,
+                  uaaOauthId:it.targetOauthId,
+                  oauth:it.targetOauth
                 }
-              }
-            }).catch(err => {
-              this.hideWaitingResponse(action);
-//              this.selected.operation = action;
-            })
-          } else {
-            this.hideWaitingResponse(action);
-            this.modifyAccessKeyInfo.targetGroupID = this.dataForSelectApp.groupListAll[0].id;
-            this.modifyAccessKeyInfo.targetGroupName = this.dataForSelectApp.groupListAll[0].name;
-
-            if(this.dataForSelectApp.uaaList.length>0){
-              this.modifyAccessKeyInfo.targetUaaId = this.dataForSelectApp.uaaList[0].id;
-              this.modifyAccessKeyInfo.targetClientId = this.dataForSelectApp.uaaList[0].clientId;
-              if(this.dataForSelectApp.oauthList.length>0){
-                this.modifyAccessKeyInfo.targetOauthId = this.dataForSelectApp.oauthList[0].id;
-                this.modifyAccessKeyInfo.targetOauth = this.dataForSelectApp.oauthList[0].oauth;
-              }
+              })
+            };
+            if (dialogData.isExternalApp) {
+              payload['outerAppName'] = dialogData.appName;
+            } else {
+              payload['applicationId'] = dialogData.appId;
             }
-
-            openDialog();
+            this.data4KeyAndConfigUpdate.requestingList.push(this.$net.URL_LIST.oauth_add_access_config.path);
+            const resData = await this.$net.requestPaasServer(Object.assign({}, this.$net.URL_LIST.oauth_add_access_config, {moreData: true}), {
+              params: {
+                id: row.id,
+              },
+              data: payload
+            });
+            this.data4KeyAndConfigUpdate.requestingList.splice( this.data4KeyAndConfigUpdate.requestingList.indexOf(this.$net.URL_LIST.oauth_add_access_config.path), 1);
+            this.closeDialog();
+            this.$message.success(resData.msg);
+            this.refreshAccessKeyList();
+          } catch (err) {
+            console.log(err);
+          } finally {
+            this.data4KeyAndConfigUpdate.requestingList = [];
           }
-//          if (this.selected.operation) {
-//            this.$nextTick(() => {
-//              let formName = 'modifyAccessKeyInfoForm';
-//              this.$refs.hasOwnProperty(formName) && this.$refs[formName].validate((valid) => {
-//              })
-//            });
-//          }
           break;
         case 'oauth_set_permission':
           if (!this.groupInfo) {
             this.$message.error('所需信息不完整！');
             return;
           }
-//          console.log(row);
-
           if (row && row.hasOwnProperty('accessKey') && row.hasOwnProperty('id')) {
             this.updateUrlPermissionInfo.accessKeyId = row.id;
             this.updateUrlPermissionInfo.accessKey = row.accessKey;
@@ -1259,70 +1234,46 @@ export default {
     },
 
     /**
-     * if the app to add is ok? (used in dialog update-target-app)
+     * if the app to add is ok? (used in dialog oauth_access_key_and_config_update)
      * 1. appId exist(some group does not have app)
      * 2. the appId not in the has-add-app-id-list
      *
      * trigger by watch: modifyAccessKeyInfo.appId, modifyAccessKeyInfo.targetAppID
      */
-    isTargetAppOK() {
+    canAccessConfigBeAdd() {
       let errMsg = '';
-      let modifyAccessKeyInfo = this.modifyAccessKeyInfo;
+      const data4KeyAndConfigUpdate = this.data4KeyAndConfigUpdate;
 
-      if(modifyAccessKeyInfo.targetGroupID === this.$storeHelper.GROUP_ID_FOR_ALL) {
+      if(data4KeyAndConfigUpdate.selectedGroupId === null) {
         errMsg = '未选择团队';
       }
 
-      if(modifyAccessKeyInfo.targetUaaId === this.$storeHelper.APP_ID_FOR_NULL){
+      if(data4KeyAndConfigUpdate.selectedUaaId === null){
         errMsg = '未选择clientId';
       }
 
-      if(modifyAccessKeyInfo.targetOauth === '' || modifyAccessKeyInfo.targetOauth === null){
+      if(data4KeyAndConfigUpdate.selectedOauthId === null){
         errMsg = '未选择权限信息';
       }
 
       if (!errMsg) {
-        let isExist = false;
-        let hasExisted = this.modifyAccessKeyInfo.targetAuthInfoList;
-        hasExisted.some(it => {
-          isExist =  it['targetGroupId'] === this.modifyAccessKeyInfo.targetGroupID
-                  && it['targetClientId'] === this.modifyAccessKeyInfo.targetClientId
-                  && it['targetOauth'] === this.modifyAccessKeyInfo.targetOauth;
-          return isExist;
-        });
-
-        if (isExist) {
-          errMsg = '已绑定该权限，不能重复绑定';
-        }
+        try {
+          const accessConfigList = this.action.data.accessConfigList;
+          if (accessConfigList.some(it => {
+              return it['targetGroupId'] === this.data4KeyAndConfigUpdate.selectedGroupId
+                && it['targetClientId'] === this.data4KeyAndConfigUpdate.selectedClientId
+                && it['targetOauth'] === this.data4KeyAndConfigUpdate.selectedOauth;
+            })) {
+            errMsg = '已绑定该权限，不能重复绑定';
+          }
+        } catch (err) {}
       }
-
-      this.errorMsgForAddTargetApp = errMsg;
+      this.data4KeyAndConfigUpdate.errMsgForConfigAdd = errMsg;
       return !errMsg;
-    },
-    ifAppListChanged(origin, current) {
-      let theSame = true;
-      if (origin.length === current.length) {
-        theSame = JSON.stringify(origin.map(it => {
-            var res = {};
-            ['targetClientId', 'targetGroupId', 'targetOauth'].forEach(key => {
-              res[key] = it[key];
-            });
-            return res;
-          })) === JSON.stringify(current.map(it => {
-            var res = {};
-            ['targetClientId', 'targetGroupId', 'targetOauth'].forEach(key => {
-              res[key] = it[key];
-            });
-            return res;
-          }));
-      } else {
-        theSame = false;
-      }
-      return !theSame;
     },
 
     /**
-     *  used to check new added authorized-url in dialog update-target-app
+     *  used to check new added authorized-url in dialog oauth_access_key_and_config_update
      *  1. if the new item match regexp
      *  2. if the new item has exist in item array
      */
@@ -1419,12 +1370,6 @@ export default {
 
     handlePopoverButton(action, index, item) {
       switch (action) {
-        case 'delete-target-oauth':
-          this.modifyAccessKeyInfo.targetAuthInfoList.splice(index, 1);
-          item['openPopover'] = false;
-          // update message of errorMsgForAddTargetApp after modifyAccessKeyInfo.targetAppList
-          this.isTargetAppOK();
-          break;
         case 'delete-url-permission':
           if (!item.hasOwnProperty('id')) {
             this.$message.error('为找到授权URL的ID');
@@ -1465,29 +1410,34 @@ export default {
           } catch (err) {
           }
           break;
-        case 'add-target-oauth':
-          if (this.isTargetAppOK()) {
-            this.modifyAccessKeyInfo.targetAuthInfoList.push({
+        case 'oauth_access_config_delete':
+          this.action.data.accessConfigList.splice(index, 1);
+          item['openPopover'] = false;
+          break;
+        case 'oauth_access_config_add':
+          if (this.canAccessConfigBeAdd()) {
+            this.action.data.accessConfigList.push({
               status: '新申请',
-              targetGroupId: this.modifyAccessKeyInfo.targetGroupID,
-              targetGroupName: this.modifyAccessKeyInfo.targetGroupName,
-              targetUaaId: this.modifyAccessKeyInfo.targetUaaId,
-              targetClientId: this.modifyAccessKeyInfo.targetClientId,
-              targetOauthId: this.modifyAccessKeyInfo.targetOauthId,
-              targetOauth: this.modifyAccessKeyInfo.targetOauth,
+              targetGroupId: this.data4KeyAndConfigUpdate.selectedGroupId,
+              targetGroupName: this.data4KeyAndConfigUpdate.selectedGroupName,
+              targetUaaId: this.data4KeyAndConfigUpdate.selectedUaaId,
+              targetClientId: this.data4KeyAndConfigUpdate.selectedClientId,
+              targetOauthId: this.data4KeyAndConfigUpdate.selectedOauthId,
+              targetOauth: this.data4KeyAndConfigUpdate.selectedOauth,
               openPopover: false
             });
           }
           break;
-        case 'submit-target-app-list':
-          // if this.selected.row.accessConfigList.length == 0, go on.
-          if (this.selected.row.accessConfigList.length > 0 &&
-            !this.ifAppListChanged(this.selected.row.accessConfigList, this.modifyAccessKeyInfo.targetAuthInfoList)) {
-            this.$message.warning('您没有做修改');
-            this.handleDialogClose();
-            return;
+        case 'oauth_access_key_and_config_update':
+          try {
+            await this.$refs['oauthKeyAndConfigUpdate'].validate();
+            if (this.$utils.theSame(this.action.dataOrigin, this.action.data)) {
+              this.$message.warning('您没有做修改！');
+              return;
+            }
+            this.action.promise.resolve(this.action.data);
+          } catch (err) {
           }
-          this.requestUpdate(action, 'accessConfigList');
           break;
         case 'add-url-permission':
           let newItem = JSON.parse(JSON.stringify(this.updateUrlPermissionInfo.newItem));
@@ -1541,9 +1491,8 @@ export default {
 
           }
           break;
-        case 'delete-access-config':
-          // debugger
-          console.log(item)
+        case 'oauth_access_config_open_popover_for_delete':
+          // console.log(item)
           if(!item['openPopover']){
             item['openPopover'] = true;
           }
@@ -1551,52 +1500,6 @@ export default {
       }
     },
 
-    requestUpdate(action, prop) {
-      // simulate post
-      if (!this.selected.row.id) {
-        this.$message.error('未找到ID');
-        return;
-      }
-      this.addToWaitingResponseQueue(action + '-in-dialog');
-      switch (prop) {
-        case 'accessConfigList':
-          let appListToPost = this.modifyAccessKeyInfo.targetAuthInfoList.map((it) => {
-            return {
-              groupId: it.targetGroupId,
-              uaaId: it.targetUaaId,
-              clientId:it.targetClientId,
-              uaaOauthId:it.targetOauthId,
-              oauth:it.targetOauth
-            }
-          });
-          this.$net.oauthUpdateTargetApp(this.selected.row.id, {
-            groupId: this.$storeHelper.currentGroupId,
-            applicationId: this.modifyAccessKeyInfo.appId,
-            productEnv: this.modifyAccessKeyInfo.production,
-            applyList: appListToPost
-          }).then(msg => {
-            this.hideWaitingResponse(action + '-in-dialog');
-            this.selected.operation = null;
-            this.$message({
-              duration: 6000,
-              message: msg,
-              type: 'success'
-            });
-            this.updateModelInfo(prop);
-          }).catch(msg => {
-            this.hideWaitingResponse(action + '-in-dialog');
-            this.selected.operation = null;
-            this.$notify.error({
-              title: '添加失败！',
-              message: msg,
-              duration: 0,
-              onClose: function () {
-              }
-            });
-          });
-          break;
-      }
-    },
     updateModelInfo(prop) {
       switch (prop) {
         case 'secret':
@@ -1668,7 +1571,8 @@ export default {
         }
 
         it.production = it.produceEnv;
-        it.accessConfigList = it['requestUaaAuthoritiesList'];
+        it.isProductionProfile = it.produceEnv;
+        it.accessConfigList = it['requestUaaAuthoritiesList'] && Array.isArray(it['requestUaaAuthoritiesList']) ? it['requestUaaAuthoritiesList'] : [];
         if (it.accessConfigList.length > 0) {
           it.accessConfigDesc = it.accessConfigList.map(it => {
             return `${it.targetGroupName} - ${it.targetOauth}，${it.status}`;

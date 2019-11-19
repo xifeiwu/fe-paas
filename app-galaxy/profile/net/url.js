@@ -54,12 +54,6 @@ class URL extends BaseURL {
         path: '/user/queryUserList',
         method: 'get'
       },
-      // 获取所有组列表
-      'get_all_group_list': {
-        url: API_PATH + '/group/queryAllGroup',
-        path: '/group/queryAllGroup',
-        method: 'get'
-      },
 
       /** 应用相关 */
       // 创建应用
@@ -196,12 +190,6 @@ class URL extends BaseURL {
         url: API_PATH + '/application/authorization/{id}',
         path: '/application/authorization/{id}',
         method: 'delete'
-      },
-      // 添加访问配置
-      'oauth_add_access_config': {
-        url: API_PATH + '/application/authorization/{id}',
-        path: '/application/authorization/{id}',
-        method: 'put'
       },
       // 获取AccessKey的所有授权URL
       'oauth_get_url_permission_list': {

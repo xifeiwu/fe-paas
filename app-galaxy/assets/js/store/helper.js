@@ -208,8 +208,14 @@ export default class StoreHelper extends Common {
     const actionMap = {
       domain_add_open_dialog: 'domain_add',
       open_dialog_update_pod_spec: 'get_affinity',
+
+      /** page oauth*/
+      // 创建accessKey
       open_dialog_oauth_access_key_create: 'oauth_access_key_create',
-      open_dialog_oauth_secret_change: 'oauth_update_secret'
+      // 修改秘钥
+      open_dialog_oauth_secret_change: 'oauth_update_secret',
+      // 修改访问配置
+      open_dialog_oauth_access_key_and_config_update: 'oauth_update_access_config',
     };
     return actionMap.hasOwnProperty(action) ? actionMap[action] : action
   }

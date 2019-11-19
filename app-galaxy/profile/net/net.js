@@ -433,6 +433,11 @@ class Net extends NetBase {
         path: '/application/authorization/{id}',
         method: 'patch'
       },
+      // 添加(修改)访问配置
+      'oauth_add_access_config': {
+        path: '/application/authorization/{id}',
+        method: 'put'
+      },
 
       /** 应用配置 */
       'config_server_branch': {
@@ -1349,26 +1354,6 @@ class Net extends NetBase {
         });
       })
     });
-  }
-
-  /**
-   * 获取所有组列表
-   * @returns {Promise}
-   */
-  getAllGroupList() {
-    return new Promise((resolve, reject) => {
-      axios.get(URL_LIST.get_all_group_list.url).then(res => {
-        let resContent = this.getResponseContent(res);
-        if (resContent) {
-          resolve(resContent);
-        } else {
-          reject('获取组列表信息失败！');
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
-      });
-    })
   }
 
   /**
@@ -2394,25 +2379,6 @@ class Net extends NetBase {
     return new Promise((resolve, reject) => {
       let url = this.$utils.formatUrl(URL_LIST.oauth_delete_access_key.url, {id});
       axios[URL_LIST.oauth_delete_access_key.method](url,{params:param}).then(response => {
-        let resMsg = this.getResponseMsg(response);
-        if (resMsg.success) {
-          resolve(resMsg.msg);
-        } else {
-          reject(resMsg.msg);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject(err);
-      })
-    })
-  }
-
-  // 添加访问配置
-  oauthUpdateTargetApp(id, options) {
-    return new Promise((resolve, reject) => {
-      let url = this.$utils.formatUrl(URL_LIST.oauth_add_access_config.url, {id});
-      axios[URL_LIST.oauth_add_access_config.method](url, options).then(response => {
-        // console.log(response);
         let resMsg = this.getResponseMsg(response);
         if (resMsg.success) {
           resolve(resMsg.msg);
