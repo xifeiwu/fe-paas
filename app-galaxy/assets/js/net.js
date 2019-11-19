@@ -72,6 +72,11 @@ class Net extends Common {
       },
 
       /** 团队管理 */
+      // 获取所有组列表
+      'get_all_group_list': {
+        path: '/group/queryAllGroup',
+        method: 'get'
+      },
       // 分页获取团队列表
       'group_list_by_page': {
         path: '/group/queryByPage',
@@ -516,10 +521,6 @@ class Net extends Common {
    * @param path
    * @param method
    * @param level: LEVEL_ERROR(default), LEVEL_WARNING, LEVEL_IGNORE
-   * @param errObj: {
-   *   title: String,
-   *   message: String
-   * }
    * @param partial: not trigger global loading status
    * @param withTimeStamp
    * @param withCode
@@ -533,7 +534,7 @@ class Net extends Common {
    * else return {}
    * TODO: remove withMorePage
    */
-  async requestPaasServer({path, method, timeout = 15000, level = 'LEVEL_ERROR', errObj = null, partial = false, withTimeStamp = false, withCode=false, withMorePage = false}, options = {}) {
+  async requestPaasServer({path, method, timeout = 15000, level = 'LEVEL_ERROR', partial = false, withTimeStamp = false, withCode=false, withMorePage = false, moreData = false}, options = {}) {
     // 访客只能进入首页
     if (Vue.prototype.$storeHelper.isGuest) {
       window.location.href = this.page['index'];
@@ -554,14 +555,9 @@ class Net extends Common {
       if (this.isResponseSuccess(resData)) {
         // add more info of response to result
         const moreInfo = withTimeStamp || withCode || withMorePage;
-        if (moreInfo) {
-          const result = {
-            content: resData.content,
-          };
-          withTimeStamp && (result['timeStamp'] = parseInt(resData.t));
-          withCode && (result['code'] = resData.code);
-          withMorePage && (result['more'] = resData.more);
-          return result
+        if (moreInfo || moreData) {
+          resData['timeStamp'] = parseInt(resData.t);
+          return resData;
         } else {
           return resData.content;
         }
