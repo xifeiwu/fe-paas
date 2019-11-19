@@ -109,7 +109,7 @@
             headerAlign="center" align="center">
           <template slot-scope="scope">
             <div>
-              <span>{{scope.row.myApp}}</span>
+              <span>{{scope.row.applicationName}}</span>
               <span v-if="scope.row.outerApp" class="outer-app-tag">外</span>
             </div>
           </template>
@@ -219,7 +219,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="访问环境" prop="production" class="profile">
-          <el-radio-group v-model="action.data.isProductionEnv">
+          <el-radio-group v-model="action.data.isProductionProfile">
             <el-radio :label="true">生产环境</el-radio>
             <el-radio :label="false">非生产环境</el-radio>
           </el-radio-group>
@@ -256,7 +256,7 @@
       <el-form :model="action.data" :rules="rulesForCreateAccessKey" labelWidth="130px" size="mini"
                ref="oauthKeyAndConfigUpdate">
         <el-form-item label="我的团队/访问环境" v-if="groupInfo">
-          {{groupInfo.name}} / {{action.data.isProductionEnv ? '生产环境' : '非生产环境'}}
+          {{groupInfo.name}} / {{action.data.isProductionProfile ? '生产环境' : '非生产环境'}}
         </el-form-item>
         <el-form-item label="是否外部应用">
           <el-radio-group v-model="action.data.isExternalApp" @change="handleDialogButton('as_external_app_or_not')">
@@ -370,7 +370,7 @@
     >
       <el-form labelWidth="130px" size="mini" inline>
         <el-form-item label="我的应用">
-          <span>{{selected.row.myApp}}</span>
+          <span>{{selected.row.applicationName}}</span>
           <span v-if="selected.row.outerApp" class="outer-app-tag">外</span>
         </el-form-item>
         <el-form-item label="访问环境">
@@ -746,7 +746,6 @@ export default {
         }],
       },
 
-      disableMyAppSelectInDialogModifyAccessConfig: false,
       // prop for add or modify app access config
       modifyAccessKeyInfo: {
         isExternalApp: false,
@@ -766,16 +765,10 @@ export default {
         targetAuthInfoList:[],
         description: ''
       },
-      dataForSelectApp: {
-        groupListAll: [],
-        appList: [],
-        uaaList: [],
-        oauthList:[],
-      },
 
       // prop used for dialog oauth_access_key_and_config_update
       data4KeyAndConfigUpdate: {
-        isProductionEnv: null,
+        isProductionProfile: null,
         allGroupList: null,       // 所有团队列表
         selectedGroup: null,
         selectedGroupId: null,
@@ -865,7 +858,7 @@ export default {
       this.$net.requestPaasServer(this.$net.URL_LIST.uaa_get_by_group, {
         payload: {
           groupId,
-          productEnv: this.data4KeyAndConfigUpdate.isProductionEnv
+          productEnv: this.data4KeyAndConfigUpdate.isProductionProfile
         }
       }).then(resContent => {
         resContent = resContent ? resContent : [];
@@ -929,25 +922,7 @@ export default {
         return;
       }
       this.data4KeyAndConfigUpdate.selectedOauth = oauthObj.oauth;
-//      this.isTargetAppOK();
-    },
-    'modifyAccessKeyInfo.appId': function() {
-      // if current app is ok?
-//      this.isTargetAppOK();
-    },
-    'selected.row': function (row) {
-      let disable = false;
-      if (row && row.hasOwnProperty('accessConfigList') && row['accessConfigList'].length > 0) {
-        disable = true;
-      }
-      if (row && row.hasOwnProperty('production') && row.production !== null) {
-        disable = true;
-      }
-      if (row && row.hasOwnProperty('profileName') && row.profileName) {
-        disable = true;
-      }
-      this.disableMyAppSelectInDialogModifyAccessConfig = disable;
-    },
+    }
   },
 
   methods: {
@@ -1008,7 +983,7 @@ export default {
               isExternalApp: false,
               appName: '',
               appId: defaultAppId,
-              isProductionEnv: false,
+              isProductionProfile: false,
               description: ''
             });
             this.addToWaitingResponseQueue(action);
@@ -1020,7 +995,7 @@ export default {
             const payload = {
               groupId: this.$storeHelper.currentGroupId,
               outerApp: dialogData.isExternalApp,
-              productEnv: dialogData.isProductionEnv,
+              productEnv: dialogData.isProductionProfile,
               description: dialogData.description
             };
             if (dialogData.isExternalApp) {
@@ -1084,7 +1059,7 @@ export default {
             if (this.data4KeyAndConfigUpdate.allGroupList == null) {
               this.data4KeyAndConfigUpdate.allGroupList = (await this.$net.requestPaasServer(this.$net.URL_LIST.get_all_group_list))['groupList'];
             }
-            this.data4KeyAndConfigUpdate.isProductionEnv = row.isProductionProfile;
+            this.data4KeyAndConfigUpdate.isProductionProfile = row.isProductionProfile;
             if (this.data4KeyAndConfigUpdate.allGroupList.length > 0) {
               this.data4KeyAndConfigUpdate.selectedGroupId = this.data4KeyAndConfigUpdate.allGroupList[0].id;
             }
@@ -1110,7 +1085,7 @@ export default {
             const payload = {
               groupId: this.$storeHelper.currentGroupId,
               outerApp: dialogData.isExternalApp,
-              productEnv: dialogData.isProductionEnv,
+              productEnv: dialogData.isProductionProfile,
               description: dialogData.description,
               applyList: dialogData.accessConfigList.map((it) => {
                 return {
@@ -1500,35 +1475,6 @@ export default {
       }
     },
 
-    updateModelInfo(prop) {
-      switch (prop) {
-        case 'secret':
-          this.selected.row[prop] = this.newProps[prop];
-          break;
-        case 'accessConfigList':
-//          let accessConfigList = this.newProps['accessConfigList'];
-          let targetAuthInfoList = this.modifyAccessKeyInfo.targetAuthInfoList;
-          let accessConfigDesc = [];
-          if (targetAuthInfoList.length > 0) {
-            accessConfigDesc = targetAuthInfoList.map(it => {
-              return `${it.targetGroupName} - ${it.targetOauth}，${it.status}`;
-            });
-          }
-          this.selected.row['accessConfigList'] = JSON.parse(JSON.stringify(targetAuthInfoList));
-          this.selected.row['accessConfigDesc'] = JSON.parse(JSON.stringify(accessConfigDesc));
-          if (!this.selected.row.myApp) {
-            let app = this.$storeHelper.getAppByID(this.modifyAccessKeyInfo.appId);
-            if (app) {
-              this.selected.row.myApp = app.appName;
-            }
-            this.selected.row.profileName = this.modifyAccessKeyInfo.production ? '生产环境':'非生产环境';
-          }
-          // set this.selected.row = null at the end of operation
-//          this.selected.row = null;
-          break;
-      }
-    },
-
     /**
      * update access-key list, called at:
      * 1. mounted function at start of page
@@ -1559,7 +1505,7 @@ export default {
       });
       resData.uaaList.forEach(it => {
         it.accessKey = it.clientId;
-        it.myApp = it['applicationName'] ? it['applicationName'] : '---';
+        it.applicationName = it.applicationName ? it.applicationName : '---';
         // 访问应用状态信息
         it.appAccessStatus = '';
 
@@ -1570,7 +1516,6 @@ export default {
           it.profileName = '非生产环境';
         }
 
-        it.production = it.produceEnv;
         it.isProductionProfile = it.produceEnv;
         it.accessConfigList = it['requestUaaAuthoritiesList'] && Array.isArray(it['requestUaaAuthoritiesList']) ? it['requestUaaAuthoritiesList'] : [];
         if (it.accessConfigList.length > 0) {
@@ -1584,6 +1529,7 @@ export default {
         if (it.createTime) {
           it.createTime = it.createTime.split(' ');
         }
+        it.description = it.description ? it.description : '---';
       });
       this.accessKeyListByPage = resData.uaaList;
       this.totalSize = resData.total;
@@ -1612,21 +1558,6 @@ export default {
           reject()
         });
       });
-    },
-
-    // TODO: not used
-    getEmptyItem() {
-      return {
-        "id": null,
-        "createTime": '',
-        "accessKey": '',
-        "secret": '',
-        "profileName": '',
-        "myApp": '',
-        "creatorName": "",
-        "accessConfigList": [],
-        "accessConfigDesc": []
-      }
     },
   }
 }
