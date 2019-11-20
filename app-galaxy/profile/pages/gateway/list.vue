@@ -135,6 +135,14 @@
             >
               <span>请求改写</span>
             </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
+                    :class="['flex', 'warning']"
+                    @click="handleTRClick($event, 'open_dialog_config_request_redirect', scope.row, scope.$index)"
+            >
+              <span>流量复制</span>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -260,6 +268,42 @@
           </el-form-item>
           <el-form-item label="目标路径" prop="targetPath">
             <el-input size="mini" v-model="action.data.targetPath"></el-input>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button @click="closeDialog" size="mini">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+
+    <el-dialog title="请求改写"
+               :visible="action.name === 'open_dialog_config_request_redirect'"
+               v-if="action.name === 'open_dialog_config_request_redirect'"
+               bodyPadding="6px 10px"
+               :close-on-click-modal="false"
+               @close="closeDialog"
+               class="size-700 config_path_rewrite"
+    >
+      <div class="content">
+        <el-form :model="action.data" :rules="configRules" size="mini" label-width="180px" ref="configPathRewriteForm">
+          <el-form-item label="网关名称"class="message-show">
+            <span> {{action.data.gatewayName}} </span>
+          </el-form-item>
+          <el-form-item label="域名" class="message-show">
+            <span> {{action.data.host}}</span>
+          </el-form-item>
+          <el-form-item label="应用名称/运行环境" class="message-show">
+            <span> {{action.data.appName}} / {{action.data.spaceName}}</span>
+          </el-form-item>
+          <el-form-item label="接受请求流量的服务" class="message-show">
+            {{action.data.path}}
           </el-form-item>
         </el-form>
       </div>
@@ -711,7 +755,36 @@
               // Object.assign(row, dialogData);   // update row by dialogData
               this.closeDialog();
               this.$message.success('更新成功！');
-              this.updateConfigListByPage();
+              this.updateListByPage(true);
+            } catch (err) {
+              console.log(err);
+            } finally {
+            }
+            break;
+          case 'open_dialog_config_request_redirect':
+            // console.log(row);
+            try {
+              const dialogData = await this.openDialog(action, {
+                gatewayName: row.gatewayName,
+                appName: row.appName,
+                spaceName: row.spaceName,
+                host: row.host,             // 域名
+
+                groupId: row.groupId,
+                spaceId: row.spaceId,
+              });
+              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_path_rewrite, {
+                payload: {
+                  gatewayName: dialogData.gatewayName,
+                  groupId: dialogData.groupId,
+                  spaceId: dialogData.spaceId,
+                  pathRewrite: dialogData.targetPath
+                }
+              });
+              // Object.assign(row, dialogData);   // update row by dialogData
+              this.closeDialog();
+              this.$message.success('更新成功！');
+              this.updateListByPage(true);
             } catch (err) {
               console.log(err);
             } finally {
