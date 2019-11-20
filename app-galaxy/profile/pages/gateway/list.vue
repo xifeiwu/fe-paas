@@ -63,7 +63,7 @@
         </el-table-column>
         <el-table-column
                 label="请求路径"
-                prop="paths"
+                prop="allPath"
                 minWidth="100"
                 headerAlign="center" align="center">
         </el-table-column>
@@ -131,7 +131,7 @@
             <el-button
                     type="text"
                     :class="['flex', 'warning']"
-                    @click="handleTRClick($event, 'open_dialog_request_redirect', scope.row, scope.$index)"
+                    @click="handleTRClick($event, 'open_dialog_config_path_rewrite', scope.row, scope.$index)"
             >
               <span>请求改写</span>
             </el-button>
@@ -196,13 +196,13 @@
           <el-form-item label="网关名称"class="message-show">
             <span> {{action.data.gatewayName}} </span>
           </el-form-item>
-          <el-form-item label="域名" prop="limitConnections" class="message-show">
+          <el-form-item label="域名" class="message-show">
             <span> {{action.data.host}} </span>
           </el-form-item>
-          <el-form-item label="应用名称/运行环境" prop="limitConnections" class="message-show">
+          <el-form-item label="应用名称/运行环境" class="message-show">
             <span> {{action.data.appName}} /  {{action.data.spaceName}}</span>
           </el-form-item>
-          <el-form-item label="最大连接数" prop="limitConnections" class="config message-show">
+          <el-form-item label="最大连接数" class="config message-show">
             <el-checkbox size="mini" v-model="action.data.limitConnectionsSelected">
               自定义配置
             </el-checkbox>
@@ -222,6 +222,44 @@
             </el-checkbox>
             <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'每个源IP每秒最大请求次数'"></i>
             <el-input-number v-if="action.data.limitRpsSelected" v-model="action.data.limitRps" type="number" :min="0"></el-input-number>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div slot="footer" class="dialog-footer flex">
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保&nbsp存</el-button>
+        </div>
+        <div class="item">
+          <el-button @click="closeDialog" size="mini">取&nbsp消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="请求改写"
+               :visible="action.name === 'open_dialog_config_path_rewrite'"
+               v-if="action.name === 'open_dialog_config_path_rewrite'"
+               bodyPadding="6px 10px"
+               :close-on-click-modal="false"
+               @close="closeDialog"
+               class="size-700 config_path_rewrite"
+    >
+      <div class="content">
+        <el-form :model="action.data" :rules="configRules" size="mini" label-width="180px" ref="configPathRewriteForm">
+          <el-form-item label="网关名称"class="message-show">
+            <span> {{action.data.gatewayName}} </span>
+          </el-form-item>
+          <el-form-item label="域名" class="message-show">
+            <span> {{action.data.host}}</span>
+          </el-form-item>
+          <el-form-item label="应用名称/运行环境" class="message-show">
+            <span> {{action.data.appName}} / {{action.data.spaceName}}</span>
+          </el-form-item>
+          <el-form-item label="当前路径" class="message-show">
+            {{action.data.path}}
+          </el-form-item>
+          <el-form-item label="目标路径" prop="targetPath">
+            <el-input size="mini" v-model="action.data.targetPath"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -344,6 +382,24 @@
           currentPage: 1,
           pageSize: 15,
           filterKey: ''
+        },
+
+        configRules: {
+          targetPath: [{
+            trigger: ['blur', 'change'],
+            validator(rule, values, callback) {
+              let passed = true;
+              if (values.length > 0) {
+                const reg = /^\/[\u4e00-\u9fa5\w\-]{0,35}$/;
+                if (!reg.test(values)) {
+                  passed = false;
+                  callback('以/开头，可以包含字母数字中划线，1-36个字符');
+                }
+              } else {
+              }
+              passed && callback();
+            }
+          }]
         }
       };
     },
@@ -429,7 +485,9 @@
           resData.forEach(it => {
             it.gatewayName = it.gatewayName ? it.gatewayName : '---';
             it.appName = it.appName ? it.appName : '---';
-            it.paths = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths.join(',') : '---';
+            it.allPath = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths.join(',') : '---';
+            it.path = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths[0] : '---';
+            it.pathRewrite = it.pathRewrite ? it.pathRewrite : '';
             // const profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
             // it.profileDescription = profileInfo ? profileInfo.description : '---';
             // it.domain = (Array.isArray(it.domainList) && it.domainList.length > 0) ? it.domainList.join(', ') : '---';
@@ -482,6 +540,44 @@
 
         this.listFiltered = listFiltered;
         this.listByPage = listFiltered.slice(start, end);
+      },
+
+      async handleDialogEvent(evt, action) {
+        switch (action) {
+          case 'gateway_create':
+            try {
+              const {selectedApp, selectedProfile} = this.$refs['service-selector-for-gateway-create'].getSelectedInfo();
+              const serviceModel = await this.$net.getServiceByAppIdAndSpaceId(selectedApp.appId, selectedProfile.id);
+              this.action.promise.resolve({
+                appId: selectedApp.appId,
+                profileId: selectedProfile.id
+              });
+            } catch (err) {
+              this.action.data.errMsg = err.message;
+            } finally {
+            }
+            break;
+          case 'config_rate_limiting':
+            try {
+              if (this.$utils.theSame(this.action.dataOrigin, this.action.data)) {
+                this.$message.warning('您没有做任何修改。未向后端发送更新请求！');
+                return;
+              }
+              this.action.promise.resolve(this.action.data);
+            } catch (err) {
+              console.log(err);
+            } finally {
+            }
+            break;
+          case 'config_path_rewrite':
+            try {
+              await this.$refs['configPathRewriteForm'].validate();
+              this.action.promise.resolve(this.action.data);
+            } catch (err) {
+              console.log(err);
+            }
+            break;
+        }
       },
 
       async handleTRClick(evt, action, row, index) {
@@ -567,7 +663,6 @@
 
                 groupId: gatewayStatus.groupId,
                 spaceId: gatewayStatus.spaceId,
-                appName: gatewayStatus.appName,
               });
 
               const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_rate_limiting, {
@@ -586,6 +681,37 @@
               Object.assign(row, dialogData);   // update row by dialogData
               this.$message.success('更新成功！');
               this.closeDialog();
+            } catch (err) {
+              console.log(err);
+            } finally {
+            }
+            break;
+          case 'open_dialog_config_path_rewrite':
+            // console.log(row);
+            try {
+              const dialogData = await this.openDialog(action, {
+                gatewayName: row.gatewayName,
+                appName: row.appName,
+                spaceName: row.spaceName,
+                host: row.host,             // 域名
+                path: row.path,
+                targetPath: row.pathRewrite,
+
+                groupId: row.groupId,
+                spaceId: row.spaceId,
+              });
+              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_path_rewrite, {
+                payload: {
+                  gatewayName: dialogData.gatewayName,
+                  groupId: dialogData.groupId,
+                  spaceId: dialogData.spaceId,
+                  pathRewrite: dialogData.targetPath
+                }
+              });
+              // Object.assign(row, dialogData);   // update row by dialogData
+              this.closeDialog();
+              this.$message.success('更新成功！');
+              this.updateConfigListByPage();
             } catch (err) {
               console.log(err);
             } finally {
@@ -611,36 +737,6 @@
             break;
           case 'refresh':
             this.updateListByPage(true);
-            break;
-        }
-
-      },
-      async handleDialogEvent(evt, action) {
-        switch (action) {
-          case 'gateway_create':
-            try {
-              const {selectedApp, selectedProfile} = this.$refs['service-selector-for-gateway-create'].getSelectedInfo();
-              const serviceModel = await this.$net.getServiceByAppIdAndSpaceId(selectedApp.appId, selectedProfile.id);
-              this.action.promise.resolve({
-                appId: selectedApp.appId,
-                profileId: selectedProfile.id
-              });
-            } catch (err) {
-              this.action.data.errMsg = err.message;
-            } finally {
-            }
-            break;
-          case 'config_rate_limiting':
-            try {
-              if (this.$utils.theSame(this.action.dataOrigin, this.action.data)) {
-                this.$message.warning('您没有做任何修改。未向后端发送更新请求！');
-                return;
-              }
-              this.action.promise.resolve(this.action.data);
-            } catch (err) {
-              console.log(err);
-            } finally {
-            }
             break;
         }
       },

@@ -663,6 +663,7 @@ class Net extends NetBase {
         path: '/gateway/addGateway',
         method: 'post'
       },
+      // 修改网关
       'gateway_modify': {
         path: '/gateway/updateGateway',
         method: 'post'
@@ -672,8 +673,14 @@ class Net extends NetBase {
         path: '/gateway/deleteGateway',
         method: 'post'
       },
+      // 源IP限速
       'gateway_update_rate_limiting': {
         path: '/gateway/createOrUpdateSourceIPLimiting',
+        method: 'post'
+      },
+      // 修改请求改写
+      'gateway_update_path_rewrite': {
+        path: '/gateway/createOrUpdatePathRewrite',
         method: 'post'
       },
 
