@@ -46,7 +46,7 @@
         <el-table-column
                 label="应用名称"
                 prop="appName"
-                minWidth="100"
+                minWidth="80"
                 headerAlign="left" align="left">
         </el-table-column>
         <!--<el-table-column-->
@@ -123,22 +123,31 @@
             <el-button
                 type="text"
                 :class="['flex', 'danger']"
-                @click="handleTRClick($event, 'open_dialog_rate_limiting', scope.row, scope.$index)"
+                @click="handleTRClick($event, 'open_dialog_config_rate_limiting', scope.row, scope.$index)"
             >
               <span>源IP限速</span>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
+                    type="text"
+                    :class="['flex', 'warning']"
+                    @click="handleTRClick($event, 'open_dialog_request_redirect', scope.row, scope.$index)"
+            >
+              <span>请求改写</span>
             </el-button>
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container">
+      <div class="pagination-container" v-if="listFiltered.length > pageSize">
         <div class="pagination">
           <el-pagination
+                  size="mini"
                   @size-change="val => this.pageSize = val"
-                  background
+                  :background="false"
                   :current-page.sync="currentPage"
                   :page-size="pageSize"
                   :page-sizes="[10, 15, 20, 30]"
-                  layout="total, sizes, prev, pager, next"
+                  layout="total, sizes, prev, pager, next, jumper"
                   :total="listFiltered.length">
           </el-pagination>
         </div>
@@ -175,46 +184,51 @@
     </el-dialog>
 
     <el-dialog title="源IP限速"
-               :visible="action.name === 'open_dialog_rate_limiting'"
-               v-if="action.name === 'open_dialog_rate_limiting'"
+               :visible="action.name === 'open_dialog_config_rate_limiting'"
+               v-if="action.name === 'open_dialog_config_rate_limiting'"
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-800 update-strategy"
+               class="size-700 config_rate_limiting"
     >
       <div class="content">
-        <el-form :model="rateLimiting" size="mini" label-width="240px" >
-          <el-form-item label="应用名称：" prop="limitConnections" class="message-show">
-            <span> {{rateLimiting.appName}} </span>
+        <el-form :model="action.data" size="mini" label-width="180px" >
+          <el-form-item label="网关名称"class="message-show">
+            <span> {{action.data.gatewayName}} </span>
           </el-form-item>
-          <el-form-item label="运行环境：" prop="limitConnections" class="message-show">
-            <span> {{rateLimiting.spaceName}} </span>
+          <el-form-item label="域名" prop="limitConnections" class="message-show">
+            <span> {{action.data.host}} </span>
           </el-form-item>
-          <el-form-item label="网关名称：" prop="limitConnections" class="message-show">
-            <span> {{rateLimiting.gatewayName}} </span>
+          <el-form-item label="应用名称/运行环境" prop="limitConnections" class="message-show">
+            <span> {{action.data.appName}} /  {{action.data.spaceName}}</span>
           </el-form-item>
-          <el-form-item label="域名：" prop="limitConnections" class="message-show">
-            <span> {{rateLimiting.host}} </span>
+          <el-form-item label="最大连接数" prop="limitConnections" class="config message-show">
+            <el-checkbox size="mini" v-model="action.data.limitConnectionsSelected">
+              自定义配置
+            </el-checkbox>
+            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'每个源IP可建立的最大连接数'"></i>
+            <el-input-number v-if="action.data.limitConnectionsSelected" v-model="action.data.limitConnections" type="number" :min="0"></el-input-number>
           </el-form-item>
-
-          <el-form-item label="每个源IP可建立的最大连接数：" prop="limitConnections" class="message-show">
-            <el-input-number v-model="rateLimiting.limitConnections" type="number" :min="0"></el-input-number>
-            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'可建立的最大连接数必须为正数'"></i>
+          <el-form-item label="每分钟最大请求次数" prop="limitRpm" class="config message-show">
+            <el-checkbox size="mini" v-model="action.data.limitRpmSelected">
+              自定义配置
+            </el-checkbox>
+            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'每个源IP每分钟最大请求次数'"></i>
+            <el-input-number v-if="action.data.limitRpmSelected" v-model="action.data.limitRpm" type="number" :min="0"></el-input-number>
           </el-form-item>
-          <el-form-item label="每个源IP每分钟最大请求次数：" prop="limitRpm" class="message-show">
-            <el-input-number v-model="rateLimiting.limitRpm" type="number" :min="0"></el-input-number>
-            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'每分钟最大请求次数必须为正数'"></i>
-          </el-form-item>
-          <el-form-item label="每个源IP每秒最大请求次数：" prop="limitRps" class="message-show">
-            <el-input-number v-model="rateLimiting.limitRps" type="number" :min="0"></el-input-number>
-            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'每秒最大请求次数必须为正数'"></i>
+          <el-form-item label="每秒最大请求次数" prop="limitRps" class="config message-show">
+            <el-checkbox size="mini" v-model="action.data.limitRpsSelected">
+              自定义配置
+            </el-checkbox>
+            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'每个源IP每秒最大请求次数'"></i>
+            <el-input-number v-if="action.data.limitRpsSelected" v-model="action.data.limitRps" type="number" :min="0"></el-input-number>
           </el-form-item>
         </el-form>
       </div>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleDialogEvent($event, 'config_rate_limiting')">保&nbsp存</el-button>
+                     @click="handleDialogEvent($event, action.name.replace('open_dialog_', ''))">保&nbsp存</el-button>
         </div>
         <div class="item">
           <el-button @click="closeDialog" size="mini">取&nbsp消</el-button>
@@ -225,6 +239,19 @@
 </template>
 
 <style lang="scss">
+  #gateway-list {
+    .el-dialog__wrapper {
+      &.config_rate_limiting {
+        .el-form {
+          .el-form-item.config {
+            .el-input-number {
+              margin-left: 30px;
+            }
+          }
+        }
+      }
+    }
+  }
 </style>
 <style lang="scss" scoped>
   #gateway-list {
@@ -311,18 +338,6 @@
         currentPage: 1,
         pageSize: 15,
 
-        rateLimiting: {
-          appName: '',
-          groupId: '',
-          spaceName: '',
-          spaceId: '',
-          gatewayName: '',
-          host: '',
-          limitConnections:'',
-          limitRpm:'',
-          limitRps:''
-        },
-        gatewayStatusFromNet: [],
         query: {
           appId: this.$storeHelper.APP_ID_FOR_ALL,
           profileId: '',
@@ -522,43 +537,58 @@
             }
 
             break;
-          case 'open_dialog_rate_limiting':
+          case 'open_dialog_config_rate_limiting':
+            // console.log(row);
             if (!row.appId || !row.gatewayName || !row.spaceId || !row.groupId) {
               this.$message.error('该网关不能设置原IP限速功能！');
               return;
             }
-            const query = {
-              groupId: row.groupId,
-              appId: row.appId,
-              spaceId: row.spaceId,
-              gatewayName: row.gatewayName
-            };
             try {
               // 获取服务端API配置信息
-              const gatewayStatusFromNet = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create_related, {
-                query
+              const gatewayStatus = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_create_related, {
+                query: {
+                  groupId: row.groupId,
+                  appId: row.appId,
+                  spaceId: row.spaceId,
+                  gatewayName: row.gatewayName
+                }
               });
-              console.log(gatewayStatusFromNet);
-              this.gatewayStatusFromNet = gatewayStatusFromNet;
-              this.rateLimiting.appName = this.gatewayStatusFromNet.appName;
-              this.rateLimiting.spaceName = this.gatewayStatusFromNet.spaceName;
-              this.rateLimiting.gatewayName = this.gatewayStatusFromNet.gatewayName;
-              this.rateLimiting.host = this.gatewayStatusFromNet.host;
-              this.rateLimiting.groupId = row.groupId;
-              this.rateLimiting.spaceId = row.spaceId;
+              const dialogData = await this.openDialog(action, {
+                gatewayName: gatewayStatus.gatewayName,
+                appName: gatewayStatus.appName,
+                spaceName: gatewayStatus.spaceName,
+                host: gatewayStatus.host,             // 域名
+                limitConnectionsSelected: gatewayStatus.limitConnectionsSelected,
+                limitConnections: gatewayStatus.limitConnections,
+                limitRpmSelected: gatewayStatus.limitRpmSelected,
+                limitRpm: gatewayStatus.limitRpm,
+                limitRpsSelected: gatewayStatus.limitRpsSelected,
+                limitRps: gatewayStatus.limitRps,
 
-              this.rateLimiting.limitConnections = this.gatewayStatusFromNet.limitConnections;
-              this.rateLimiting.limitRpm = this.gatewayStatusFromNet.limitRpm;
-              this.rateLimiting.limitRps = this.gatewayStatusFromNet.limitRps;
-
-              const limitingData = await this.openDialog(action, {
-                errMsg: ''
+                groupId: gatewayStatus.groupId,
+                spaceId: gatewayStatus.spaceId,
+                appName: gatewayStatus.appName,
               });
 
+              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_rate_limiting, {
+                payload: {
+                  gatewayName: dialogData.gatewayName,
+                  groupId: dialogData.groupId,
+                  spaceId: dialogData.spaceId,
+                  limitConnectionsSelected: dialogData.limitConnectionsSelected,
+                  limitRpmSelected: dialogData.limitRpmSelected,
+                  limitRpsSelected: dialogData.limitRpsSelected,
+                  limitConnections: dialogData.limitConnections,
+                  limitRpm: dialogData.limitRpm,
+                  limitRps: dialogData.limitRps,
+                }
+              });
+              Object.assign(row, dialogData);   // update row by dialogData
+              this.$message.success('更新成功！');
+              this.closeDialog();
             } catch (err) {
               console.log(err);
             } finally {
-              this.closeDialog();
             }
             break;
         }
@@ -602,26 +632,14 @@
             break;
           case 'config_rate_limiting':
             try {
-              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_rate_limiting, {
-                payload: {
-                  gatewayName: this.rateLimiting.gatewayName,
-                  groupId: this.rateLimiting.groupId,
-                  spaceId: this.rateLimiting.spaceId,
-                  limitConnections: this.rateLimiting.limitConnections,
-                  limitRpm: this.rateLimiting.limitRpm,
-                  limitRps: this.rateLimiting.limitRps,
-                }
-              });
-
-              this.action.promise.resolve({
-                gatewayName: this.rateLimiting.gatewayName,
-                profileId: this.rateLimiting.spaceId
-              });
+              if (this.$utils.theSame(this.action.dataOrigin, this.action.data)) {
+                this.$message.warning('您没有做任何修改。未向后端发送更新请求！');
+                return;
+              }
+              this.action.promise.resolve(this.action.data);
             } catch (err) {
               console.log(err);
-              this.action.data.errMsg = err.message;
             } finally {
-
             }
             break;
         }
