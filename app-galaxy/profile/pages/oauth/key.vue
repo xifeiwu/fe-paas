@@ -840,8 +840,9 @@ export default {
       this.data4KeyAndConfigUpdate.errMsgForConfigAdd = '';
       this.data4KeyAndConfigUpdate.selectedGroup = null;
       this.data4KeyAndConfigUpdate.selectedGroupName = null;
-      this.data4KeyAndConfigUpdate.selectedUaa = null;
       this.data4KeyAndConfigUpdate.selectedClientId = null;
+      this.data4KeyAndConfigUpdate.selectedUaa = null;
+      this.data4KeyAndConfigUpdate.selectedOauthId = null;
       this.data4KeyAndConfigUpdate.selectedOauth = null;
       const selectedGroup = this.data4KeyAndConfigUpdate.allGroupList.find(it => it.id == groupId);
       if (!selectedGroup) {
@@ -877,8 +878,9 @@ export default {
     'data4KeyAndConfigUpdate.selectedUaaId': function (uaaId) {
       // sync uaa relatedInfo by uaa.id
       this.data4KeyAndConfigUpdate.errMsgForConfigAdd = '';
-      this.data4KeyAndConfigUpdate.selectedUaa = null;
       this.data4KeyAndConfigUpdate.selectedClientId = null;
+      this.data4KeyAndConfigUpdate.selectedUaa = null;
+      this.data4KeyAndConfigUpdate.selectedOauthId = null;
       this.data4KeyAndConfigUpdate.selectedOauth = null;
       const uaa = this.data4KeyAndConfigUpdate.uaaList.find(it => it.id == uaaId);
       if (!uaa) {
