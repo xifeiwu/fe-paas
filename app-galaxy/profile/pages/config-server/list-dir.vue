@@ -64,7 +64,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container">
+      <div class="pagination-container" v-if="configListFiltered.length > 0">
         <div class="pagination">
           <el-pagination
                   @size-change="val => this.pageSize = val"
@@ -72,7 +72,7 @@
                   :current-page.sync="currentPage"
                   :page-size="pageSize"
                   :page-sizes="[10, 15, 20, 30]"
-                  layout="total, sizes, prev, pager, next"
+                  layout="total, sizes, prev, pager, next, jumper"
                   :total="this.configListFiltered.length">
           </el-pagination>
         </div>
