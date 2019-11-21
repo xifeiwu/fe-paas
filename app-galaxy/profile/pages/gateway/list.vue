@@ -40,31 +40,31 @@
         <el-table-column
                 label="网关名称"
                 prop="gatewayName"
-                minWidth="120"
+                minWidth="80"
+                headerAlign="left" align="left">
+        </el-table-column>
+        <el-table-column
+                label="域名"
+                prop="host"
+                minWidth="100"
                 headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
                 label="应用名称"
                 prop="appName"
                 minWidth="80"
-                headerAlign="left" align="left">
+                headerAlign="center" align="center">
         </el-table-column>
         <!--<el-table-column-->
-                <!--label="运行环境"-->
-                <!--prop="profileDescription"-->
-                <!--width="120"-->
-                <!--headerAlign="center" align="center">-->
+        <!--label="运行环境"-->
+        <!--prop="profileDescription"-->
+        <!--width="120"-->
+        <!--headerAlign="center" align="center">-->
         <!--</el-table-column>-->
-        <el-table-column
-                label="域名"
-                prop="host"
-                minWidth="120"
-                headerAlign="left" align="left">
-        </el-table-column>
         <el-table-column
                 label="请求路径"
                 prop="allPath"
-                minWidth="100"
+                width="100"
                 headerAlign="center" align="center">
         </el-table-column>
         <!--<el-table-column-->
@@ -94,7 +94,19 @@
                 width="100"
                 headerAlign="center" align="center">
         </el-table-column>
-        <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
+        <el-table-column
+                label="策略配置"
+                width="80"
+                headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <span v-if="scope.row.isRewrite" style="display: inline-flex; align-items: center; text-decoration: underline; cursor: pointer"
+                  @mouseenter="handleTRClick($event, 'tip_on_mouse_enter', `为实现 '请求改写' 而新建的网关`)"><span>请求改写</span><i class="paas-icon-question" style="font-size: 12px;"></i></span>
+            <span v-else-if="scope.row.configList.length > 0" style="text-decoration: underline; cursor: pointer"
+                  @mouseenter="handleTRClick($event, 'gateway_config_show', scope.row, scope.$index)">配置详情<i class="paas-icon-popover" style="margin-left: 2px;"></i></span>
+            <span v-else>---</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="120">
           <template slot-scope="scope">
             <el-button
                     type="text"
@@ -128,14 +140,14 @@
               <span>源IP限速</span>
             </el-button>
             <div class="ant-divider"></div>
-            <el-button
+            <el-button v-if="!scope.row.isRewrite"
                     type="text"
                     :class="['flex', 'warning']"
                     @click="handleTRClick($event, 'open_dialog_config_path_rewrite', scope.row, scope.$index)"
             >
               <span>请求改写</span>
             </el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider" v-if="!scope.row.isRewrite"></div>
             <el-button
                     type="text"
                     :class="['flex', 'warning']"
@@ -538,6 +550,26 @@
         this.onServiceSelected(selectedApp, selectedProfile);
       },
 
+      _updateRowInfo(it) {
+        it.gatewayName = it.gatewayName ? it.gatewayName : '---';
+        it.appName = it.appName ? it.appName : '---';
+        it.allPath = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths.join(',') : '---';
+        it.path = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths[0] : '---';
+        it.pathRewrite = it.pathRewrite ? it.pathRewrite : '';
+        it.creatorName = it.creatorName ? it.creatorName : '---';
+        // const profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
+        // it.profileDescription = profileInfo ? profileInfo.description : '---';
+        // it.domain = (Array.isArray(it.domainList) && it.domainList.length > 0) ? it.domainList.join(', ') : '---';
+        if (it['createTimestamp']) {
+          it.formattedCreateTime = this.$utils.formatDate(it.createTimestamp, 'yyyy-MM-dd hh:mm:ss').split(' ');
+        } else {
+          it.formattedCreateTime = '---';
+        }
+        it.configList = [];
+        if (it.pathRewrite) {
+          it.configList.push(`请求改写：${it.path} -> ${it.pathRewrite}`);
+        }
+      },
       async _requestList() {
         var result = [];
         try {
@@ -547,22 +579,7 @@
               spaceId: this.profileId,
             }
           });
-          resData.forEach(it => {
-            it.gatewayName = it.gatewayName ? it.gatewayName : '---';
-            it.appName = it.appName ? it.appName : '---';
-            it.allPath = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths.join(',') : '---';
-            it.path = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths[0] : '---';
-            it.pathRewrite = it.pathRewrite ? it.pathRewrite : '';
-            it.creatorName = it.creatorName ? it.creatorName : '---';
-            // const profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
-            // it.profileDescription = profileInfo ? profileInfo.description : '---';
-            // it.domain = (Array.isArray(it.domainList) && it.domainList.length > 0) ? it.domainList.join(', ') : '---';
-            if (it['createTimestamp']) {
-              it.formattedCreateTime = this.$utils.formatDate(it.createTimestamp, 'yyyy-MM-dd hh:mm:ss').split(' ');
-            } else {
-              it.formattedCreateTime = '---';
-            }
-          });
+          resData.forEach(this._updateRowInfo);
           result = resData;
         } catch(err) {
         }
@@ -701,7 +718,24 @@
             } catch (err) {
               console.log(err);
             }
-
+            break;
+          case 'gateway_config_show':
+            if (row.configList === 0) {
+              return;
+            }
+            const content = ['<div style="width: 300px; font-size: 13px; font-weight: bold;">',...row.configList.map(it => `<div style="; text-align: left">${it}</div>`), '</div>'].join('');
+            this.$storeHelper.globalPopover.show({
+              ref: evt.target,
+              type: 'html',
+              msg: content
+            });
+            break;
+          case 'tip_on_mouse_enter':
+            this.$storeHelper.globalPopover.show({
+              ref: evt.target,
+              type: 'text',
+              msg: row
+            });
             break;
           case 'open_dialog_config_rate_limiting':
             // console.log(row);
