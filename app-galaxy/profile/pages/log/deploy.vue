@@ -59,9 +59,8 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="['flex', isEnable('time-analyze', scope.row) ? 'primary':'disabled']"
-                    @click="handleTRButton($event, 'time-analyze', scope.$index, scope.row)">
-              <span>部署时间分析</span><i class="paas-icon-popover" style="margin-left: 2px;"></i>
+                    :class="['flex', isEnable('time-analyze', scope.row) ? 'primary':'disabled']">
+              <span @mouseenter="handleTRButton($event, 'time-analyze', scope.$index, scope.row)">部署时间分析</span><i class="paas-icon-popover" style="margin-left: 2px;"></i>
             </el-button>
           </template>
         </el-table-column>
@@ -532,8 +531,9 @@
                 return logDetail.hasOwnProperty(it);
               }).map(it => {
                 var timeUsed = this.$utils.formatMilliSeconds(parseInt(logDetail[it]));
-                return `<div><div style="display: inline-block; width: 80px; text-align: right">${keyMap[it]}：</div><div style="display: inline-block">${timeUsed}</div></div>`;
+                return `<div><div style="display: inline-block; width: 110px; text-align: right">${keyMap[it]}：</div><div style="display: inline-block">${timeUsed}</div></div>`;
               }).join('');
+              enable = `<div style="width: 200px;">${enable}</div>`
             } catch(err) {
               console.log(err);
             }
