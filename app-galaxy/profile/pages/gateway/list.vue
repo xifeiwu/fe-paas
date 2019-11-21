@@ -282,17 +282,16 @@
       </div>
     </el-dialog>
 
-
-    <el-dialog title="请求改写"
+    <el-dialog title="流量复制"
                :visible="action.name === 'open_dialog_config_request_redirect'"
                v-if="action.name === 'open_dialog_config_request_redirect'"
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-700 config_path_rewrite"
+               class="size-700 config_request_redirect"
     >
       <div class="content">
-        <el-form :model="action.data" :rules="configRules" size="mini" label-width="180px" ref="configPathRewriteForm">
+        <el-form :model="action.data" :rules="configRules" size="mini" label-width="160px" ref="not-set">
           <el-form-item label="网关名称"class="message-show">
             <span> {{action.data.gatewayName}} </span>
           </el-form-item>
@@ -302,8 +301,16 @@
           <el-form-item label="应用名称/运行环境" class="message-show">
             <span> {{action.data.appName}} / {{action.data.spaceName}}</span>
           </el-form-item>
-          <el-form-item label="接受请求流量的服务" class="message-show">
-            {{action.data.path}}
+          <el-form-item label="接受请求流量的服务" class="target-service message-show">
+            <el-select v-model="action.data.appId" filterable>
+              <el-option v-for="(item,index) in $storeHelper.appModelListOfGroup" :label="item.appName" :key="item.appId" :value="item.appId">
+              </el-option>
+            </el-select>
+            <el-select v-model="action.data.profileId" filterable>
+              <el-option v-for="(item,index) in productionProfileListOfGroup" :label="item.description" :key="item.id" :value="item.id">
+              </el-option>
+            </el-select>
+            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'只能重定向到生产环境的服务'"></i>
           </el-form-item>
         </el-form>
       </div>
@@ -328,6 +335,17 @@
           .el-form-item.config {
             .el-input-number {
               margin-left: 30px;
+            }
+          }
+        }
+      }
+      &.config_request_redirect {
+        .el-form {
+          .el-form-item {
+            &.target-service {
+              .el-select {
+                width: 240px;
+              }
             }
           }
         }
@@ -398,6 +416,9 @@
     beforeDestroy() {
     },
     computed: {
+      productionProfileListOfGroup() {
+        return this.$storeHelper.profileListOfGroup.filter(it => it.spaceType == 'PRODUCTION');
+      }
     },
     data() {
       return {
@@ -532,6 +553,7 @@
             it.allPath = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths.join(',') : '---';
             it.path = (Array.isArray(it.paths) && it.paths.length > 0) ? it.paths[0] : '---';
             it.pathRewrite = it.pathRewrite ? it.pathRewrite : '';
+            it.creatorName = it.creatorName ? it.creatorName : '---';
             // const profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
             // it.profileDescription = profileInfo ? profileInfo.description : '---';
             // it.domain = (Array.isArray(it.domainList) && it.domainList.length > 0) ? it.domainList.join(', ') : '---';
@@ -620,6 +642,10 @@
             } catch (err) {
               console.log(err);
             }
+            break;
+          case 'config_request_redirect':
+            console.log(this.action.data);
+            this.$message.error('待联调！');
             break;
         }
       },
@@ -763,16 +789,27 @@
             break;
           case 'open_dialog_config_request_redirect':
             // console.log(row);
+            // console.log(this.$storeHelper.profileListOfGroup);
+            // console.log(this.$storeHelper.appInfoListOfGroup);
+            if (!Array.isArray(this.$storeHelper.appModelListOfGroup) || (this.$storeHelper.appModelListOfGroup.length === 0)
+              || !Array.isArray(this.productionProfileListOfGroup) || this.productionProfileListOfGroup.length === 0) {
+              this.$message.error('数据不完整，应用列表为空或运行环境列表为空');
+              return;
+            }
+
             try {
               const dialogData = await this.openDialog(action, {
                 gatewayName: row.gatewayName,
                 appName: row.appName,
                 spaceName: row.spaceName,
                 host: row.host,             // 域名
+                appId: this.$storeHelper.appModelListOfGroup[0].appId,
+                profileId: this.productionProfileListOfGroup[0].id,
 
                 groupId: row.groupId,
                 spaceId: row.spaceId,
               });
+              // TODO: 联调
               const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_path_rewrite, {
                 payload: {
                   gatewayName: dialogData.gatewayName,
