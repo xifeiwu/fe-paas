@@ -5,7 +5,7 @@
         <paas-service-selector
                 ref="version-condition-filter"
                 :addItemAll="{app:true, profile:true}"
-                :customConfig="localServiceConfig"
+                :selected="localServiceConfig"
                 @service-selected="onServiceConditionChanged"></paas-service-selector>
         <el-input
                 size="mini"
@@ -422,11 +422,6 @@
   #domain-main {
     .header {
       .row {
-        &.selector {
-          .el-input .el-input__inner {
-            height: 24px;
-          }
-        }
       }
     }
     .el-dialog__wrapper {
@@ -619,13 +614,8 @@
           let data = dataTransfer['data'];
           switch (dataTransfer['from']) {
             case this.$net.page['profile/service']:
-              this.localServiceConfig = {
-                appId: data['appId'],
-                profileId: data['profileId']
-              };
-              if (data.hasOwnProperty('serviceId')) {
-                this.localServiceConfig['serviceId'] = data['serviceId'];
-              }
+              this.localServiceConfig.appId = data['appId'];
+              this.localServiceConfig.profileId = data['profileId'];
               break;
           }
           this.$storeHelper.dataTransfer = null;
@@ -654,7 +644,10 @@
         pageSize: 12,
         currentPage: 1,
 
-        localServiceConfig: null,
+        localServiceConfig: {
+          appId: this.$storeHelper.PROFILE_ID_FOR_NULL,
+          profileId: this.$storeHelper.PROFILE_ID_FOR_NULL,
+        },
 
         currentDomainList: [],
         selectedId: null,
@@ -707,7 +700,6 @@
 
         appInfo: null,
         profileInfo: null,
-        serviceInfo: null,
         keyword: '',
         // passed to my-version-condition-filter
         fixedInfoForVersionCondition: {
@@ -762,16 +754,8 @@
         this.requestDomainList();
       },
       'keyword': function (value) {
-//        let versionConditionFilter = this.$refs.hasOwnProperty('version-condition-filter')?
-//          this.$refs['version-condition-filter'].getSelectedInfo() : null;
-//        if (!versionConditionFilter) {
-//          return;
-//        }
-//        this.appInfo = versionConditionFilter.selectedApp;
-//        this.profileInfo = versionConditionFilter.selectedProfile;
-//        this.serviceInfo = versionConditionFilter.selectedService;
-//        this.currentPage = 1;
-//        this.debounceRequestDomainList();
+        this.currentPage = 1;
+        this.debounceRequestDomainList();
       },
       'secureCheckProps.passed': function (value) {
         if (value) {
@@ -822,13 +806,12 @@
           this.props4CreateDomain.level1InfoList = level1InfoList;
         }
       },
-      onServiceConditionChanged(appInfo, profileInfo, serviceInfo) {
-        // console.log(appInfo, profileInfo, serviceInfo);
+      onServiceConditionChanged() {
+        const {appModel, profileInfo} = this.$refs['version-condition-filter'].getSelected();
+        this.appInfo = appModel;
         this.profileInfo = profileInfo;
-        this.appInfo = appInfo;
-        this.serviceInfo = serviceInfo;
         this.keyword = '';
-        // this.debounceRequestDomainList();
+        // this.requestDomainList();
       },
       // the first page of pagination is 1
       handlePaginationPageChange(page) {
@@ -838,6 +821,7 @@
 
       setDebounce() {
         this.debounceRequestDomainList = this.$utils.debounce(this.requestDomainList.bind(this), 500, true);
+        // this.debounceRequestDomainList = this.requestDomainList;
       },
       /**
        * the place of calling requestDomainList;
@@ -851,19 +835,15 @@
         let start = page * this.pageSize;
         let length = this.pageSize;
 
-        let profileID = '';
-        if (this.profileInfo && this.profileInfo.hasOwnProperty('id')
-          && this.profileInfo.id != this.$storeHelper.PROFILE_ID_FOR_ALL) {
-          profileID = this.profileInfo.id;
-        }
-        let appID = '';
-        if (this.appInfo && this.appInfo.hasOwnProperty('appId') && this.appInfo.appId != this.$storeHelper.APP_ID_FOR_ALL) {
-          appID = this.appInfo.appId;
+        const {appModel, profileInfo} = this.$refs['version-condition-filter'].getSelected();
+        if (!appModel || !profileInfo) {
+          console.log(`appModel or profileInfo not found`);
+          return;
         }
         const payload = {
           groupId: this.$storeHelper.currentGroupID,
-          spaceId: profileID,
-          applicationId: appID,
+          spaceId: profileInfo.id == this.$storeHelper.PROFILE_ID_FOR_ALL ? '' : profileInfo.id,
+          applicationId: appModel.appId == this.$storeHelper.APP_ID_FOR_ALL ? '' : appModel.appId,
           start: start,
           length: length,
           keyword: this.keyword
@@ -1009,10 +989,10 @@
               // set default profileName for add-domain-dialog(the same as profile in version-condition-filter)
               this.props4CreateDomain.profileName = this.$storeHelper.profileListOfGroup[0]['name'];
               if (this.$refs.hasOwnProperty('version-condition-filter')) {
-                let selectedProfile = this.$refs['version-condition-filter'].getSelectedInfo().selectedProfile;
-                if (selectedProfile && selectedProfile.hasOwnProperty('id')
-                  && selectedProfile.id !== this.$storeHelper.PROFILE_ID_FOR_ALL) {
-                  this.props4CreateDomain.profileName = selectedProfile['name'];
+                const {profileInfo} = this.$refs['version-condition-filter'].getSelected();
+                if (profileInfo && profileInfo.hasOwnProperty('id')
+                  && profileInfo.id !== this.$storeHelper.PROFILE_ID_FOR_ALL) {
+                  this.props4CreateDomain.profileName = profileInfo['name'];
                 }
               }
 
@@ -1163,8 +1143,8 @@
               this.$message.error('未找到服务信息！');
               return;
             }
-            let selectedValue = this.$refs[refKey].getSelectedInfo();
-            if (!selectedValue || !selectedValue['selectedProfile'] || !selectedValue['selectedApp']) {
+            const {appModel, profileInfo} = this.$refs[refKey].getSelected();
+            if (appModel || profileInfo) {
               this.$message.error('未找到服务信息！');
               return;
             }
