@@ -5,17 +5,16 @@
         <paas-service-selector
                 ref="service-selector"
                 :addItemAll="{app: true, profile: false}"
-                :customConfig="config4ServiceSelector"
-                @service-selected="onServiceSelected"></paas-service-selector>
+                :selected="query"></paas-service-selector>
       </div>
       <div class="item">
         <el-input size="mini" placeholder="按关键字搜索"
                   style="max-width: 360px;"
-                  v-model="filterKey">
+                  v-model="query.filterKey">
           <i slot="prefix" class="el-icon-search"></i>
-          <i :class="filterKey && filterKey.length > 0 ? 'paas-icon-close' : ''"
+          <i :class="query.filterKey && query.filterKey.length > 0 ? 'paas-icon-close' : ''"
              slot="suffix"
-             @click="evt => filterKey=''"></i>
+             @click="evt => query.filterKey=''"></i>
         </el-input>
       </div>
       <div class="item">
@@ -160,14 +159,14 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="listFiltered.length > pageSize">
+      <div class="pagination-container" v-if="listFiltered.length > query.pageSize">
         <div class="pagination">
           <el-pagination
                   size="mini"
-                  @size-change="val => this.pageSize = val"
+                  @size-change="val => this.query.pageSize = val"
                   :background="false"
-                  :current-page.sync="currentPage"
-                  :page-size="pageSize"
+                  :current-page.sync="query.currentPage"
+                  :page-size="query.pageSize"
                   :page-sizes="[10, 15, 20, 30]"
                   layout="total, sizes, prev, pager, next, jumper"
                   :total="listFiltered.length">
@@ -414,12 +413,12 @@
      */
     created() {
       const query = this.$route.query;
-      // NOTICE: affect logic: config4ServiceSelector -> onServiceSelected -> profileId -> updateListByPage(true)
-      query.hasOwnProperty('appId') && (this.config4ServiceSelector.appId = parseInt(query.appId));
-      query.hasOwnProperty('profileId') && (this.config4ServiceSelector.profileId = parseInt(query.profileId));
-      query.hasOwnProperty('currentPage') && (this.currentPage = parseInt(decodeURIComponent(query.currentPage)));
-      query.hasOwnProperty('pageSize') && (this.pageSize = parseInt(decodeURIComponent(query.pageSize)));
-      query.hasOwnProperty('filterKey') && (this.filterKey = decodeURIComponent(query.filterKey));
+      // NOTICE: affect logic: profileId -> updateListByPage(true)
+      query.hasOwnProperty('appId') && (this.query.appId = parseInt(query.appId));
+      query.hasOwnProperty('profileId') && (this.query.profileId = parseInt(query.profileId));
+      query.hasOwnProperty('currentPage') && (this.query.currentPage = parseInt(decodeURIComponent(query.currentPage)));
+      query.hasOwnProperty('pageSize') && (this.query.pageSize = parseInt(decodeURIComponent(query.pageSize)));
+      query.hasOwnProperty('filterKey') && (this.query.filterKey = decodeURIComponent(query.filterKey));
     },
     mounted() {
       this.$nextTick(() => {
@@ -435,24 +434,10 @@
     },
     data() {
       return {
-        config4ServiceSelector: {
-          appId: this.$storeHelper.APP_ID_FOR_ALL,
-          profileId: ''
-        },
-
-        appInfo: null,
-        profileInfo: null,
-        appId: this.$storeHelper.APP_ID_FOR_ALL,
-        profileId: null,
-        filterKey: '',
-
         heightOfTable: '',
         gatewayList: [],
         listFiltered: [],
         listByPage: [],
-
-        currentPage: 1,
-        pageSize: 15,
 
         query: {
           appId: this.$storeHelper.APP_ID_FOR_ALL,
@@ -483,24 +468,25 @@
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
-      appId(appId) {
-        this.setQuery({appId});
+      'query.appId'(appId) {
+        this.updateQuery({appId});
         this.updateListByPage(false);
       },
-      profileId(profileId) {
-        this.setQuery({profileId});
+      'query.profileId'(profileId) {
+        console.log(`profileId: ${profileId}`);
+        this.updateQuery({profileId});
         this.updateListByPage(true);
       },
-      filterKey(filterKey) {
-        this.setQuery({filterKey});
+      'query.filterKey'(filterKey) {
+        this.updateQuery({filterKey});
         this.updateListByPage(false);
       },
-      currentPage(currentPage) {
-        this.setQuery({currentPage});
+      'query.currentPage'(currentPage) {
+        this.updateQuery({currentPage});
         this.updateListByPage(false);
       },
-      pageSize(pageSize) {
-        this.setQuery({pageSize});
+      'query.pageSize'(pageSize) {
+        this.updateQuery({pageSize});
         this.updateListByPage(false);
       },
     },
@@ -522,33 +508,6 @@
           ref: evt.trigger,
           msg: '复制成功'
         });
-      },
-
-      /**
-       * get current app/profile(service) selected
-       * NOTICE: at start of this page, requestList should be called when onServiceSelected is called
-       */
-      onServiceSelected(selectedApp, selectedProfile) {
-        if (!selectedApp || !selectedProfile) {
-          return;
-        }
-        if (!this.$utils.hasProps(selectedApp, 'appId')) {
-          console.log(`selectedApp.appId not exist!`);
-          return;
-        }
-        if (!this.$utils.hasProps(selectedProfile, 'id')) {
-          console.log(`selectedProfile.id not exist!`);
-          return null;
-        }
-        this.appInfo = selectedApp;
-        this.profileInfo = selectedProfile;
-        this.appId = selectedApp.appId;
-        this.profileId = selectedProfile.id;
-        // console.log(selectedApp, selectedProfile);
-      },
-      getSelectedService() {
-        const {selectedApp, selectedProfile} = this.$refs['service-selector'].getSelectedInfo();
-        this.onServiceSelected(selectedApp, selectedProfile);
       },
 
       _updateRowInfo(it) {
@@ -577,7 +536,7 @@
           const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_list, {
             payload: {
               groupId: this.$storeHelper.groupInfo.id,
-              spaceId: this.profileId,
+              spaceId: this.query.profileId,
             }
           });
           resData.forEach(this._updateRowInfo);
@@ -591,14 +550,14 @@
           this.gatewayList = await this._requestList();
         }
         let filterReg = null;
-        if (this.filterKey) {
-          filterReg = new RegExp(this.filterKey, 'i');
+        if (this.query.filterKey) {
+          filterReg = new RegExp(this.query.filterKey, 'i');
         }
         const listFiltered = this.gatewayList.filter(it => {
-          if (this.$storeHelper.APP_ID_FOR_ALL == this.appId) {
+          if (this.$storeHelper.APP_ID_FOR_ALL == this.query.appId) {
             return true;
           } else {
-            return it.appId == this.appId;
+            return it.appId == this.query.appId;
           }
         }).filter(it => {
           if (!filterReg) {
@@ -608,18 +567,18 @@
           }
         });
 
-        if (!this.$utils.isNumber(parseInt(this.currentPage))) {
-          this.currentPage = 1;
+        if (!this.$utils.isNumber(parseInt(this.query.currentPage))) {
+          this.query.currentPage = 1;
           return;
         }
-        const maxPageSize = Math.ceil(listFiltered.length / this.pageSize);
-        if (maxPageSize >= 1 && this.currentPage > maxPageSize) {
-          this.currentPage = maxPageSize;
+        const maxPageSize = Math.ceil(listFiltered.length / this.query.pageSize);
+        if (maxPageSize >= 1 && this.query.currentPage > maxPageSize) {
+          this.query.currentPage = maxPageSize;
         }
-        var page = this.currentPage - 1;
+        var page = this.query.currentPage - 1;
         page = page >= 0 ? page : 0;
-        const start = page * this.pageSize;
-        const length = this.pageSize;
+        const start = page * this.query.pageSize;
+        const length = this.query.pageSize;
         const end = start + length;
 
         this.listFiltered = listFiltered;
@@ -630,11 +589,11 @@
         switch (action) {
           case 'gateway_create':
             try {
-              const {selectedApp, selectedProfile} = this.$refs['service-selector-for-gateway-create'].getSelectedInfo();
-              const serviceModel = await this.$net.getServiceByAppIdAndSpaceId(selectedApp.appId, selectedProfile.id);
+              const {appModel, profileInfo} = this.$refs['service-selector-for-gateway-create'].getSelected();
+              // const serviceModel = await this.$net.getServiceByAppIdAndSpaceId(appModel.appId, profileInfo.id);
               this.action.promise.resolve({
-                appId: selectedApp.appId,
-                profileId: selectedProfile.id
+                appId: appModel.appId,
+                profileId: profileInfo.id
               });
             } catch (err) {
               this.action.data.errMsg = err.message;
@@ -899,21 +858,25 @@
         query.pageSize = 15;
         query.filterKey = '';
       },
-      setQuery(objOrKey, value) {
-        if (this.$utils.isObject(objOrKey)) {
-          for (let key in objOrKey) {
-            value = objOrKey[key];
-            this.setQuery(key, value);
-          }
-        } else {
-          if (this.query.hasOwnProperty(objOrKey)) {
-            this.query[objOrKey] = encodeURIComponent(value);
-          }
-          this.$router.push({
-            name: 'gateway_list',
-            query: this.query
-          });
-        }
+      updateQuery() {
+        this.$router.replace({
+          name: 'gateway_list',
+          query: this.query
+        });
+//        if (this.$utils.isObject(objOrKey)) {
+//          for (let key in objOrKey) {
+//            value = objOrKey[key];
+//            this.updateQuery(key, value);
+//          }
+//        } else {
+//          if (this.query.hasOwnProperty(objOrKey)) {
+//            this.query[objOrKey] = encodeURIComponent(value);
+//          }
+//          this.$router.push({
+//            name: 'gateway_list',
+//            query: this.query
+//          });
+//        }
       }
     }
   };
