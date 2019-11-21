@@ -346,12 +346,13 @@
 
     .pagination {
       text-align: center;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
       .el-pagination {
         display: inline-block;
         //background-color: rgba(255, 255, 255, 0.3);
-        background-color: rgb(244, 245, 245);
+        //background-color: rgb(244, 245, 245);
         //border: 0px solid #e6ebf5;
+        background-color: #f3f4f5;
         border-radius: 6px;
         padding: 0px 10px;
         button {
@@ -361,13 +362,13 @@
           }
         }
         .el-pager {
+          //background-color: transparent;
           li {
             min-width: 28px;
-            // background-color: transparent;
+            background-color: #f3f4f5;
             &.number {
               padding: 0px 0px;
               margin: 0px;
-              // background-color: transparent;
               color: #409EFF;
               font-weight: normal;
               &.active {
