@@ -41,7 +41,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="groupId" label="团队名称" :minWidth="160">
+        <el-table-column prop="groupId" label="团队名称" :minWidth="140">
           <template slot-scope="scope">
             {{scope.row.groupName}}
           </template>
@@ -51,7 +51,7 @@
             <el-tag size="small" type="primary">{{scope.row.branchName}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="lastCommitMessage" label="最后修改" :minWidth="300">
+        <el-table-column prop="lastCommitMessage" label="最后修改" :minWidth="260">
           <template slot-scope="scope">
             <i class="el-icon-time"></i>
             <span>
