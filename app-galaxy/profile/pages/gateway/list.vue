@@ -99,10 +99,14 @@
                 width="80"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
-            <span v-if="scope.row.isRewrite" style="display: inline-flex; align-items: center; text-decoration: underline; cursor: pointer"
-                  @mouseenter="handleTRClick($event, 'tip_on_mouse_enter', `为实现 '请求改写' 而新建的网关`)"><span>请求改写</span><i class="paas-icon-question" style="font-size: 12px;"></i></span>
-            <span v-else-if="scope.row.configList.length > 0" style="text-decoration: underline; cursor: pointer"
-                  @mouseenter="handleTRClick($event, 'gateway_config_show', scope.row, scope.$index)">配置详情<i class="paas-icon-popover" style="margin-left: 2px;"></i></span>
+            <span v-if="scope.row.isRewrite" style="display: inline-flex; align-items: center; cursor: pointer"
+                  @mouseenter="handleTRClick($event, 'tip_on_mouse_enter', 'path_rewrite')">
+              <span>请求改写</span><i class="paas-icon-question" style="font-size: 12px;"></i>
+            </span>
+            <span v-else-if="scope.row.configList.length > 0" style="cursor: pointer"
+                  @mouseenter="handleTRClick($event, 'gateway_config_show', scope.row, scope.$index)">
+              <span>配置详情</span><i class="paas-icon-popover" style="margin-left: 2px;"></i>
+            </span>
             <span v-else>---</span>
           </template>
         </el-table-column>
@@ -723,7 +727,7 @@
             if (row.configList === 0) {
               return;
             }
-            const content = ['<div style="width: 300px; font-size: 13px; font-weight: bold;">',...row.configList.map(it => `<div style="; text-align: left">${it}</div>`), '</div>'].join('');
+            var content = ['<div style="width: 300px; font-size: 13px; color: black">',...row.configList.map(it => `<div style="; text-align: left">${it}</div>`), '</div>'].join('');
             this.$storeHelper.globalPopover.show({
               ref: evt.target,
               type: 'html',
@@ -731,11 +735,16 @@
             });
             break;
           case 'tip_on_mouse_enter':
-            this.$storeHelper.globalPopover.show({
-              ref: evt.target,
-              type: 'text',
-              msg: row
-            });
+            var content = {
+              'path_rewrite': `<div style="font-size: 13px; color: black">为实现 '请求改写' 而新建的网关</div>`
+            }[row];
+            if (content) {
+              this.$storeHelper.globalPopover.show({
+                ref: evt.target,
+                type: 'html',
+                msg: content
+              });
+            }
             break;
           case 'open_dialog_config_rate_limiting':
             // console.log(row);
