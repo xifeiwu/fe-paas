@@ -1404,72 +1404,14 @@ class Net extends NetBase {
     });
   }
 
-  /**
-   * 解析应用列表数据
-   * @param resContent
-   * @returns {Promise.<*>}
-   */
-  async parseAppList(resContent) {
-    const getAppModelList = (appList) => {
-      let appModelList = [];
-      appList.forEach(app => {
-        appModelList.push({
-          'appId': app.appId,
-          'appName': app.appName,
-          'profileNames':
-            app.profileList ? app.profileList.filter(it => {
-              return '' != it.name && '' != it.description
-            }).map(it => {
-              return it.name;
-            }) : []
-        })
-      });
-      return appModelList;
-    };
-
-    if (resContent.hasOwnProperty('appList') && Array.isArray(resContent.appList)) {
-      let appList = resContent.appList;
-      appList.forEach(app => {
-        const createTime = app.createTime;
-        try {
-          app.createTime = this.$utils.formatDate(createTime, 'yyyy-MM-dd hh:mm:ss').split(' ');
-        } catch(err) {
-          app.createTime = '---';
-        }
-
-        app['profileNames'] = app['serviceCountList'].map(it => {
-          return it['envName']
-        });
-        // app['profileList'] = this.$storeHelper.getProfileInfoListByNameList(app.spaceList);
-        app['profileList'] = app['serviceCountList'].map(it => {
-          const profileInfo = this.$storeHelper.getProfileInfoByName(it['envName']);
-          return Object.assign(profileInfo, {
-            serviceNameCount: it['serviceNameCount']
-          });
-        });
-        if (app.hasOwnProperty('language')) {
-          // whether the language of app is JAVA
-          app['isJavaLanguage'] = app.hasOwnProperty('language') && 'JAVA' == app.language;
-          app.languageLogo = null;
-          switch (app.language) {
-            case 'JAVA':
-              app.languageLogo = 'java';
-              break;
-            case 'NODE_JS':
-              app.languageLogo = 'nodejs';
-              break;
-            case 'PYTHON':
-              app.languageLogo = 'python';
-              break;
-            case 'PHP':
-              app.languageLogo = 'php';
-              break;
-          }
-        }
-      });
-      resContent.appModelList = getAppModelList(appList);
-    }
-    return resContent;
+  async requestAppInfoListOfGroup(groupId) {
+    var resData = await this.requestPaasServer(this.URL_LIST.app_list_by_group, {
+      payload: {
+        groupId: groupId
+      }
+    });
+    const appInfoListOfGroup = await this.parseAppListV2(resData);
+    return appInfoListOfGroup;
   }
 
   /**
@@ -1477,7 +1419,7 @@ class Net extends NetBase {
    * @param resContent
    * @returns {Promise.<*>}
    */
-  async parseAppListV2(resContent, profileListOfGroup) {
+  async parseAppListV2(resData) {
     const result = {
       total: 0,
       data: [],
@@ -1485,12 +1427,12 @@ class Net extends NetBase {
       appModelList: []
     };
 
-    if (!resContent.hasOwnProperty('data') || !Array.isArray(resContent['data']) || !resContent.hasOwnProperty('recordsTotal')) {
+    if (!resData.hasOwnProperty('data') || !Array.isArray(resData['data']) || !resData.hasOwnProperty('recordsTotal')) {
       return result;
     }
-    result.total = resContent['recordsTotal'];
-    result.data = resContent['data'];
-    result.appList = resContent['data'].map(app => {
+    result.total = resData['recordsTotal'];
+    result.data = resData['data'];
+    result.appList = resData['data'].map(app => {
       var formattedCreateTime = this.$utils.formatDate(app.createTime, 'yyyy-MM-dd hh:mm:ss');
       if (formattedCreateTime) {
         formattedCreateTime = formattedCreateTime.split(' ');
@@ -1531,7 +1473,6 @@ class Net extends NetBase {
         createTime: app.createTime,
         language,
         packageType: app.packageType,
-        profileList: profileListOfGroup,
         lobId: app.lobId,
         scrumId: app.scrumId,
         description:app.description

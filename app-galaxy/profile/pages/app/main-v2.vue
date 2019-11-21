@@ -603,12 +603,7 @@
         }
       },
       async requestAppList() {
-        var resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.app_list_by_group, {
-          payload: {
-            groupId: this.$storeHelper.currentGroupID
-          }
-        });
-        const appInfoListOfGroup = await this.$net.parseAppListV2(resContent, this.$storeHelper.profileListOfGroup);
+        const appInfoListOfGroup = await this.$net.requestAppInfoListOfGroup(this.$storeHelper.currentGroupID);
         this.$store.dispatch('user/appInfoList', appInfoListOfGroup);
       },
 
