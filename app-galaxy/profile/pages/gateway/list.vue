@@ -2,8 +2,6 @@
   <div id="gateway-list">
     <div class="header">
       <div class="item">
-        <!--<paas-version-selector :customConfig="config4VersionSelector" ref="version-selector"-->
-                               <!--@version-selected="getSelectedService"></paas-version-selector>-->
         <paas-service-selector
                 ref="service-selector"
                 :addItemAll="{app: true, profile: false}"
@@ -103,7 +101,7 @@
                   @mouseenter="handleTRClick($event, 'tip_on_mouse_enter', 'path_rewrite')">
               <span>请求改写</span><i class="paas-icon-question" style="font-size: 12px;"></i>
             </span>
-            <span v-else-if="scope.row.configList.length > 0" style="cursor: pointer"
+            <span v-else-if="scope.row.configList.length > 0" style="display: inline-flex; align-items: center; cursor: pointer"
                   @mouseenter="handleTRClick($event, 'gateway_config_show', scope.row, scope.$index)">
               <span>配置详情</span><i class="paas-icon-popover" style="margin-left: 2px;"></i>
             </span>
@@ -403,12 +401,11 @@
 
 <script>
   import paasServiceSelector from '../components/service-selector.vue';
-  import PaasVersionSelector from "../components/version-selector";
   import commonUtils from 'assets/components/mixins/common-utils';
 
   export default {
     mixins: [commonUtils],
-    components: {paasServiceSelector, PaasVersionSelector},
+    components: {paasServiceSelector},
 
     /**
      * the sequence of create and mount in parent and child element is:
@@ -894,6 +891,14 @@
         }
       },
 
+      resetQuery() {
+        const query = this.query;
+        query.appId = this.$storeHelper.APP_ID_FOR_ALL;
+        query.profileId = '';
+        query.currentPage = 1;
+        query.pageSize = 15;
+        query.filterKey = '';
+      },
       setQuery(objOrKey, value) {
         if (this.$utils.isObject(objOrKey)) {
           for (let key in objOrKey) {
