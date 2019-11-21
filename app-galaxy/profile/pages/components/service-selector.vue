@@ -2,36 +2,32 @@
   <div class="paas-service-selector">
     <div class="item">
       <label>应用名称:</label>
-      <el-select class="app-name" filterable v-model="selectedAppId" size="mini-extral" placeholder="请选择">
-        <el-option v-for="(item, index) in appList" :key="item.appId" :label="item.appName" :value="item.appId">
+      <el-select class="app-list" filterable v-model="selected.appId" size="mini" placeholder="请选择">
+        <el-option v-for="(item, index) in appModelListOfGroup" :key="index" :label="item.appName" :value="item.appId">
         </el-option>
       </el-select>
     </div>
     <div class="item">
       <label>运行环境:</label>
-      <el-select v-model="selectedProfileId" placeholder="请选择" size="mini-extral"  :disabled="fixedInfo.type === 'profile'">
-        <el-option v-for="item in profileList" :key="item.id" :label="item.description" :value="item.id">
+      <el-select class="profile-list" v-model="selected.profileId" placeholder="请选择" size="mini"  :disabled="fixedInfo.type === 'profile'">
+        <el-option v-for="(item, index) in profileListOfGroup" :key="index" :label="item.description" :value="item.id">
         </el-option>
       </el-select>
     </div>
   </div>
 </template>
 
-<style lang="scss">
-  .paas-service-selector {
-    .el-select .el-input__inner {
-      height: 24px;
-    }
-  }
-</style>
 <style lang="scss" scoped>
   .paas-service-selector {
     font-size: 14px;
     .item {
       display: inline-block;
       margin-right: 3px;
-      .el-select.app-name {
-        min-width: 260px;
+      .el-select.app-list {
+        width: 220px;
+      }
+      .el-select.profile-list {
+        width: 140px;
       }
     }
   }
@@ -43,19 +39,23 @@
     created() {
     },
     mounted() {
-      // init value to make sure 'service-selected' is emitted at start
-      this.initDataStatus();
-//      console.log(this.appInfoListOfGroup);
-//      console.log(this.profileListOfGroup);
-      if (this.appInfoListOfGroup) {
-        this.onAppInfoListOfGroup(this.appInfoListOfGroup);
+      if (Array.isArray(this.appModelListOfGroup) && this.appModelListOfGroup.length > 0) {
+        this.onAppModelListOfGroup(this.appModelListOfGroup);
       }
-      if (this.profileListOfGroup) {
+      if (Array.isArray(this.profileListOfGroup) && this.profileListOfGroup.length > 0) {
         this.onProfileListOfGroup(this.profileListOfGroup);
       }
     },
     props: {
-      customConfig: Object,
+      selected: {
+        type: Object,
+        default() {
+          return {
+            appId: this.$storeHelper.APP_ID_FOR_NULL,
+            profileId: this.$storeHelper.PROFILE_ID_FOR_NULL
+          }
+        }
+      },
       addItemAll: {
         type: Object,
         default() {
@@ -77,16 +77,6 @@
     },
     data() {
       return {
-        appList: [],
-        profileList: [],
-
-        selectedAppId: null,
-        selectedAPP: null,
-
-        // profile related
-        selectedProfileId: null,
-        selectedProfile: null,
-
         appItemAll: {
           appId: this.$storeHelper.APP_ID_FOR_ALL,
           appName: '全部'
@@ -101,99 +91,69 @@
       }
     },
     computed: {
-      ...mapGetters('user', {
-        'appInfoListOfGroup': 'appInfoListOfGroup',
-        'profileListOfGroup': 'profileListOfGroup'
-      }),
+      appModelListOfGroup() {
+        if (this.$storeHelper.appModelListOfGroup.length === 0) {
+          return [];
+        }
+        if (this.addItemAll.app) {
+          return [this.appItemAll].concat(this.$storeHelper.appModelListOfGroup);
+        } else {
+          return this.$storeHelper.appModelListOfGroup;
+        }
+      },
+      profileListOfGroup() {
+        if (this.$storeHelper.profileListOfGroup.length === 0) {
+          return [];
+        }
+        if (this.addItemAll.profile) {
+          return [this.profileItemAll].concat(this.$storeHelper.profileListOfGroup);
+        } else {
+          return this.$storeHelper.profileListOfGroup;
+        }
+      }
     },
     watch: {
-      selectedAppId: 'onSelectedAppId',
-      selectedProfileId: 'onSelectedProfileId',
-      appInfoListOfGroup: 'onAppInfoListOfGroup',
+      'selected.appId': 'selectChange',
+      'selected.profileId': 'selectChange',
+      appModelListOfGroup: 'onAppModelListOfGroup',
       profileListOfGroup: 'onProfileListOfGroup'
     },
     methods: {
-      initDataStatus() {
-        this.selectedAppId = this.$storeHelper.APP_ID_FOR_NULL;
-        this.selectedProfileId = this.$storeHelper.PROFILE_ID_FOR_NULL;
-      },
-
-      onSelectedAppId() {
-        this.serviceSelected();
-      },
-      onSelectedProfileId() {
-        this.serviceSelected();
-      },
-      onAppInfoListOfGroup(appInfoListOfGroup) {
-        if (appInfoListOfGroup && appInfoListOfGroup.hasOwnProperty('appList')) {
-          this.appList = this.appInfoListOfGroup['appList'];
-          if (this.addItemAll.app) {
-            this.appList = [this.appItemAll].concat(this.appList);
-          }
+      onAppModelListOfGroup(appModelListOfGroup) {
+        if (!Array.isArray(appModelListOfGroup) || appModelListOfGroup.length === 0) {
+          console.log('appModelListOfGroup data error!');
+          return;
         }
-
-        // set default selectedAppId
-        let defaultAppID = null;
-        if (this.customConfig && this.customConfig.hasOwnProperty('appId')) {
-          defaultAppID = this.customConfig['appId'];
+        const appModel = appModelListOfGroup.find(it => it.appId == this.selected.appId);
+        if (!appModel) {
+          this.selected.appId = appModelListOfGroup[0].appId;
         }
-        // change selectedAppId in next tick to make sure value change can be watched
-        setTimeout(() => {
-          if (defaultAppID && this.$storeHelper.getAppInfoByID(defaultAppID)) {
-            this.selectedAppId = defaultAppID;
-          } else {
-            this.selectedAppId = this.appList.length > 0 ? this.appList[0]['appId'] : this.$storeHelper.APP_ID_FOR_NULL;
-          }
-        });
       },
 
-      // NOTICE: different from onAppInfoListOfGroup, onAppInfoListOfGroup will trigger twice: at mounted; after end of request profileListOfGroup
       onProfileListOfGroup(profileListOfGroup) {
-        this.profileList = profileListOfGroup;
-        if (this.addItemAll.profile) {
-          this.profileList = [this.profileItemAll].concat(this.profileList);
+        if (!Array.isArray(profileListOfGroup) || profileListOfGroup.length === 0) {
+          console.log('profileListOfGroup data error!');
+          return;
         }
+        const profileInfo = profileListOfGroup.find(it => it.id == this.selected.profileId);
+        if (!profileInfo) {
+          this.selected.profileId = profileListOfGroup[0].id;
+        }
+      },
 
-        // set default profileId
-        var defaultProfileId = null;
-        if (this.customConfig && this.customConfig.hasOwnProperty('profileId')) {
-          defaultProfileId = this.customConfig['profileId'];
-        }
-        setTimeout(() => {
-          if (defaultProfileId && this.profileList.map(it => {
-              return it.id;
-            }).indexOf(defaultProfileId) > -1) {
-            this.selectedProfileId = defaultProfileId;
-          } else {
-            this.selectedProfileId = this.profileList.length > 0 ? this.profileList[0]['id'] : this.$storeHelper.PROFILE_ID_FOR_NULL
-          }
+      getSelected() {
+        const appModel =  (Array.isArray(this.appModelListOfGroup) && this.appModelListOfGroup.length > 0) ?
+          this.appModelListOfGroup.find(it => it.appId == this.selected.appId) : null;
+        const profileInfo = (Array.isArray(this.profileListOfGroup) && this.profileListOfGroup.length > 0) ?
+          this.profileListOfGroup.find(it => it.id == this.selected.profileId) : null;
+        return this.$utils.cloneDeep({appModel, profileInfo});
+      },
+
+      selectChange() {
+        this.$emit('service-selected', {
+          appId: this.selected.appId,
+          profileId: this.selected.profileId
         });
-      },
-
-      getSelectedInfo() {
-        var selectedApp = null;
-        if (this.addItemAll['app'] && this.selectedAppId === this.appItemAll['appId']) {
-          selectedApp = this.appItemAll;
-        } else {
-          let result = this.$storeHelper.getAppInfoByID(this.selectedAppId);
-          selectedApp = result ? result.app : null;
-        }
-
-        var selectedProfile = null;
-        if (this.addItemAll['profile'] && this.selectedProfileId === this.profileItemAll['id']) {
-          selectedProfile = this.profileItemAll;
-        } else {
-          selectedProfile = this.$storeHelper.getProfileInfoByID(this.selectedProfileId);
-        }
-        return this.$utils.cloneDeep({selectedApp, selectedProfile});
-      },
-
-      serviceSelected() {
-        const selectedInfo = this.getSelectedInfo();
-        this.$emit('service-selected',
-          this.$utils.cloneDeep(selectedInfo.selectedApp),
-          this.$utils.cloneDeep(selectedInfo.selectedProfile)
-        );
       },
     }
   }
