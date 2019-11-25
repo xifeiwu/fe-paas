@@ -152,7 +152,7 @@
             <el-button
                     type="text"
                     :class="['flex', 'warning']"
-                    @click="handleTRClick($event, 'open_dialog_config_request_redirect', scope.row, scope.$index)"
+                    @click="handleTRClick($event, 'open_dialog_config_copy_request', scope.row, scope.$index)"
             >
               <span>流量复制</span>
             </el-button>
@@ -296,12 +296,12 @@
     </el-dialog>
 
     <el-dialog title="流量复制"
-               :visible="action.name === 'open_dialog_config_request_redirect'"
-               v-if="action.name === 'open_dialog_config_request_redirect'"
+               :visible="action.name === 'open_dialog_config_copy_request'"
+               v-if="action.name === 'open_dialog_config_copy_request'"
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-700 config_request_redirect"
+               class="size-700 config_copy_request"
     >
       <div class="content">
         <el-form :model="action.data" :rules="configRules" size="mini" label-width="160px" ref="not-set">
@@ -315,11 +315,11 @@
             <span> {{action.data.appName}} / {{action.data.spaceName}}</span>
           </el-form-item>
           <el-form-item label="接受请求流量的服务" class="target-service message-show">
-            <el-select v-model="action.data.appId" filterable>
+            <el-select v-model="action.data.targetAppId" filterable>
               <el-option v-for="(item,index) in $storeHelper.appModelListOfGroup" :label="item.appName" :key="item.appId" :value="item.appId">
               </el-option>
             </el-select>
-            <el-select v-model="action.data.profileId" filterable>
+            <el-select v-model="action.data.targetProfileId" filterable>
               <el-option v-for="(item,index) in productionProfileListOfGroup" :label="item.description" :key="item.id" :value="item.id">
               </el-option>
             </el-select>
@@ -352,7 +352,7 @@
           }
         }
       }
-      &.config_request_redirect {
+      &.config_copy_request {
         .el-form {
           .el-form-item {
             &.target-service {
@@ -471,7 +471,6 @@
         this.updateListByPage(false);
       },
       'query.profileId'(profileId) {
-        console.log(`profileId: ${profileId}`);
         this.updateQuery({profileId});
         this.updateListByPage(true);
       },
@@ -531,9 +530,19 @@
         } else {
           it.formattedCreateTime = '---';
         }
+
+        if (it.copyTargetAppId) {
+          it.targetApp = this.$storeHelper.appModelListOfGroup.find(it2 => it2.appId == it.copyTargetAppId);
+        }
+        if (it.copyTargetSpaceId) {
+          it.targetProfile = this.$storeHelper.profileListAll.find(it2 => it2.id == it.copyTargetSpaceId);
+        }
         it.configList = [];
         if (it.pathRewrite) {
           it.configList.push(`请求改写：${it.path} -> ${it.pathRewrite}`);
+        }
+        if (it.copyTargetAppId && it.targetApp && it.copyTargetSpaceId && it.targetProfile) {
+          it.configList.push(`流量复制：${it.appName}/${it.spaceName} -> ${it.targetApp.appName}/${it.targetProfile.description}`);
         }
       },
       async _requestList() {
@@ -626,9 +635,25 @@
               console.log(err);
             }
             break;
-          case 'config_request_redirect':
-            console.log(this.action.data);
-            this.$message.error('待联调！');
+          case 'config_copy_request':
+            // console.log(this.action.data);
+            try {
+              const dialogData = this.action.data;
+              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_copy_request, {
+                payload: {
+                  gatewayName: dialogData.gatewayName,
+                  groupId: dialogData.groupId,
+                  spaceId: dialogData.spaceId,
+                  appId: dialogData.appId,
+                  targetAppId: dialogData.targetAppId,
+                  targetSpaceId: dialogData.targetProfileId
+                }
+              });
+              this.action.promise.resolve(this.action.data);
+            } catch (err) {
+              // console.log(err);
+              this.$message.warning(err.message);
+            }
             break;
         }
       },
@@ -792,36 +817,36 @@
             } finally {
             }
             break;
-          case 'open_dialog_config_request_redirect':
+          case 'open_dialog_config_copy_request':
             // console.log(row);
             // console.log(this.$storeHelper.profileListOfGroup);
             // console.log(this.$storeHelper.appInfoListOfGroup);
             if (!Array.isArray(this.$storeHelper.appModelListOfGroup) || (this.$storeHelper.appModelListOfGroup.length === 0)
               || !Array.isArray(this.productionProfileListOfGroup) || this.productionProfileListOfGroup.length === 0) {
-              this.$message.error('数据不完整，应用列表为空或运行环境列表为空');
+              this.$message.error('数据不完整，应用列表为空或运行环境列表为空，请尝试刷新页面重试！');
               return;
+            }
+
+
+            var targetAppId = this.$storeHelper.appModelListOfGroup[0].appId;
+            var targetProfileId = this.productionProfileListOfGroup[0].id;
+            if (row.copyTargetAppId && row.targetApp && row.copyTargetSpaceId && row.targetProfile) {
+              targetAppId = row.copyTargetAppId;
+              targetProfileId = row.copyTargetSpaceId;
             }
 
             try {
               const dialogData = await this.openDialog(action, {
                 gatewayName: row.gatewayName,
+                appId: row.appId,
                 appName: row.appName,
                 spaceName: row.spaceName,
                 host: row.host,             // 域名
-                appId: this.$storeHelper.appModelListOfGroup[0].appId,
-                profileId: this.productionProfileListOfGroup[0].id,
+                targetAppId,
+                targetProfileId,
 
                 groupId: row.groupId,
                 spaceId: row.spaceId,
-              });
-              // TODO: 联调
-              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_path_rewrite, {
-                payload: {
-                  gatewayName: dialogData.gatewayName,
-                  groupId: dialogData.groupId,
-                  spaceId: dialogData.spaceId,
-                  pathRewrite: dialogData.targetPath
-                }
               });
               // Object.assign(row, dialogData);   // update row by dialogData
               this.closeDialog();

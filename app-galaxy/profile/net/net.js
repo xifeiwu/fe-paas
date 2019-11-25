@@ -683,6 +683,12 @@ class Net extends NetBase {
         path: '/gateway/createOrUpdatePathRewrite',
         method: 'post'
       },
+      // 需改流量复制
+      'gateway_update_copy_request': {
+        path: '/gateway/createOrUpdateCopyRequest',
+        method: 'post',
+        level: 'LEVEL_IGNORE'
+      },
 
       /**工单相关*/
       // 工单列表
