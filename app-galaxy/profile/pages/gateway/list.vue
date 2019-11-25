@@ -412,13 +412,8 @@
      *
      */
     created() {
-      const query = this.$route.query;
       // NOTICE: affect logic: profileId -> updateListByPage(true)
-      query.hasOwnProperty('appId') && (this.query.appId = parseInt(query.appId));
-      query.hasOwnProperty('profileId') && (this.query.profileId = parseInt(query.profileId));
-      query.hasOwnProperty('currentPage') && (this.query.currentPage = parseInt(decodeURIComponent(query.currentPage)));
-      query.hasOwnProperty('pageSize') && (this.query.pageSize = parseInt(decodeURIComponent(query.pageSize)));
-      query.hasOwnProperty('filterKey') && (this.query.filterKey = decodeURIComponent(query.filterKey));
+      this.onRoute();
     },
     mounted() {
       this.$nextTick(() => {
@@ -441,7 +436,7 @@
 
         query: {
           appId: this.$storeHelper.APP_ID_FOR_ALL,
-          profileId: '',
+          profileId: '',  // profileId set to '' to make sure it is changed on service-selector, then updateListByPage will be triggered
           currentPage: 1,
           pageSize: 15,
           filterKey: ''
@@ -468,6 +463,9 @@
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      '$route.fullPath'() {
+        this.onRoute();
+      },
       'query.appId'(appId) {
         this.updateQuery({appId});
         this.updateListByPage(false);
@@ -502,6 +500,14 @@
           // this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 15 : 12;
         } catch(err) {
         }
+      },
+      onRoute() {
+        const query = this.$route.query;
+        query.hasOwnProperty('appId') && (this.query.appId = parseInt(query.appId));
+        query.hasOwnProperty('profileId') && (this.query.profileId = parseInt(query.profileId));
+        query.hasOwnProperty('currentPage') && (this.query.currentPage = parseInt(decodeURIComponent(query.currentPage)));
+        query.hasOwnProperty('pageSize') && (this.query.pageSize = parseInt(decodeURIComponent(query.pageSize)));
+        query.hasOwnProperty('filterKey') && (this.query.filterKey = decodeURIComponent(query.filterKey));
       },
       handleSuccessCopy(evt) {
         this.$storeHelper.globalTip.show({
@@ -859,7 +865,10 @@
         query.filterKey = '';
       },
       updateQuery() {
-        this.$router.replace({
+        if (this.$utils.theSame(this.query, this.$route.query)) {
+          return;
+        }
+        this.$router.push({
           name: 'gateway_list',
           query: this.query
         });
