@@ -32,14 +32,14 @@
               </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
-          <div :class="['group', !showGroupList?'disabled':'']">
+          <div :class="['group', !canSwitchGroup?'disabled':'']">
             <el-tooltip slot="trigger" effect="dark" placement="bottom">
               <div slot="content">
                 <div>当前所在团队</div>
               </div>
               <i class="paas-icon-group"></i>
             </el-tooltip>
-            <el-select  v-model="$storeHelper.currentGroupID" size="small" filterable :disabled="!showGroupList"
+            <el-select  v-model="$storeHelper.currentGroupID" size="small" filterable :disabled="!canSwitchGroup"
                         :placeholder="(groupList && groupList.length > 0) ? '请选择':'无数据'">
               <el-option-group
                       v-for="version in groupListByVersion"
@@ -318,7 +318,7 @@
           href: this.$net.page['profile/config-server'],
           label: '应用配置'
         }],
-        showGroupList: true,
+        canSwitchGroup: true,
         messageCountTip: 0,
 
         notPermitted: [],
@@ -535,9 +535,12 @@
           ].map(it => this.$router.helper.getConfigByFullPath(it)).map(it => it.pathReg));
 
           if (pageNotShowGroupList.indexOf(path) > -1 || pageNotShowGroupListRegList.find(reg => reg.test(path))) {
-            this.showGroupList = false;
+            this.canSwitchGroup = false;
           } else {
-            this.showGroupList = true;
+            this.canSwitchGroup = true;
+          }
+          if (this.routeConfig && this.routeConfig.meta && this.routeConfig.meta.hasOwnProperty('canSwitchGroup')) {
+            this.canSwitchGroup = this.routeConfig.meta.canSwitchGroup;
           }
           // update content of breadcrumb list
           this.updateBreadCrumbList(path);
