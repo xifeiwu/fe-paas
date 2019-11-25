@@ -191,7 +191,7 @@
           <paas-service-selector
                   ref="service-selector-for-gateway-create"
                   :addItemAll="{app: false, profile: false}"
-                  :customConfig="{appId, profileId}"></paas-service-selector>
+                  :selected="{appId: query.appId, profileId: query.profileId}"></paas-service-selector>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -458,33 +458,41 @@
               passed && callback();
             }
           }]
-        }
+        },
+
+        throttleUpdateListByPage: this.throttle(this.updateListByPage, 600, false, true)
       };
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      '$storeHelper.currentGroupID'() {
+        this.resetQuery();
+        this.throttleUpdateListByPage(true);
+      },
+      '$storeHelper.profileListOfGroup'(profileListOfGroup) {
+      },
       '$route.fullPath'() {
         this.onRoute();
       },
       'query.appId'(appId) {
         this.updateQuery({appId});
-        this.updateListByPage(false);
+        this.throttleUpdateListByPage(false);
       },
       'query.profileId'(profileId) {
         this.updateQuery({profileId});
-        this.updateListByPage(true);
+        this.throttleUpdateListByPage(true);
       },
       'query.filterKey'(filterKey) {
         this.updateQuery({filterKey});
-        this.updateListByPage(false);
+        this.throttleUpdateListByPage(false);
       },
       'query.currentPage'(currentPage) {
         this.updateQuery({currentPage});
-        this.updateListByPage(false);
+        this.throttleUpdateListByPage(false);
       },
       'query.pageSize'(pageSize) {
         this.updateQuery({pageSize});
-        this.updateListByPage(false);
+        this.throttleUpdateListByPage(false);
       },
     },
     methods: {
@@ -598,6 +606,44 @@
 
         this.listFiltered = listFiltered;
         this.listByPage = listFiltered.slice(start, end);
+      },
+
+      throttle(fn, delay, immediate, debounce) {
+        var refresh = false;
+        var curr = +new Date(), //当前事件
+          last_call = 0,
+          last_exec = 0,
+          timer = null,
+          diff, //时间差
+          context, //上下文
+          args,
+          exec = function() {
+            last_exec = curr;
+            fn.apply(context, [refresh]);
+            refresh = false;
+          };
+        return function() {
+          curr = +new Date();
+          context = this,
+            args = arguments,
+            diff = curr - (debounce ? last_call : last_exec) - delay;
+          refresh = refresh || args[0];
+          clearTimeout(timer);
+          if (debounce) {
+            if (!immediate) {
+              timer = setTimeout(exec, delay);
+            } else if (diff >= 0) {
+              exec();
+            }
+          } else {
+            if (diff >= 0) {
+              exec();
+            } else if (!immediate) {
+              timer = setTimeout(exec, -diff);
+            }
+          }
+          last_call = curr;
+        }
       },
 
       async handleDialogEvent(evt, action) {
@@ -863,17 +909,19 @@
       async handleClick(evt, action) {
         switch (action) {
           case 'open_dialog_gateway_create':
-            const dialogData = await this.openDialog(action, {
-              errMsg: ''
-            });
-            this.$router.push({
-              path: this.$router.helper.pages['/profile/gateway/add'].fullPath,
-              query: {
-                groupId: this.$storeHelper.groupInfo.id,
-                appId: dialogData.appId,
-                profileId: dialogData.profileId
-              }
-            });
+            try {
+              const dialogData = await this.openDialog(action, {
+                errMsg: ''
+              });
+              this.$router.push({
+                path: this.$router.helper.pages['/profile/gateway/add'].fullPath,
+                query: {
+                  groupId: this.$storeHelper.groupInfo.id,
+                  appId: dialogData.appId,
+                  profileId: dialogData.profileId
+                }
+              });
+            } catch (err) {}
             break;
           case 'refresh':
             this.updateListByPage(true);
