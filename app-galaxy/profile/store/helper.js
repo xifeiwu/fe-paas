@@ -129,7 +129,7 @@ class StoreHelper extends BaseHelper{
     return appInfoListOfGroup;
   }
   get appModelListOfGroup() {
-    return this.appInfoListOfGroup ? this.appInfoListOfGroup['appModelList'] : [];
+    return this.appInfoListOfGroup ? this.appInfoListOfGroup['appModelList'] : null;
   }
 
   get profileListOfGroup() {

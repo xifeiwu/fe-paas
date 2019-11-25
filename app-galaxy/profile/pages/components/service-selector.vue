@@ -3,14 +3,14 @@
     <div class="item">
       <label>应用名称:</label>
       <el-select class="app-list" filterable v-model="selected.appId" size="mini" placeholder="请选择">
-        <el-option v-for="(item, index) in appModelListOfGroup" :key="index" :label="item.appName" :value="item.appId">
+        <el-option v-for="(item, index) in appModelList" :key="index" :label="item.appName" :value="item.appId">
         </el-option>
       </el-select>
     </div>
     <div class="item">
       <label>运行环境:</label>
       <el-select class="profile-list" v-model="selected.profileId" placeholder="请选择" size="mini"  :disabled="fixedInfo.type === 'profile'">
-        <el-option v-for="(item, index) in profileListOfGroup" :key="index" :label="item.description" :value="item.id">
+        <el-option v-for="(item, index) in profileList" :key="index" :label="item.description" :value="item.id">
         </el-option>
       </el-select>
     </div>
@@ -34,16 +34,15 @@
 </style>
 
 <script>
-  import {mapGetters} from 'vuex';
   export default {
     created() {
     },
     mounted() {
-      if (Array.isArray(this.appModelListOfGroup) && this.appModelListOfGroup.length > 0) {
-        this.onAppModelListOfGroup(this.appModelListOfGroup);
+      if (Array.isArray(this.$storeHelper.appModelListOfGroup) && this.$storeHelper.appModelListOfGroup.length > 0) {
+        this.onAppModelListOfGroup(this.$storeHelper.appModelListOfGroup);
       }
-      if (Array.isArray(this.profileListOfGroup) && this.profileListOfGroup.length > 0) {
-        this.onProfileListOfGroup(this.profileListOfGroup);
+      if (Array.isArray(this.$storeHelper.profileListOfGroup) && this.$storeHelper.profileListOfGroup.length > 0) {
+        this.onProfileListOfGroup(this.$storeHelper.profileListOfGroup);
       }
     },
     props: {
@@ -87,65 +86,64 @@
           isDefault: true,
           name: "all",
           spaceType: "ALL"
-        }
+        },
+        appModelList: [],
+        profileList: []
       }
     },
     computed: {
-      appModelListOfGroup() {
-        if (this.$storeHelper.appModelListOfGroup.length === 0) {
-          return [];
-        }
-        if (this.addItemAll.app) {
-          return [this.appItemAll].concat(this.$storeHelper.appModelListOfGroup);
-        } else {
-          return this.$storeHelper.appModelListOfGroup;
-        }
-      },
-      profileListOfGroup() {
-        if (this.$storeHelper.profileListOfGroup.length === 0) {
-          return [];
-        }
-        if (this.addItemAll.profile) {
-          return [this.profileItemAll].concat(this.$storeHelper.profileListOfGroup);
-        } else {
-          return this.$storeHelper.profileListOfGroup;
-        }
-      }
     },
     watch: {
       'selected.appId': 'selectChange',
       'selected.profileId': 'selectChange',
-      appModelListOfGroup: 'onAppModelListOfGroup',
-      profileListOfGroup: 'onProfileListOfGroup'
+      '$storeHelper.appModelListOfGroup': 'onAppModelListOfGroup',
+      '$storeHelper.profileListOfGroup': 'onProfileListOfGroup'
     },
     methods: {
       onAppModelListOfGroup(appModelListOfGroup) {
-        if (!Array.isArray(appModelListOfGroup) || appModelListOfGroup.length === 0) {
-          console.log('appModelListOfGroup data error!');
+        if (!Array.isArray(appModelListOfGroup)) {
           return;
         }
-        const appModel = appModelListOfGroup.find(it => it.appId == this.selected.appId);
+        if (appModelListOfGroup.length === 0) {
+          console.log('appModelListOfGroup is zero!');
+          this.$message.warning('当前团队应用数为0，请先创建应用再进行后续操作。');
+          return;
+        }
+        if (this.addItemAll.app) {
+          this.appModelList = [this.appItemAll].concat(appModelListOfGroup);
+        } else {
+          this.appModelList = appModelListOfGroup;
+        }
+        const appModel = this.appModelList.find(it => it.appId == this.selected.appId);
         if (!appModel) {
-          this.selected.appId = appModelListOfGroup[0].appId;
+          this.selected.appId = this.appModelList[0].appId;
         }
       },
 
       onProfileListOfGroup(profileListOfGroup) {
-        if (!Array.isArray(profileListOfGroup) || profileListOfGroup.length === 0) {
-          console.log('profileListOfGroup data error!');
+        if (!Array.isArray(profileListOfGroup)) {
           return;
         }
-        const profileInfo = profileListOfGroup.find(it => it.id == this.selected.profileId);
+        if (profileListOfGroup.length === 0) {
+          console.log('profileListOfGroup is zero!');
+          return;
+        }
+        if (this.addItemAll.profile) {
+          this.profileList = [this.profileItemAll].concat(profileListOfGroup);
+        } else {
+          this.profileList = profileListOfGroup;
+        }
+        const profileInfo = this.profileList.find(it => it.id == this.selected.profileId);
         if (!profileInfo) {
-          this.selected.profileId = profileListOfGroup[0].id;
+          this.selected.profileId = this.profileList[0].id;
         }
       },
 
       getSelected() {
-        const appModel =  (Array.isArray(this.appModelListOfGroup) && this.appModelListOfGroup.length > 0) ?
-          this.appModelListOfGroup.find(it => it.appId == this.selected.appId) : null;
-        const profileInfo = (Array.isArray(this.profileListOfGroup) && this.profileListOfGroup.length > 0) ?
-          this.profileListOfGroup.find(it => it.id == this.selected.profileId) : null;
+        const appModel =  (Array.isArray(this.appModelList) && this.appModelList.length > 0) ?
+          this.appModelList.find(it => it.appId == this.selected.appId) : null;
+        const profileInfo = (Array.isArray(this.profileList) && this.profileList.length > 0) ?
+          this.profileList.find(it => it.id == this.selected.profileId) : null;
         return this.$utils.cloneDeep({appModel, profileInfo});
       },
 
