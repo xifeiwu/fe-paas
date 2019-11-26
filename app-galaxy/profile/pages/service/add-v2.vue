@@ -28,15 +28,16 @@
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item class="build-type" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage && !imageSelectState.customImage" :error="formData.packageInfo.errMsg">
+        <el-form-item class="build-type" label="构建类型" v-if="formRelated.packageTypeList.length > 0 && formRelated.isJavaLanguage" :error="formData.packageInfo.errMsg">
           <div class="flex-layout max-width-600">
             <div class="type-list">
-              <el-radio-group v-model="formData.packageInfo.type">
+              <el-radio-group v-model="formData.packageInfo.type" :disabled="this.forGray">
                 <el-radio v-for="item in formRelated.packageTypeList" :label="item.type" :key="item.type">
                   {{item.packageType}}
                 </el-radio>
               </el-radio-group>
             </div>
+            <i style="font-size:12px; line-height: 24px; margin: 0px 3px;" class="paas-icon-question" v-pop-on-mouse-over="'设置该字段会设置系统环境变量“COMPRESS_TYPE”，对于自定义镜像，需要镜像本身支持使用该变量'"></i>
             <div :class="['war-name', formData.packageInfo.needSetName ?'':'hide', useBuildName?'':'hide']" prop="packageInfo.name">
               <el-input v-model="formData.packageInfo.name" placeholder="默认与项目名称一致"></el-input>
             </div>
@@ -82,11 +83,11 @@
         </transition>
         <transition name="more-config">
           <el-form-item label="mainClass" prop="mainClass"
-                        v-if="formRelated.isJavaLanguage && !imageSelectState.customImage && formData.packageInfo.type.toUpperCase() === 'ZIP'"
-                        class="main-class max-width-600"
+                        v-if="formRelated.isJavaLanguage && formData.packageInfo.type.toUpperCase() === 'ZIP'"
+                        class="main-class"
           >
-            <el-input v-model="formData.mainClass"  class="max-width-500"
-                      placeholder=""></el-input>
+            <el-input v-model="formData.mainClass"  class="max-width-500" placeholder=""></el-input>
+            <i style="font-size:12px; line-height: 18px;" class="paas-icon-question" v-pop-on-mouse-over="'设置该字段会设置系统环境变量“MAIN_CLASS”，对于自定义镜像，需要镜像本身支持使用该变量'"></i>
           </el-form-item>
         </transition>
         <transition name="more-config">
@@ -108,7 +109,7 @@
           </el-form-item>
         </transition>
         <el-form-item label="VM_Options" prop="vmOptions" class="vm-options max-width-800"
-                      v-if="formRelated.isJavaLanguage && !imageSelectState.customImage"
+                      v-if="formRelated.isJavaLanguage"
         >
           <div>
             <el-input v-model="formData.vmOptions"
@@ -118,9 +119,9 @@
                       :rows="4"
                       placeholder="不能包含中文，不能超过512个字符"
             ></el-input>
+            <i style="font-size:12px; line-height: 20px; position: absolute; top: 2px;" class="paas-icon-question" v-pop-on-mouse-over="'设置该字段会设置系统环境变量“javaOpt”，对于自定义镜像，需要镜像本身支持使用该变量'"></i>
             <div style="color:#409EFF; display:flex; align-items: flex-start; cursor:pointer; font-size: 12px; line-height: 20px;">
-              <span @click="handleClick($event, 'set-default-vmOptions')">帮我填</span>
-              <i style="font-size:12px; line-height: 20px;" class="paas-icon-question" v-pop-on-mouse-over="'填写默认的VM_options'"></i>
+              <span @click="handleClick($event, 'set-default-vmOptions')">帮我填（填写默认的VM_options）</span>
             </div>
           </div>
         </el-form-item>
@@ -188,9 +189,7 @@
           <el-radio-group v-model="formData.appMonitor" size="mini" v-if="profileUtils" :disabled="forGray">
             <el-radio v-for="item in profileUtils.appMonitorList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
           </el-radio-group>
-          <span style="display: inline; margin-left: 10px; color: #E6A23C; font-size: 12px; line-height: 14px; cursor: pointer; padding: 1px; border: 1px solid #E6A23C; border-radius: 4px; word-break: normal"
-                @mouseenter="handleClick($event, 'warning-app-monitor')" v-if="false"
-          >{{profileUtils['warningList']['warning-app-monitor']['text']}}</span>
+          <i style="font-size:12px; line-height: 18px;" class="paas-icon-question" v-pop-on-mouse-over="'设置该字段会设置系统环境变量“agent_type”，对于自定义镜像，需要镜像本身支持使用该变量'"></i>
         </el-form-item>
         <el-form-item label="CPU" prop="cpuId" class="cpu">
           <el-radio-group v-model="formData.cpuId" size="mini" :disabled="forGray">
@@ -1478,15 +1477,6 @@
       },
 
       handleClick(evt, action) {
-        if (['warning-app-monitor'].indexOf(action) > -1) {
-          if (this.profileUtils['warningList'].hasOwnProperty(action)) {
-            this.$storeHelper.globalPopover.show({
-              ref: evt.target,
-              msg: this.profileUtils['warningList'][action]['more']
-            });
-          }
-          return;
-        }
         switch (action) {
           // TODO: not used
           case 'more-config':
