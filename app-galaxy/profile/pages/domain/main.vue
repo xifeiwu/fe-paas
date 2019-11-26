@@ -1,7 +1,7 @@
 <template>
   <div id="domain-main">
     <div class="header">
-      <div class="row selector">
+      <div class="item search">
         <paas-service-selector
                 ref="version-condition-filter"
                 :addItemAll="{app:true, profile:true}"
@@ -9,7 +9,7 @@
                 @service-selected="onServiceConditionChanged"></paas-service-selector>
         <el-input
                 size="mini"
-                style="max-width: 200px"
+                style="width: 200px"
                 placeholder="按关键字搜索外网二级域名"
                 suffix-icon="el-icon-search"
                 v-model="keyword">
@@ -27,30 +27,23 @@
                 type="primary"
                 :class="{'disabled': $storeHelper.actionDisabled('domain_add_open_dialog') || publishStatus}"
                 :loading="statusOfWaitingResponse('domain_add_open_dialog')"
-                @click="handleButtonClick($event, 'domain_add_open_dialog')">
-          申请外网二级域名
-        </el-button>
+                @click="handleButtonClick($event, 'domain_add_open_dialog')"
+        >申请外网二级域名</el-button>
         <el-button
                 size="mini"
                 type="warning"
                 :class="{'disabled': $storeHelper.permission['domain_bind_service'].disabled || publishStatus}"
                 @click="handleButtonClick($event, 'domain_bind_service')"
-        >绑定服务
-        </el-button>
+        >绑定服务</el-button>
         <el-button
                 size="mini"
                 type="warning"
                 :class="{'disabled': $storeHelper.permission['domain_unbind_service'].disabled || publishStatus}"
-                @click="handleButtonClick($event, 'domain_unbind_service')">解绑服务
-        </el-button>
-        <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
-          <div slot="content">
-            <div>1. 已绑定的域名需要先进行解绑，才可绑定新的服务</div>
-            <div>2. 点击"绑定服务"和"解绑服务"按钮前，需要选择要操作的外网域名</div>
-            <div>3. 绑定服务时，运行环境不能选择"全部"</div>
-          </div>
-          <span class="helper-text-tool-tip" style="margin-top: 1px">域名处理逻辑<i class="el-icon-question"></i></span>
-        </el-tooltip>
+                @click="handleButtonClick($event, 'domain_unbind_service')"
+        >解绑服务</el-button>
+        <i style="font-size:12px; line-height: 24px; margin: 0px 3px;" class="paas-icon-question"
+           v-pop-on-mouse-over="['已绑定的域名需要先进行解绑，才可绑定新的服务',
+          '点击 \'绑定服务\' 和 \'解绑服务\' 按钮前，需要选择要操作的外网域名']"></i>
       </div>
     </div>
     <div class="domain-list">
@@ -420,10 +413,6 @@
 
 <style lang="scss">
   #domain-main {
-    .header {
-      .row {
-      }
-    }
     .el-dialog__wrapper {
       &.add-domain, &.bind-service, &.unbind-service {
         .el-dialog {
@@ -565,24 +554,39 @@
   #domain-main {
     background: white;
     height: 100%;
-    /*margin:0px 6px;*/
     max-width: 1500px;
     height: 100%;
-    .header {
+    & > .header {
       padding: 3px 5px;
       font-size: 14px;
-      .row {
-        box-sizing: border-box;
-        margin: 3px 0px;
-        &.operation {
-          text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      > .item {
+        display: inline-block;
+        .paas-service-selector {
+          display: inline-block;
+          min-width: 580px;
         }
-        &.selector {
-          text-align: left;
-          .paas-service-selector {
-            display: inline-block;
+        &.search {
+          flex: 1;
+          display: inline-flex;
+          align-items: center;
+          justify-content: flex-start;
+          .el-button {
+            margin-left: 3px;
           }
         }
+        &.button-list {
+          .el-button {
+            margin: 0px 2px;
+          }
+          text-align: center;
+        }
+      }
+      .paas-icon-question {
+        font-size: 12px;
+        color: #E6A23C;
       }
     }
     .domain-list {
