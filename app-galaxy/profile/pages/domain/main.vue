@@ -14,14 +14,14 @@
                 suffix-icon="el-icon-search"
                 v-model="keyword">
         </el-input>
-      </div>
-      <div class="row operation">
         <el-button
                 size="mini"
                 type="primary"
                 @click="handleButtonClick($event, 'refresh')">
-          刷新
-        </el-button>
+          查询
+       </el-button>
+      </div>
+      <div class="row operation">
         <el-button
                 size="mini"
                 type="primary"
@@ -637,6 +637,7 @@
     mounted() {
       this.setDebounce();
       this.keyword = '';
+      this.requestDomainList();
       // adjust element height after resize
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
@@ -761,16 +762,16 @@
         this.requestDomainList();
       },
       'keyword': function (value) {
-        let versionConditionFilter = this.$refs.hasOwnProperty('version-condition-filter')?
-          this.$refs['version-condition-filter'].getSelectedInfo() : null;
-        if (!versionConditionFilter) {
-          return;
-        }
-        this.appInfo = versionConditionFilter.selectedApp;
-        this.profileInfo = versionConditionFilter.selectedProfile;
-        this.serviceInfo = versionConditionFilter.selectedService;
-        this.currentPage = 1;
-        this.debounceRequestDomainList();
+//        let versionConditionFilter = this.$refs.hasOwnProperty('version-condition-filter')?
+//          this.$refs['version-condition-filter'].getSelectedInfo() : null;
+//        if (!versionConditionFilter) {
+//          return;
+//        }
+//        this.appInfo = versionConditionFilter.selectedApp;
+//        this.profileInfo = versionConditionFilter.selectedProfile;
+//        this.serviceInfo = versionConditionFilter.selectedService;
+//        this.currentPage = 1;
+//        this.debounceRequestDomainList();
       },
       'secureCheckProps.passed': function (value) {
         if (value) {
@@ -827,7 +828,7 @@
         this.appInfo = appInfo;
         this.serviceInfo = serviceInfo;
         this.keyword = '';
-        this.debounceRequestDomainList();
+        // this.debounceRequestDomainList();
       },
       // the first page of pagination is 1
       handlePaginationPageChange(page) {
@@ -1041,6 +1042,7 @@
             this.selected.action = 'unbind-service';
             break;
           case 'refresh':
+            this.currentPage = 1;
             this.requestDomainList();
             break;
         }
