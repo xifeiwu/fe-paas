@@ -797,6 +797,7 @@
               });
               const dialogData = await this.openDialog(action, {
                 gatewayName: gatewayStatus.gatewayName,
+                appId: row.appId,
                 appName: gatewayStatus.appName,
                 spaceName: gatewayStatus.spaceName,
                 host: gatewayStatus.host,             // 域名
@@ -816,6 +817,7 @@
                   gatewayName: dialogData.gatewayName,
                   groupId: dialogData.groupId,
                   spaceId: dialogData.spaceId,
+                  appId: dialogData.appId,
                   limitConnectionsSelected: dialogData.limitConnectionsSelected,
                   limitRpmSelected: dialogData.limitRpmSelected,
                   limitRpsSelected: dialogData.limitRpsSelected,
