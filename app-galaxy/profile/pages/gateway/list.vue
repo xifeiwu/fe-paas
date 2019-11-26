@@ -96,11 +96,7 @@
                 width="80"
                 headerAlign="center" align="center">
           <template slot-scope="scope">
-            <span v-if="scope.row.isRewrite" style="display: inline-flex; align-items: center; cursor: pointer"
-                  @mouseenter="handleTRClick($event, 'tip_on_mouse_enter', 'path_rewrite')">
-              <span>请求改写</span><i class="paas-icon-question" style="font-size: 12px;"></i>
-            </span>
-            <span v-else-if="scope.row.configList.length > 0" style="display: inline-flex; align-items: center; cursor: pointer"
+            <span v-if="scope.row.configList.length > 0" style="display: inline-flex; align-items: center; cursor: pointer"
                   @mouseenter="handleTRClick($event, 'gateway_config_show', scope.row, scope.$index)">
               <span>配置详情</span><i class="paas-icon-popover" style="margin-left: 2px;"></i>
             </span>
@@ -141,14 +137,14 @@
               <span>源IP限速</span>
             </el-button>
             <div class="ant-divider"></div>
-            <el-button v-if="!scope.row.isRewrite"
+            <el-button
                     type="text"
                     :class="['flex', 'warning']"
                     @click="handleTRClick($event, 'open_dialog_config_path_rewrite', scope.row, scope.$index)"
             >
               <span>请求改写</span>
             </el-button>
-            <div class="ant-divider" v-if="!scope.row.isRewrite"></div>
+            <div class="ant-divider"></div>
             <el-button
                     type="text"
                     :class="['flex', 'warning']"
@@ -807,7 +803,6 @@
                 limitRpm: gatewayStatus.limitRpm,
                 limitRpsSelected: gatewayStatus.limitRpsSelected,
                 limitRps: gatewayStatus.limitRps,
-
                 groupId: gatewayStatus.groupId,
                 spaceId: gatewayStatus.spaceId,
               });
@@ -842,9 +837,9 @@
                 appName: row.appName,
                 spaceName: row.spaceName,
                 host: row.host,             // 域名
+                appId: row.appId,
                 path: row.path,
                 targetPath: row.pathRewrite,
-
                 groupId: row.groupId,
                 spaceId: row.spaceId,
               });
@@ -853,6 +848,9 @@
                   gatewayName: dialogData.gatewayName,
                   groupId: dialogData.groupId,
                   spaceId: dialogData.spaceId,
+                  appId: dialogData.appId,
+                  domainList: [dialogData.host],
+                  paths: [dialogData.path],
                   pathRewrite: dialogData.targetPath
                 }
               });
