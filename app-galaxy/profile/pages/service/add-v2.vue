@@ -223,7 +223,11 @@
               <div class="el-col el-col-8 remark">备注</div>
               <div class="el-col el-col-2" style="text-align: center">
                 <i class="paas-icon-question"
-                   v-pop-on-mouse-over="['容器运行前设置的环境变量', '如env中的Name：string（环境变量名称），Value：string（环境变量的值）']"></i>
+                   v-pop-on-mouse-over="[
+                     '容器运行前设置的环境变量',
+                     '如env中的Name：string（环境变量名称），Value：string（环境变量的值）',
+                     '系统自有关键字不可以被覆盖：productName,projectName,serviceName,env,MAIN_CLASS, agent_type,LANG,TZ,PORT0,LOG_PATH,LOG_FILE_NAME,MY_POD_NAME,javaOpt,COMPRSS_TYPE,HOST,PROJECT_ARTIFACTID'
+                     ]"></i>
               </div>
             </div>
             <el-row class="content"
@@ -1371,6 +1375,12 @@
           case 'add':
             key = key.trim();
             value = value.trim();
+            if (['productName', 'projectName', 'serviceName', 'env', 'MAIN_CLASS', 'agent_type', 'LANG', 'TZ',
+                'PORT0', 'LOG_PATH', 'LOG_FILE_NAME', 'MY_POD_NAME', 'javaOpt', 'COMPRSS_TYPE', 'HOST',
+                'PROJECT_ARTIFACTID'].includes(key)) {
+              this.$message.error('系统自有关键字不可以被覆盖！');
+              return;
+            }
             // remove error notification first
             this.formItemMsgForEnvironments = '';
 //            let keyReg = /^[A-Za-z0-9_\-\.@]{1,64}$/;
