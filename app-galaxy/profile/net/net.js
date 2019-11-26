@@ -592,6 +592,7 @@ class Net extends NetBase {
       'image_version_list_by_repo':{
         path: '/image/queryImageTagByProjectAndRepository',
         method:'post',
+        timeout: 130 * 1000
       },
       // 删除镜像标签
       'image_version_remove_label': {
