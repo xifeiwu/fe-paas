@@ -115,7 +115,7 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="description"
+            prop="formattedDescription"
             label="备注"
             minWidth="180"
             headerAlign="center" align="center">
@@ -1531,7 +1531,7 @@ export default {
         if (it.createTime) {
           it.createTime = it.createTime.split(' ');
         }
-        it.description = it.description ? it.description : '---';
+        it.formattedDescription = it.description ? it.description : '---';
       });
       this.accessKeyListByPage = resData.uaaList;
       this.totalSize = resData.total;
