@@ -111,11 +111,11 @@
                     </span>
                   </template>
                 </el-table-column>
-                <el-table-column label="岗位" prop="jobDescription" headerAlign="center" align="center">
+                <el-table-column label="岗位" prop="jobDescription" headerAlign="center" align="center" minWidth="140">
                 </el-table-column>
-                <el-table-column label="角色" prop="role" headerAlign="center" align="center">
+                <el-table-column label="角色" prop="role" headerAlign="center" align="center" width="100">
                 </el-table-column>
-                <el-table-column label="操作" prop="operation" headerAlign="center" align="center" width="180">
+                <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="100">
                   <template slot-scope="scope">
                     <el-button
                             v-if="!$storeHelper.reason4ActionDisabled('group_member_update_roles')"
