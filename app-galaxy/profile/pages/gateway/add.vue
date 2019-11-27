@@ -13,7 +13,7 @@
         <div v-if="forModify || forDetail">{{gatewayStatusFromNet.gatewayName}}</div>
         <el-input v-model="formData.gatewayName" placeholder="可以包含字母数字中划线，1-36个字符" v-else></el-input>
       </el-form-item>
-      <el-form-item label="请求路径" prop="paths" class="path-list">
+      <el-form-item label="请求路径" prop="paths" class="path-list" v-if="false">
         <div v-if="forDetail">
           <div v-if="formData.paths.length > 0">
             <el-tag
@@ -50,7 +50,9 @@
           </div>
         </div>
       </el-form-item>
-
+      <el-form-item label="请求路径" prop="path" class="path">
+        <el-input v-model="formData.path" placeholder="路径以/开头" class="max-width-600"></el-input>
+      </el-form-item>
       <div class="el-form-item el-form-item--mini timeout-setting" style="margin-bottom: 0px;">
         <div class="el-form-item__label" style="width: 90px; float: left; z-index: 11">
           <span>超时设置</span>
@@ -219,7 +221,6 @@
 <script>
   import utils from 'assets/libs/element-ui/utils';
   export default {
-    components: {},
     created() {
       this.forDetail = this.$route.name === 'gateway_detail';
       this.forModify = this.$route.name === 'gateway_modify';
@@ -285,15 +286,31 @@
               callback();
             }
           }],
+          path: [{
+            type: 'string',
+            required: true,
+            message: '请填写路径',
+            trigger: ['blur', 'change']
+          }, {
+            validator(rule, values, callback) {
+              if (!values) {
+                callback('请填写路径');
+                return;
+              }
+              if (!values.startsWith('/')) {
+                callback('路径以/开头');
+              }
+              callback();
+            }
+          }],
           paths: [{
             type: 'array',
             required: true,
             message: '请至少填写一个路径',
             trigger: ['blur', 'change']
-          },
-            {
-              validator(rule, values, callback) {
-                let passed = true;
+          }, {
+            validator(rule, values, callback) {
+              let passed = true;
 //                let mailReg = /^([\w-_]+(?:\.[\w-_]+)*)@((?:[a-z0-9]+(?:-[a-zA-Z0-9]+)*)+\.[a-z]{2,6})$/;
 //                if (Array.isArray(values)) {
 //                  values.every(it => {
@@ -306,12 +323,11 @@
 //                } else {
 //                  callback('不是数组');
 //                }
-                if (passed) {
-                  callback();
-                }
+              if (passed) {
+                callback();
               }
             }
-          ],
+          }]
         }
       }
     },
@@ -344,6 +360,7 @@
           retryNum: null,       // 重试次数
         };
         formData.paths = gatewayStatusFromNet.paths;
+        formData.path = gatewayStatusFromNet.paths.length > 0 ? gatewayStatusFromNet.paths[0] : '';
         if (this.forModify || this.forDetail) {
           formData.gatewayName = gatewayStatusFromNet.gatewayName;
           formData.hostList = gatewayStatusFromNet.domainList;
@@ -402,9 +419,7 @@
               }
             }
             try {
-              if ('create' == action) {
-                await this.$refs['the-form'].validate();
-              }
+              await this.$refs['the-form'].validate();
               // console.log(this.formData);
               const formData = this.formData;
               await this.$net.requestPaasServer(status.urlObj, {
@@ -413,7 +428,7 @@
                   appId: this.appId,
                   spaceId: this.profileId,
                   domainList: formData.hostList,
-                  paths: formData.paths,
+                  paths: [formData.path],
                   connTimeout: formData.connTimeout,
                   sendTimeout: formData.sendTimeout,
                   readTimeout: formData.readTimeout,

@@ -18,6 +18,7 @@ export default class StoreHelper extends Common {
       let value = net.page[key];
       this.globalStatus[value] = {};
     }
+    this.betaProfileId = 4;
   }
 
   get version() {

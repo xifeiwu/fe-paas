@@ -106,13 +106,14 @@
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="120">
           <template slot-scope="scope">
             <el-button
+                    v-if="!scope.row.isRootPath"
                     type="text"
                     :class="['flex', 'primary']"
                     @click="handleTRClick($event, 'gateway_modify', scope.row, scope.$index)"
             >
               <span>修改</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider" v-if="!scope.row.isRootPath"></div>
             <el-button
                     type="text"
                     :class="['flex', 'primary']"
@@ -120,8 +121,9 @@
             >
               <span>详情</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider"></div>
+            <div class="ant-divider" v-if="!scope.row.isRootPath"></div>
             <el-button
+                    v-if="!scope.row.isRootPath"
                     type="text"
                     :class="['flex', 'danger']"
                     @click="handleTRClick($event, 'gateway_delete', scope.row, scope.$index)"
@@ -138,19 +140,20 @@
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    type="text"
-                    :class="['flex', 'warning']"
-                    @click="handleTRClick($event, 'open_dialog_config_path_rewrite', scope.row, scope.$index)"
-            >
-              <span>请求改写</span>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
+                    v-if="$storeHelper.isProductionProfile(query.profileId)"
                     type="text"
                     :class="['flex', 'warning']"
                     @click="handleTRClick($event, 'open_dialog_config_copy_request', scope.row, scope.$index)"
             >
               <span>流量复制</span>
+            </el-button>
+            <div class="ant-divider" v-if="$storeHelper.isProductionProfile(query.profileId)"></div>
+            <el-button
+                    type="text"
+                    :class="['flex', 'warning']"
+                    @click="handleTRClick($event, 'open_dialog_config_path_rewrite', scope.row, scope.$index)"
+            >
+              <span>请求改写</span>
             </el-button>
           </template>
         </el-table-column>
@@ -311,15 +314,18 @@
             <span> {{action.data.appName}} / {{action.data.spaceName}}</span>
           </el-form-item>
           <el-form-item label="接受请求流量的服务" class="target-service message-show">
-            <el-select v-model="action.data.targetAppId" filterable>
-              <el-option v-for="(item,index) in $storeHelper.appModelListOfGroup" :label="item.appName" :key="item.appId" :value="item.appId">
-              </el-option>
-            </el-select>
-            <el-select v-model="action.data.targetProfileId" filterable>
-              <el-option v-for="(item,index) in productionProfileListOfGroup" :label="item.description" :key="item.id" :value="item.id">
-              </el-option>
-            </el-select>
-            <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'只能重定向到生产环境的服务'"></i>
+            <div style="display: flex; align-items: center">
+              <el-select v-model="action.data.targetAppId" filterable>
+                <el-option v-for="(item,index) in $storeHelper.appModelListOfGroup" :label="item.appName" :key="item.appId" :value="item.appId">
+                </el-option>
+              </el-select>
+              <span style="display: inline-block; margin-left: 12px; font-weight: bold">联调环境</span>
+              <!--<el-select v-model="action.data.targetProfileId" filterable>-->
+                <!--<el-option v-for="(item,index) in productionProfileListOfGroup" :label="item.description" :key="item.id" :value="item.id">-->
+                <!--</el-option>-->
+              <!--</el-select>-->
+              <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'只能将生产环境服务的流量重定向到联调环境'"></i>
+            </div>
           </el-form-item>
         </el-form>
       </div>
@@ -688,7 +694,7 @@
                   spaceId: dialogData.spaceId,
                   appId: dialogData.appId,
                   targetAppId: dialogData.targetAppId,
-                  targetSpaceId: dialogData.targetProfileId
+                  targetSpaceId: this.$storeHelper.betaProfileId
                 }
               });
               this.action.promise.resolve(this.action.data);
