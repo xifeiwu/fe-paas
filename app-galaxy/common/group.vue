@@ -42,7 +42,7 @@
         </el-table-column>
         <el-table-column label="团队标签" prop="tag" headerAlign="center" align="center" width="130">
         </el-table-column>
-        <el-table-column label="所属业务线LOB" prop="lobName" headerAlign="center" align="center" width="120">
+        <el-table-column label="所属业务线LOB" prop="lobName" headerAlign="center" align="center" width="120" v-if="false">
           <template slot-scope="scope">
             <div v-if="scope.row.lobName">{{scope.row.lobName}}</div>
             <div v-else>无</div>
