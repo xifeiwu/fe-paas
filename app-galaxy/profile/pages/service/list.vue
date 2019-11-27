@@ -159,6 +159,14 @@
               <el-button
                       size="small"
                       type="text"
+                      @click="handleTRClick($event, 'service_config_copy', scope.$index, scope.row)"
+                      :class="[$storeHelper.permission['copy-service'].disabled || publishStatus? 'disabled' : '', 'flex']">
+                <span>复制服务</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
+              <el-button
+                      size="small"
+                      type="text"
                       :class="['flex', 'primary']"
                       @click="handleTRClick($event, 'go-to-page-service-detail-from-page-service', scope.$index, scope.row)">
                 <span>服务详情</span><i class="paas-icon-level-up"></i>
@@ -185,10 +193,18 @@
                       size="small"
                       type="text"
                       @click="handleTRClick($event, 'go-page-domain-from-service', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['go-page-domain-from-service'].disabled ? 'disabled' : 'primary'">
+                      :class="[$storeHelper.permission['go-page-domain-from-service'].disabled ? 'disabled' : 'primary', 'flex']">
                 <span>配置外网二级域名</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider" v-if="$storeHelper.groupVersion === 'v2'"></div>
+              <el-button
+                      size="small"
+                      type="text"
+                      @click="handleTRClick($event, 'go-to-page-gateway', scope.$index, scope.row)"
+                      :class="['flex', 'primary']">
+                <span>网关配置</span><i class="paas-icon-level-up"></i>
+              </el-button>
+              <div class="ant-divider"></div>
               <el-button
                       v-if="false"
                       size="small"
@@ -198,14 +214,6 @@
                 <span>添加外网域名</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider" v-if="false"></div>
-              <el-button
-                      size="small"
-                      type="text"
-                      @click="handleTRClick($event, 'service_config_copy', scope.$index, scope.row)"
-                      :class="[$storeHelper.permission['copy-service'].disabled || publishStatus? 'disabled' : '', 'flex']">
-                <span>复制服务</span><i class="paas-icon-level-up"></i>
-              </el-button>
-              <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
               <el-button v-if="!$storeHelper.actionDisabled('get_affinity')"
                          size="small"
                          type="text"
@@ -1999,6 +2007,15 @@ tolerations:
               'go-page-domain-from-service': this.$net.page['profile/domain']
             };
             this.$router.push(PATH_MAP[action]);
+            break;
+          case 'go-to-page-gateway':
+            this.$router.push({
+              name: 'gateway_list',
+              query: {
+                appId: row.appId,
+                profileId: this.profileInfo.id,
+              }
+            });
             break;
           // 部署服务。弹框有checkbox提示：强制清空打包目录（删除所有源代码、包文件等）
           case 'service_deploy':
