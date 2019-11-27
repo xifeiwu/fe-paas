@@ -138,7 +138,6 @@
                 <div class="pagination">
                   <el-pagination
                           :current-page="memberPagination.currentPage"
-                          size="small"
                           background
                           layout="pager"
                           :page-size = "memberPagination.pageSize"
@@ -157,11 +156,11 @@
           <el-pagination
                   @size-change="val => this.pageSize = val"
                   :current-page="currentPage"
-                  size="small"
+                  size="mini"
                   :page-size = "pageSize"
                   :page-sizes="[10, 15, 20, 30]"
                   :total="totalSize"
-                  layout="total, sizes, prev, pager, next"
+                  layout="total, sizes, prev, pager, next, jumper"
                   @current-change="page => {currentPage = page}"
                   v-if="totalSize > pageSize"
           >
