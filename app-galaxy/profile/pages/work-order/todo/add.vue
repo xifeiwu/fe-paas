@@ -105,7 +105,7 @@
             <el-autocomplete
                     ref="email-selector"
                     v-model="mailGroup"
-                    :fetch-suggestions="querySearch"
+                    :fetch-suggestions="querySearchEmail"
                     placeholder="请输入内容"
                     @select="handleSelect"
                     @keydown.native.enter.prevent="handleSelect"
@@ -390,8 +390,25 @@
         this.formData.groupId = this.$storeHelper.currentGroupID;
       },
 
-      querySearch(qs, cb) {
-        var result = []
+      querySearchEmail(qs, cb) {
+        const _getPlatform = () => {
+          var [corp, env] = ['finup', 'production'];
+          try {
+            const platform = BUILD_ENV.PLATFORM;
+            // BUILD_ENV is inserted by webpack.DefinePlugin
+            if (platform && (typeof(platform) === 'string' || platform instanceof String)
+              && /^(renmai|finup):(local|development|test|production|production_gray)$/.test(platform)) {
+              [corp, env] = platform.split(':');
+            }
+          } catch(err) {
+          }
+          return {
+            corp, env
+          }
+        };
+        const {corp, env} = _getPlatform();
+
+        var result = [];
         if (!qs) {
           cb(result);
           return;
@@ -399,7 +416,7 @@
 
         var [user, suffix] = qs.split('@');
 
-        var suffixList = ['finupgroup.com', 'renmai.com', 'iqianjin.com'].filter(it => {
+        var suffixList = (corp == 'finup' ? ['finupgroup.com', 'iqianjin.com'] : ['renmaitech.com']).filter(it => {
           if (!suffix) {
             return true;
           }
@@ -419,6 +436,7 @@
 
         cb(result);
       },
+
       handleSelect(item) {
         var value = item instanceof KeyboardEvent ? this.mailGroup : (item && item.value ? item.value : '')
         if (value) {

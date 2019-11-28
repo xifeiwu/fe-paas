@@ -859,6 +859,11 @@ class StoreHelper extends BaseHelper{
         'finup': 'http://nplog.finupgroup.com:9000',
         'renmai': 'http://log.renmaitech.cn/'
       },
+      // not used
+      email_suffix_list: {
+        'finup': ['finupgroup.com', 'iqianjin.com'],
+        'renmai': ['renmaitech.com']
+      }
     }[key];
 
     if (result) {
