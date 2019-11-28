@@ -548,7 +548,8 @@ class Net extends Common {
         path, method, timeout,
       }, options, {
         headers: {
-          token: Vue.prototype.$storeHelper.getUserInfo('token')
+          auth: Vue.prototype.$storeHelper.userAuth,
+          token: Vue.prototype.$storeHelper.userInfo['token']
         }
       }));
       const resData = response.data;
@@ -611,7 +612,6 @@ class Net extends Common {
       const response = await this.getResponse({path, method}, options, {
         timeout: 15000,
         headers: {
-          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJmZS1wYWFzIiwiaWF0IjoxNTY3MzkwMDE2LCJleHAiOjE1OTg5MjYwMTZ9.kUW4z4zwM5HlBFJlAuwsvqpnTHLMTgpkq1YboEKtzhg'
         }
       });
       const resData = response.data;
