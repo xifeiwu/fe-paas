@@ -7,7 +7,7 @@
         <div class="item">操作员：{{instanceInfo.realName}}</div>
       </div>
       <div class="operation">
-        <el-button
+        <el-button v-if="showDownloadButton"
                 type="primary"
                 size="mini-extral"
                 @click="handleButtonClick($event, 'download_file')">
@@ -121,6 +121,10 @@
       }
     },
     computed: {
+      showDownloadButton() {
+        const {corp, env} = this.$storeHelper.getPlatform();
+        return corp == 'finup';
+      }
     },
     methods: {
       /**
