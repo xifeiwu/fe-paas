@@ -96,7 +96,7 @@ class Net extends NetBase {
         '/2.x/gateway': {
           name: 'API网关',
           router: this.page['profile/gateway'],
-          icon: 'paas-icon-key'
+          icon: 'paas-icon-gateway'
         },
         // 审批管理
         '/2.x/orders': {
