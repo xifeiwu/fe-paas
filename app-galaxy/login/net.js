@@ -151,7 +151,7 @@ class Net extends NetBase {
         '/2.x/backstage'// "后台管理"
       ];
       menuList = content.menuList.concat([{
-        path: '/2.x/gateway'
+        // path: '/2.x/gateway'
       }]).map(it => {
         // append some property to each item
         return updateMenuConfig(it);
