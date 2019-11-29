@@ -68,7 +68,8 @@ class Net extends Common {
       // 获取发布状态
       publish_status: {
         path: '/system/deployed',
-        method: 'get'
+        method: 'get',
+        partial: true
       },
 
       /** 团队管理 */
@@ -526,6 +527,7 @@ class Net extends Common {
    * @param partial: not trigger global loading status
    * @param withTimeStamp
    * @param withCode
+   * @param moreData, return resData or not
    * @param options: {
    *  query: {key: value},
    *  params: {id}

@@ -2807,18 +2807,6 @@ class Net extends NetBase {
       })
     })
   }
-
-  //获取发布状态
-  getPublishStatus() {
-    return new Promise((resolve, reject) => {
-      axios.get(this.URL_LIST.publish_status.path).then(response => {
-        let result = this.getResponseContent2(response);
-        resolve(result);
-      }).catch(err => {
-        console.log(err);
-      })
-    })
-  }
 }
 
 export default new Net();

@@ -373,8 +373,6 @@
         'profile': false,
         'user/feedback': true
       };
-      this.requestAndHandleMessage();
-      this.getPublishStatus();
     },
     mounted() {
       this.resizeListener = () => {
@@ -406,6 +404,9 @@
       //这个定时器是用来轮询后台发布情况的，看是否正在发布
       this.getPublishStatus();
       setInterval(() => {
+        if (document.hidden) {
+          return;
+        }
         //这个定时器是用来轮询消息的，看有没有alert类型的消息
         this.requestAndHandleMessage();
         //这个定时器是用来轮询后台发布情况的，看是否正在发布
@@ -768,20 +769,12 @@
           }
         });
         this.currentAlertMessage = this.alertMessageQueen.pop();
-        // if (!this.currentAlertMessage || !this.alertMessageQueen.find(it => {
-        //       return it.id === this.currentAlertMessage.id;
-        //     })
-        // ) {
-        //   let length = this.alertMessageQueen.length;
-        //   this.currentAlertMessage = length === 0 ? null : this.alertMessageQueen[length - 1];
-        // }
       },
 
       //这个方法是用来确认是否正在发布的，对于正在发布的，禁用创建服务，复制服务，删除服务，创建公网域名，绑定，解除绑定公网域名。禁用所有环境的服务的部署，重启，实例动态伸缩。
-      getPublishStatus() {
-        this.$net.getPublishStatus().then(result => {
-          this.$storeHelper.publishStatus = result && result == "true" ? true : false ;
-        })
+      async getPublishStatus() {
+        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.publish_status);
+        this.$storeHelper.publishStatus = resContent && resContent == 'true' ? true : false;
       },
 
       handleReadMessage(messageId) {
