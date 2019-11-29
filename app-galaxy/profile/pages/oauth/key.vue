@@ -353,7 +353,7 @@
       <div slot="footer" class="dialog-footer flex">
           <div class="item">
             <el-button type="primary" size="mini"
-                       :loading="statusOfWaitingResponse('oauth_access_key_and_config_updateg')"
+                       :loading="statusOfWaitingResponse('oauth_access_key_and_config_update')"
                        @click="handleDialogButton('oauth_access_key_and_config_update')"
                        >保存</el-button>
           </div>
@@ -1414,6 +1414,7 @@ export default {
             }
             this.action.promise.resolve(this.action.data);
           } catch (err) {
+            console.log(err);
           }
           break;
         case 'add-url-permission':
@@ -1531,6 +1532,7 @@ export default {
         if (it.createTime) {
           it.createTime = it.createTime.split(' ');
         }
+        it.description = it.description ? it.description : '';
         it.formattedDescription = it.description ? it.description : '---';
       });
       this.accessKeyListByPage = resData.uaaList;
