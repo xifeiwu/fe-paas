@@ -479,6 +479,7 @@ class Net extends Common {
   async requestAxiosResponse({method, url, params, query, data, headers, responseType, onUploadProgress, onDownloadProgress, timeout = 0, path, payload}, axiosConfig) {
     url = url ? url : path;
     data = data ? data : payload;
+    headers = headers ? headers : {};
     if (!url) {
       throw new Error('参数不完整');
     }
@@ -548,7 +549,7 @@ class Net extends Common {
         path, method, timeout,
       }, options, {
         headers: {
-          auth: Vue.prototype.$storeHelper.userAuth,
+          auth: Vue.prototype.$storeHelper.userInfo['auth'],
           token: Vue.prototype.$storeHelper.userInfo['token']
         }
       }));

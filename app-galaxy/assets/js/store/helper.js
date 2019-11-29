@@ -2,7 +2,6 @@ import * as shvl from 'shvl';
 import globalStore from './index';
 import Net from '../net';
 import Common from '../common';
-const cryptoAes = require('crypto-js/aes');
 const net = new Net();
 
 export default class StoreHelper extends Common {
@@ -34,17 +33,6 @@ export default class StoreHelper extends Common {
   // global
   get userInfo() {
     return this.$globalStore.getters['user/userInfo'];
-  }
-  get userAuth() {
-    const userInfo = this.userInfo;
-    if (!userInfo || !userInfo.hasOwnProperty('userName') || !userInfo.hasOwnProperty('realName')) {
-      return '';
-    }
-    return cryptoAes.encrypt(JSON.stringify({
-      userName: userInfo.userName,
-      realName: userInfo.realName,
-      token: userInfo.token
-    }), 'paas').toString();
   }
   // 是否是访客
   get isGuest() {

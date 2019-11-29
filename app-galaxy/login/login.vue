@@ -257,6 +257,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
     DOWN: 40,
     ENTER: 13
   });
+  const cryptoAes = require('crypto-js/aes');
   export default {
     data() {
       return {
@@ -394,11 +395,13 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         //  this.$storeHelper.setPermission({'profile': notPermitted});
         //}
         if (userInfo) {
+          userInfo.auth = cryptoAes.encrypt(`${userInfo.realName}:${userInfo.userName}:${userInfo.token}`, 'paas').toString();
           this.$store.dispatch('updateUserInfo', {
             userName: userInfo.username,
             realName: userInfo.realName,
             role: userInfo.role,
-            token: userInfo.token
+            token: userInfo.token,
+            auth: userInfo.auth
           });
         }
         return {
