@@ -111,7 +111,6 @@ const config = {
 };
 
 const serverConfig = {
-  logDir: null,
   historyApiFallback: {
     rewrites: [
       // { from: /.*/, to: path.posix.join(config.dev.assetsPublicPath, 'index.html') },
@@ -148,4 +147,14 @@ const serverConfig = {
   },
 };
 
-module.exports = serverConfig;
+module.exports = Object.assign({
+  port: 6001,
+  healthCheck: true,
+  logger: {
+    debug: process.env.DEBUG ? process.env.DEBUG : '*',
+    useColors: true,
+    toFile: process.env.LOG_DIR ? path.resolve(process.env.LOG_DIR, 'spa-server') : null,
+    maxSize: 1024 * 1024 * 1024 * 8,
+    maxCount: 60,
+  }
+}, serverConfig);

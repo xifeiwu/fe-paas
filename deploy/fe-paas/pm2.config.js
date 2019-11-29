@@ -10,7 +10,7 @@ module.exports = {
       watch: true,
       ignore_watch: ['logs\/*'],
       env: {
-        'DEBUG': 'spa-server',
+        'DEBUG': 'spa-server*',
         'LOG_DIR': path.resolve(__dirname, 'logs')
       },
       env_finup_development: {
