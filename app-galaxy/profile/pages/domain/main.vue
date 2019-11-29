@@ -140,8 +140,7 @@
         <div class="pagination">
           <el-pagination
                   :current-page="currentPage"
-                  size="large"
-                  layout="prev, pager, next"
+                  layout="total, sizes, prev, pager, next, jumper"
                   :page-size = "pageSize"
                   :total="totalSize"
                   @current-change="handlePaginationPageChange"
@@ -566,7 +565,6 @@
         display: inline-block;
         .paas-service-selector {
           display: inline-block;
-          min-width: 580px;
         }
         &.search {
           flex: 1;
