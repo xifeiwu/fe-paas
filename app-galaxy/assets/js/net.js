@@ -548,13 +548,18 @@ class Net extends Common {
       if (!partial) {
         this.addToRequestingRrlList(path);
       }
+      const userInfo = Vue.prototype.$storeHelper.userInfo;
+      const headers = {
+        token: userInfo['token']
+      };
+      if (userInfo.auth) {
+        headers.auth = userInfo.auth;
+      }
+
       const response = await this.requestAxiosResponse(utils.deepMerge({
         path, method, timeout,
       }, options, {
-        headers: {
-          auth: Vue.prototype.$storeHelper.userInfo['auth'],
-          token: Vue.prototype.$storeHelper.userInfo['token']
-        }
+        headers
       }));
       const resData = response.data;
       if (this.isResponseSuccess(resData)) {
