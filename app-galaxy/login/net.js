@@ -2,6 +2,7 @@
  * Created by xifei.wu on 2017/12/5.
  */
 import NetBase from 'assets/js/net';
+const cryptoAes = require('crypto-js/aes');
 // var debug = browserDebug('pass-fe:net');
 
 class Net extends NetBase {
@@ -46,7 +47,7 @@ class Net extends NetBase {
     this.URL_LIST = Object.assign(PAAS_URL_LIST, ASSIST_URL_LIST);
   }
 
-  parseLoginResponse (content) {
+  _parseMenuList (menuList) {
     const updateMenuConfig = (item) => {
       let keyMap = {
         // 应用管理
@@ -142,92 +143,53 @@ class Net extends NetBase {
       return item;
     };
 
-    let menuList = [];
-    if (content.hasOwnProperty('menuList') && Array.isArray(content.menuList)) {
-      // 需要忽略的菜单
-      const menuPathToIgnore = [
-        // '/2.x/pipeline', // pipeline
-        // '/2.x/openShift/redis', // redis中间件
-        '/2.x/backstage'// "后台管理"
-      ];
-      menuList = content.menuList.concat([{
-        // path: '/2.x/gateway'
-      }]).map(it => {
-        // append some property to each item
-        return updateMenuConfig(it);
-      }).filter(it => {
-        return menuPathToIgnore.indexOf(it.path) === -1;
-      }).map(it => {
-        it.hasOwnProperty('children') && delete it.children;
-        it.hasOwnProperty('createTime') && delete it.createTime;
-        it.hasOwnProperty('permissionType') && delete it.permissionType;
-        it.hasOwnProperty('updateTime') && delete it.updateTime;
-        it.hasOwnProperty('updateTime') && delete it.updateTime;
-        it.hasOwnProperty('parentId') && delete it.parentId;
-        return it;
-      });
-    }
-    let notPermitted = [];
-    if (content.hasOwnProperty('excludeList') && Array.isArray(content['excludeList'])) {
-      notPermitted = content['excludeList'].map(it => {
-        it.hasOwnProperty('id') && delete it.id;
-        it.hasOwnProperty('createTime') && delete it.createTime;
-        it.hasOwnProperty('updateTime') && delete it.updateTime;
-        it.hasOwnProperty('parentId') && delete it.parentId;
-        it.hasOwnProperty('permissionType') && delete it.permissionType;
-        return it;
-      })
-    }
-
-    // add property token to user if exist
-    if (content.hasOwnProperty('token')) {
-      content.user.token = content.token;
-    }
-
-    // generate two level menu tree by parentId
-    // let twoLevelMenu = [];
-    // permission.forEach(it => {
-    //   if (0 === it.parentId) {
-    //     twoLevelMenu.push(it);
-    //   }
-    // });
-    // permission.forEach(it => {
-    //   if (0 !== it.parentId) {
-    //     let findParent = twoLevelMenu.some(pItem => {
-    //       if (it.parentId === pItem.id) {
-    //         if (!pItem.hasOwnProperty('children')) {
-    //           pItem.children = [];
-    //         }
-    //         pItem.children.push(it);
-    //         return true;
-    //       } else {
-    //         return false;
-    //       }
-    //     });
-    //     if (!findParent) {
-    //       twoLevelMenu.push(it);
-    //     }
-    //   }
-    // });
-    // generate one level menu from two level menu
-    // let oneLevelMenu = [];
-    // twoLevelMenu.forEach(it => {
-    //   oneLevelMenu.push(it);
-    //   if (it.hasOwnProperty('children')) {
-    //     it.children.forEach(it2 => {
-    //       oneLevelMenu.push(it2);
-    //     })
-    //   }
-    // });
-    return {
-      userInfo: content.user,
-      menuList, notPermitted
-    };
+    // 需要忽略的菜单
+    const menuIgnore = [
+      // '/2.x/pipeline', // pipeline
+      // '/2.x/openShift/redis', // redis中间件
+      '/2.x/backstage'// "后台管理"
+    ];
+    return menuList.concat([
+      // {
+      //   path: '/2.x/gateway'
+      // }
+    ]).map(it => {
+      // append some property to each item
+      return updateMenuConfig(it);
+    }).filter(it => {
+      return menuIgnore.indexOf(it.path) === -1;
+    }).map(it => {
+      it.hasOwnProperty('children') && delete it.children;
+      it.hasOwnProperty('createTime') && delete it.createTime;
+      it.hasOwnProperty('permissionType') && delete it.permissionType;
+      it.hasOwnProperty('updateTime') && delete it.updateTime;
+      it.hasOwnProperty('updateTime') && delete it.updateTime;
+      it.hasOwnProperty('parentId') && delete it.parentId;
+      return it;
+    });
   }
 
-  parseLoginResponseMore(resContent) {
-    let origin = this.parseLoginResponse(resContent);
-    // let contentOfAppEngine = ['应用管理', '服务管理','实例列表', '外网域名', '日志中心', '应用监控', '审批管理'];
+  /**
+   * format of resContent:
+   {
+     excludeList: [], // not used
+     user: {
+       email: 'wuxifei@finupgroup.com',
+       guest: false,
+       id: 956,
+       username: 'wuxifei',
+       realName: '吴西飞'
+       role: '平台管理员'
+     },
+     menuList: [],
+     token: '20190121-88191cc3-47c0-4886-aa5c-f0d70efbcef6'
+   }
+   */
+  formatLoginResContent(resContent) {
+    // add property token to user if exist
+    const menuList = this._parseMenuList(resContent.menuList);
+
+    // generate menuConfig
     const pathOfAppEngine = [
       '/2.x/app', // 应用管理
       '/2.x/service', // 服务管理
@@ -254,7 +216,7 @@ class Net extends NetBase {
       children: []
     }];
     const level1 = [];
-    origin.menuList.forEach(it => {
+    menuList.forEach(it => {
       if (pathOfAppEngine.indexOf(it.path) > -1) {
         level2[0].children.push(it);
       } else if(pathOfMiddleware.indexOf(it.path) > -1) {
@@ -263,7 +225,6 @@ class Net extends NetBase {
         level1.push(it)
       }
     });
-
     // remove item in level2 when the length of item.length == 0
     for (let i = 0; i < level2.length; i++) {
       if (level2[i].children.length === 0) {
@@ -271,11 +232,23 @@ class Net extends NetBase {
       }
     }
     // level2
-    origin.menuConfig = {
+    const menuConfig = {
       level1, level2
     };
-    // console.log(origin);
-    return origin;
+
+    // resContent.user.token = resContent.token;
+    const user = resContent.user;
+    const userInfo = {
+      userName: user.username,
+      realName: user.realName,
+      token: resContent.token,
+      email: user.email,
+      role: user.role,
+    };
+    userInfo.auth = cryptoAes.encrypt(`${userInfo.realName}:${userInfo.userName}:${userInfo.token}`, 'paas').toString();
+    return {
+      menuList, menuConfig, userInfo
+    }
   }
 
 }
