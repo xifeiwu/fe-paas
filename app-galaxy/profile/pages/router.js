@@ -21,7 +21,7 @@ import pipeLineList from "./pipeline/main"
 import pipelinePlan from './pipeline/plan'
 const [pipelineAdd, pipeLineRecord] = ['./pipeline/add', './pipeline/record'].map(file => {
   return () => import(
-    /* webpackChunkName: "chunk-[request][index]" */
+    /* webpackChunkName: "profile-chunk-[request][index]" */
     /* webpackMode: "lazy" */
     `${file}`)
 });
@@ -34,13 +34,16 @@ import LogRun from './log/run.vue';
 import LogDeploy from './log/deploy.vue';
 import LogCanary from './log/canary.vue';
 
-import MonitorMain from './monitor/main.vue';
-// const MonitorMain = () => {
-//   return import(
-//   /* webpackChunkName: "profileMonitor" */
-//   /* webpackMode: "lazy" */
-//   './monitor/main.vue')
-// };
+// 应用监控
+const [monitorMain] = ['monitorMain'].map(key => {
+  const file = {
+    monitorMain: './monitor/main.vue',
+  }[key];
+  return () => import(
+    /* webpackChunkName: "profile-chunk-[request][index]" */
+    /* webpackMode: "lazy" */
+    `${file}`)
+});
 
 /** api网关 */
 import gatewayList from './gateway/list.vue';
@@ -88,7 +91,7 @@ const [CdnMain, CdnList, CdnCreate, CdnEdit, CdnPrefetch, CdnStatistics, CdnDash
     CdnDashboard: './cdn/dashboard.vue',
   }[key];
   return () => import(
-    /* webpackChunkName: "chunk-[request][index]" */
+    /* webpackChunkName: "profile-chunk-[request][index]" */
     /* webpackMode: "lazy" */
     `${file}`)
 });
@@ -247,7 +250,7 @@ class Helper extends RouterHelper {
       {
       path: '/profile/monitor',
       label: '实例监控',
-      component: MonitorMain,
+      component: monitorMain,
     },
       {
       path: '/profile/oauth',
