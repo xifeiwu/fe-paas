@@ -34,9 +34,16 @@ import LogRun from './log/run.vue';
 import LogDeploy from './log/deploy.vue';
 import LogCanary from './log/canary.vue';
 
-// 应用监控
-const [monitorMain] = ['monitorMain'].map(key => {
+const [
+  general,
+  // 应用监控
+  monitorMain
+] = [
+  'general',
+  'monitorMain'
+].map(key => {
   const file = {
+    general: './general/main.vue',
     monitorMain: './monitor/main.vue',
   }[key];
   return () => import(
@@ -119,6 +126,11 @@ class Helper extends RouterHelper {
     this.richRouterConfig = [{
       path: '/profile',
       redirect: '/profile/app',
+    }, {
+      name: 'general',
+      path: '/profile/general',
+      component: general,
+      label: '概况'
     }, {
       path: '/profile/app',
       label: '应用管理',

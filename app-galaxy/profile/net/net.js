@@ -65,6 +65,19 @@ class Net extends NetBase {
         path: '/group/users',
         method: 'post'
       },
+      /***/
+      general_instance_count: {
+        path: '/overview/queryInstanceNumberByGroup',
+        method: 'post',
+      },
+      general_cpu_count: {
+        path: '/overview/queryCpuByGroup',
+        method: 'post',
+      },
+      general_memory_size: {
+        path: '/overview/queryMemoryByGroup',
+        method: 'post'
+      },
       /** 应用相关 */
       // 应用列表
       // 'app_list'
