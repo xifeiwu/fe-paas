@@ -462,7 +462,7 @@
           }]
         },
 
-        throttleUpdateListByPage: this.throttle(this.updateListByPage, 600, false, true)
+        throttleUpdateListByPage: this.throttle(this.updateListByPage, 300, false, true)
       };
     },
     watch: {
@@ -490,11 +490,11 @@
       },
       'query.currentPage'(currentPage) {
         this.updateQuery({currentPage});
-        this.throttleUpdateListByPage(false);
+        this.updateListByPage(false);
       },
       'query.pageSize'(pageSize) {
         this.updateQuery({pageSize});
-        this.throttleUpdateListByPage(false);
+        this.updateListByPage(false);
       },
     },
     methods: {
