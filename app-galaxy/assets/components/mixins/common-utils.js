@@ -18,6 +18,7 @@ export default {
         '$env-performance-color': '#17a2b8',
         '$env-beta-color': '#ffc107',
         '$env-production-color': '#F56C6C',
+        '$env-production-ff-color': '#F56C6C',
         '$env-staging-color': '#EF5b9C',
         'color-primary': '#409EFF',
         'color-success': '#67c23a',
