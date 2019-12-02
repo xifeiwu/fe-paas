@@ -582,6 +582,7 @@ class StoreHelper extends BaseHelper{
   }
 
   /**
+   * TODO: replaced by getProfileInfoById
    * the format of profile
    * {
    *   description: "开发环境",
@@ -592,6 +593,28 @@ class StoreHelper extends BaseHelper{
    * }
    */
   getProfileInfoByID(id) {
+    let target = null;
+    try {
+      this.profileListAll.some(it => {
+        target = it.id == id ? it : null;
+        return target
+      });
+    } catch(err) {
+      console.log(err);
+    }
+    return target;
+  }
+  /**
+   * the format of profile
+   * {
+   *   description: "开发环境",
+   *   id: 1,
+   *   isDefault: true,
+   *   name: "dev",
+   *   spaceType: "DEV"
+   * }
+   */
+  getProfileInfoById(id) {
     let target = null;
     try {
       this.profileListAll.some(it => {
