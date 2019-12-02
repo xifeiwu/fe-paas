@@ -177,10 +177,10 @@
     <el-dialog title="创建API网关"
                :visible="action.name == 'open_dialog_gateway_create'"
                v-if="action.name == 'open_dialog_gateway_create'"
-               bodyPadding="6px 10px"
+               bodyPadding="8px 8px 0px 16px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-650"
+               class="size-550"
     >
       <el-form labelWidth="0px" size="mini">
         <el-form-item labelWidth="0px" class="message-show">
@@ -190,7 +190,7 @@
           <paas-service-selector
                   ref="service-selector-for-gateway-create"
                   :addItemAll="{app: false, profile: false}"
-                  :selected="{appId: query.appId, profileId: query.profileId}"></paas-service-selector>
+                  :selected="action.data.serviceSelected"></paas-service-selector>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer flex">
@@ -652,12 +652,9 @@
         switch (action) {
           case 'gateway_create':
             try {
-              const {appModel, profileInfo} = this.$refs['service-selector-for-gateway-create'].getSelected();
+              // const {appModel, profileInfo} = this.$refs['service-selector-for-gateway-create'].getSelected();
               // const serviceModel = await this.$net.getServiceByAppIdAndSpaceId(appModel.appId, profileInfo.id);
-              this.action.promise.resolve({
-                appId: appModel.appId,
-                profileId: profileInfo.id
-              });
+              this.action.promise.resolve(this.action.data);
             } catch (err) {
               this.action.data.errMsg = err.message;
             } finally {
@@ -917,14 +914,18 @@
           case 'open_dialog_gateway_create':
             try {
               const dialogData = await this.openDialog(action, {
+                serviceSelected: {
+                  appId: this.query.appId,
+                  profileId: this.query.profileId
+                },
                 errMsg: ''
               });
               this.$router.push({
                 path: this.$router.helper.pages['/profile/gateway/add'].fullPath,
                 query: {
                   groupId: this.$storeHelper.groupInfo.id,
-                  appId: dialogData.appId,
-                  profileId: dialogData.profileId
+                  appId: dialogData.serviceSelected.appId,
+                  profileId: dialogData.serviceSelected.profileId
                 }
               });
             } catch (err) {}
