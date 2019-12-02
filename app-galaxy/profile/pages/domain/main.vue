@@ -7,12 +7,13 @@
                 :addItemAll="{app:true, profile:true}"
                 :selected="localServiceConfig"
                 @service-selected="onServiceConditionChanged"></paas-service-selector>
-        <el-input
-                size="mini"
-                style="width: 200px"
-                placeholder="按关键字搜索外网二级域名"
-                suffix-icon="el-icon-search"
-                v-model="keyword">
+        <el-input size="mini" placeholder="按关键字搜索外网二级域名" class="search-by-key"
+                  style="min-width: 200px;"
+                  v-model="keyword">
+          <i slot="prefix" class="el-icon-search"></i>
+          <i :class="keyword && keyword.length > 0 ? 'paas-icon-close' : ''"
+             slot="suffix"
+             @click="evt => keyword=''"></i>
         </el-input>
         <el-button
                 size="mini"
@@ -21,7 +22,7 @@
           查询
        </el-button>
       </div>
-      <div class="row operation">
+      <div class="item operation">
         <el-button
                 size="mini"
                 type="primary"
@@ -558,28 +559,30 @@
     & > .header {
       padding: 3px 5px;
       font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
       > .item {
-        display: inline-block;
-        .paas-service-selector {
-          display: inline-block;
-        }
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
         &.search {
-          flex: 1;
-          display: inline-flex;
-          align-items: center;
-          justify-content: flex-start;
+          .paas-service-selector {
+            display: inline-block;
+            min-width: 500px;
+          }
           .el-button {
             margin-left: 3px;
           }
         }
-        &.button-list {
+        &.operation {
           .el-button {
-            margin: 0px 2px;
+            margin-left: 5px;
           }
-          text-align: center;
+        }
+      }
+      .el-input.search-by-key {
+        .paas-icon-close {
+          &:hover {
+            cursor: pointer;
+          }
         }
       }
       .paas-icon-question {
