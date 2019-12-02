@@ -4,22 +4,21 @@
       <div class="item search">
         <paas-service-selector
                 ref="version-condition-filter"
-                :addItemAll="{app:true, profile:true}"
-                :selected="localServiceConfig"
+                :addItemAll="{app: true, profile: true}"
+                :selected="query"
                 @service-selected="onServiceConditionChanged"></paas-service-selector>
         <el-input size="mini" placeholder="按关键字搜索外网二级域名" class="search-by-key"
                   style="min-width: 200px;"
-                  v-model="keyword">
+                  v-model="query.keyword">
           <i slot="prefix" class="el-icon-search"></i>
-          <i :class="keyword && keyword.length > 0 ? 'paas-icon-close' : ''"
+          <i :class="query.keyword && query.keyword.length > 0 ? 'paas-icon-close' : ''"
              slot="suffix"
-             @click="evt => keyword=''"></i>
+             @click="evt => query.keyword=''"></i>
         </el-input>
         <el-button
                 size="mini"
                 type="primary"
-                @click="handleButtonClick($event, 'refresh')">
-          查询
+                @click="handleButtonClick($event, 'refresh')">刷新
        </el-button>
       </div>
       <div class="item operation">
@@ -137,16 +136,15 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="totalSize > pageSize">
+      <div class="pagination-container" v-if="totalSize > query.pageSize">
         <div class="pagination">
           <el-pagination
-                  :current-page="currentPage"
                   layout="total, sizes, prev, pager, next, jumper"
-                  :page-size = "pageSize"
+                  :page-sizes="[12, 15, 20, 30]"
+                  :current-page.sync="query.currentPage"
+                  :page-size.sync = "query.pageSize"
                   :total="totalSize"
-                  @current-change="handlePaginationPageChange"
-          >
-          </el-pagination>
+          ></el-pagination>
         </div>
       </div>
     </div>
@@ -619,24 +617,21 @@
           let data = dataTransfer['data'];
           switch (dataTransfer['from']) {
             case this.$net.page['profile/service']:
-              this.localServiceConfig.appId = data['appId'];
-              this.localServiceConfig.profileId = data['profileId'];
+              this.query.appId = data['appId'];
+              this.query.profileId = data['profileId'];
               break;
           }
           this.$storeHelper.dataTransfer = null;
         }
       } catch(err) {
       }
-//      console.log(this.localServiceConfig);
     },
     mounted() {
-      this.setDebounce();
-      this.keyword = '';
-      this.requestDomainList();
       // adjust element height after resize
       this.$nextTick(() => {
         this.onScreenSizeChange(this.$storeHelper.screen.size);
       });
+      this.throttleRequestList();
     },
     beforeDestroy() {
     },
@@ -645,13 +640,15 @@
         resizeListener: () => {},
         heightOfTable: '',
 
+        appInfo: null,
+        profileInfo: null,
         totalSize: 0,
-        pageSize: 12,
-        currentPage: 1,
-
-        localServiceConfig: {
+        query: {
+          currentPage: 1,
+          pageSize: 12,
           appId: this.$storeHelper.PROFILE_ID_FOR_NULL,
           profileId: this.$storeHelper.PROFILE_ID_FOR_NULL,
+          keyword: '',
         },
 
         currentDomainList: [],
@@ -703,9 +700,6 @@
           profileId: null,
         },
 
-        appInfo: null,
-        profileInfo: null,
-        keyword: '',
         // passed to my-version-condition-filter
         fixedInfoForVersionCondition: {
           type: 'profile',
@@ -738,13 +732,10 @@
             trigger: 'blur'
           }]
         },
-        debounceRequestDomainList: () => {}
+        throttleRequestList: this.$utils.throttle(this.requestDomainList.bind(this), 300, false, true)
       }
     },
     computed: {
-      currentGroupID() {
-        return this.$storeHelper.currentGroupID;
-      },
       publishStatus() {
         return this.$store.getters['publishStatus'];
       }
@@ -755,12 +746,25 @@
 //        this.isProfileSelected = id !== this.$storeHelper.PROFILE_ID_FOR_ALL;
         this.fixedInfoForVersionCondition.id = id;
       },
-      'currentGroupID': function () {
+      '$storeHelper.currentGroupId': function () {
         this.requestDomainList();
       },
-      'keyword': function (value) {
-        this.currentPage = 1;
-        this.debounceRequestDomainList();
+      'query.appId'() {
+        this.throttleRequestList();
+      },
+      'query.profileId'() {
+        this.throttleRequestList();
+      },
+      'query.currentPage'(currentPage) {
+        this.throttleRequestList();
+      },
+      'query.pageSize'(pageSize) {
+        this.query.currentPage = 1;
+        this.throttleRequestList();
+      },
+      'query.keyword': function (value) {
+        this.query.currentPage = 1;
+        this.throttleRequestList();
       },
       'secureCheckProps.passed': function (value) {
         if (value) {
@@ -815,19 +819,9 @@
         const {appModel, profileInfo} = this.$refs['version-condition-filter'].getSelected();
         this.appInfo = appModel;
         this.profileInfo = profileInfo;
-        this.keyword = '';
-        // this.requestDomainList();
-      },
-      // the first page of pagination is 1
-      handlePaginationPageChange(page) {
-        this.currentPage = page;
-        this.requestDomainList();
+        this.query.keyword = '';
       },
 
-      setDebounce() {
-        this.debounceRequestDomainList = this.$utils.debounce(this.requestDomainList.bind(this), 500, true);
-        // this.debounceRequestDomainList = this.requestDomainList;
-      },
       /**
        * the place of calling requestDomainList;
        * 1. onServiceConditionChanged
@@ -835,23 +829,22 @@
        * 3. callback of successful add domain
        */
       async requestDomainList() {
-        let page = this.currentPage - 1;
-        page = page >= 0 ? page : 0;
-        let start = page * this.pageSize;
-        let length = this.pageSize;
-
-        const {appModel, profileInfo} = this.$refs['version-condition-filter'].getSelected();
-        if (!appModel || !profileInfo) {
-          console.log(`appModel or profileInfo not found`);
+        if (!this.$utils.isNumber(parseInt(this.query.currentPage))) {
+          this.query.currentPage = 1;
           return;
         }
+        var page = this.query.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.query.pageSize;
+        const length = this.query.pageSize;
+
         const payload = {
           groupId: this.$storeHelper.currentGroupID,
-          spaceId: profileInfo.id == this.$storeHelper.PROFILE_ID_FOR_ALL ? '' : profileInfo.id,
-          applicationId: appModel.appId == this.$storeHelper.APP_ID_FOR_ALL ? '' : appModel.appId,
+          spaceId: this.query.profileId == this.$storeHelper.PROFILE_ID_FOR_ALL ? '' : this.query.profileId,
+          applicationId: this.query.appId == this.$storeHelper.APP_ID_FOR_ALL ? '' : this.query.appId,
           start: start,
           length: length,
-          keyword: this.keyword
+          keyword: this.query.keyword
         };
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_list, {
           payload
@@ -865,10 +858,8 @@
         this.totalSize = resContent['total'];
         this.currentDomainList = resContent['internetDomainList'].map(it => {
           if (it.hasOwnProperty('spaceId')) {
-            let profileInfo = this.$storeHelper.getProfileInfoByID(it.spaceId);
-            if (profileInfo.hasOwnProperty('description')) {
-              it.profileDesc = profileInfo.description;
-            }
+            const profileInfo = this.$storeHelper.getProfileInfoById(it.spaceId);
+            it.profileDesc = profileInfo.description;
             it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss');
           }
           it['accessStatus'] = (it['status'] === 'EFFECTIVE' ? it['notHaveIPWhiteList'] : it['openAllInternet']) ? '已开启' : '未开启';
@@ -1027,7 +1018,6 @@
             this.selected.action = 'unbind-service';
             break;
           case 'refresh':
-            this.currentPage = 1;
             this.requestDomainList();
             break;
         }
