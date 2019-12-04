@@ -56,7 +56,7 @@
         <el-table-column
                 prop="internetDomain"
                 label="外网二级域名"
-                minWidth="200">
+                minWidth="160">
             <template slot-scope="scope">
               <el-radio :label="scope.row.id"
                         :value="selectedId"
@@ -70,26 +70,35 @@
         </el-table-column>
         <el-table-column
                 prop="profileDesc"
-                width="100"
+                width="80"
                 headerAlign="center" align="center"
                 label="运行环境">
         </el-table-column>
         <el-table-column
-                prop="formattedCreateTime"
-                headerAlign="center" align="center"
                 label="创建时间"
-                width="140">
+                prop="formattedCreateTime"
+                sortable="custom"
+                width="100"
+                headerAlign="center" align="center">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.formattedCreateTime)">
+              <div v-for="(item, index) in scope.row.formattedCreateTime" :key="index">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>{{scope.row.formattedCreateTime}}</div>
+          </template>
         </el-table-column>
         <el-table-column
                 prop="creatorName"
                 label="创建人"
                 headerAlign="center" align="center"
-                width="100">
+                width="80">
         </el-table-column>
         <el-table-column
                 prop="status"
                 label="域名状态"
-                minWidth="180"
+                minWidth="160"
         >
           <template slot-scope="scope">
             <span>{{scope.row.statusDescription}}</span>
@@ -101,7 +110,7 @@
                 prop="status"
                 label="全网访问状态"
                 headerAlign="center" align="center"
-                width="120"
+                width="100"
         >
           <template slot-scope="scope">
             <span>{{scope.row.accessStatus}}</span>
@@ -110,7 +119,7 @@
         <el-table-column
                 prop="operation"
                 label="操作"
-                width="220"
+                minWidth="180"
         >
           <template slot-scope="scope">
             <el-button
@@ -795,7 +804,7 @@
           if (it.hasOwnProperty('spaceId')) {
             const profileInfo = this.$storeHelper.getProfileInfoById(it.spaceId);
             it.profileDesc = profileInfo.description;
-            it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss');
+            it['formattedCreateTime'] = this.$utils.formatDate(it['createTime'], 'yyyy-MM-dd hh:mm:ss').split(' ');
           }
           it['accessStatus'] = (it['status'] === 'EFFECTIVE' ? it['notHaveIPWhiteList'] : it['openAllInternet']) ? '已开启' : '未开启';
           return it;
