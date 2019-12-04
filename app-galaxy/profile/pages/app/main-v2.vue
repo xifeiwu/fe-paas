@@ -538,6 +538,7 @@
         this.updateListByPage();
       },
       'query.pageSize'() {
+        this.query.currentPage = 1;
         this.updateListByPage();
       }
     },

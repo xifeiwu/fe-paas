@@ -106,7 +106,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy_canary') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_deploy_canary', scope.$index, scope.row)"
-                      :class="['flex', actionDisabled('service_deploy_canary', scope.row)? 'disabled' : 'warning']">
+                      :class="['flex', reason4ActionDisabled('service_deploy_canary', scope.row)? 'disabled' : 'warning']">
                 <span>{{'灰度发布'}}</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div v-if="isProductionProfile" class="ant-divider"></div>
@@ -115,7 +115,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_quick_deploy') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_quick_deploy', scope.$index, scope.row)"
-                      :class="actionDisabled('service_quick_deploy', scope.row)? 'disabled' : 'danger'">
+                      :class="reason4ActionDisabled('service_quick_deploy', scope.row)? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('service_quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
               </el-button>
               <div class="ant-divider"></div>
@@ -125,7 +125,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('image_rollback') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'image_rollback', scope.$index, scope.row)"
-                      :class="actionDisabled('image_rollback', scope.row) ||
+                      :class="reason4ActionDisabled('image_rollback', scope.row) ||
                       $storeHelper.permission['image_rollback'].disabled ||
                       $storeHelper.serverIsPublishing ? 'disabled' : 'danger'">
                 {{'回滚'}}
@@ -136,7 +136,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_stop') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_stop', scope.$index, scope.row)"
-                      :class="actionDisabled('service_stop', scope.row)? 'disabled' : 'danger'">
+                      :class="reason4ActionDisabled('service_stop', scope.row)? 'disabled' : 'danger'">
                 停止
               </el-button>
               <div class="ant-divider"></div>
@@ -218,7 +218,7 @@
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'open_dialog_update_pod_spec', scope.$index, scope.row)"
-                         :class="actionDisabled('open_dialog_update_pod_spec', scope.row)? 'disabled' : 'danger'">
+                         :class="reason4ActionDisabled('open_dialog_update_pod_spec', scope.row)? 'disabled' : 'danger'">
                 <span>PodSpec配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.actionDisabled('get_affinity')"></div>
@@ -250,14 +250,14 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="totalSize > pageSize">
+      <div class="pagination-container" v-if="status.showPagination">
         <div class="pagination">
           <el-pagination
-                  :current-page="currentPage"
                   layout="total, sizes, prev, pager, next, jumper"
-                  :page-size = "pageSize"
                   :total="totalSize"
-                  @current-change="page => {currentPage = page}"
+                  :current-page.sync="query.currentPage"
+                  :page-size.sync = "query.pageSize"
+                  :page-sizes="[10, 15, 20, 30]"
           >
           </el-pagination>
         </div>
@@ -983,8 +983,8 @@ tolerations:
 //      }),
     },
     watch: {
-      '$storeHelper.currentGroupID': function (value, oldValue) {
-        this.currentPage = 1;
+      '$storeHelper.currentGroupId': function (value, oldValue) {
+        this.query.currentPage = 1;
         this.getServiceListByPage({
           refresh: true,
           currentPage: 1
@@ -997,11 +997,15 @@ tolerations:
           this.filterKey = '';
         }
       },
-      'currentPage': function (page) {
+      'query.currentPage': function (page) {
         this.getServiceListByPage({});
         this.$storeHelper.setUserConfig('service', {
           currentPage: page
         });
+      },
+      'query.pageSize'() {
+        this.query.currentPage = 1;
+        this.getServiceListByPage({});
       },
       'filterKey': 'onFilterKey',
       // changed by el-tab
@@ -1022,7 +1026,7 @@ tolerations:
         if (!this.$utils.isNumber(currentPage)) {
           currentPage = 1;
         }
-        this.currentPage = currentPage;
+        this.query.currentPage = currentPage;
         this.getServiceListByPage({
           refresh: true,
           currentPage
@@ -1054,8 +1058,14 @@ tolerations:
         appIdWithoutService: [],
 
         totalSize: 0,
-        pageSize: 10,
-        currentPage: 1,
+        query: {
+          pageSize: 10,
+          currentPage: 1,
+        },
+        // save status of page
+        status: {
+          showPagination: true
+        },
 
         // action will replace action
         action: {
@@ -2496,18 +2506,18 @@ tolerations:
           await this.requestServiceList();
         }
         if (currentPage) {
-          this.currentPage = currentPage;
+          this.query.currentPage = currentPage;
         }
         // check currentPage after item delete
-        const maxPageSize = Math.ceil(this.totalSize / this.pageSize);
-        if (this.currentPage > maxPageSize) {
-          this.currentPage = maxPageSize;
+        const maxPageSize = Math.ceil(this.totalSize / this.query.pageSize);
+        if (this.query.currentPage > maxPageSize) {
+          this.query.currentPage = maxPageSize;
         }
 
-        var page = this.currentPage - 1;
+        var page = this.query.currentPage - 1;
         page = page >= 0 ? page : 0;
-        const start = page * this.pageSize;
-        const length = this.pageSize;
+        const start = page * this.query.pageSize;
+        const length = this.query.pageSize;
         const end = start + length;
 
         var filterReg = null;
