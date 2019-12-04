@@ -122,11 +122,6 @@ class URL extends BaseURL {
         url: API_PATH + '/domain/record/delete',
         path: '/domain/record/delete'
       },
-      // 解绑服务
-      'domain_unbind_service': {
-        url: API_PATH + '/domain/unbind',
-        path: '/domain/unbind'
-      },
       // 添加白名单
       'domain_add_white_ip': {
         url: API_PATH + '/domain/whiteList/add',

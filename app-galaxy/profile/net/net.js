@@ -509,6 +509,11 @@ class Net extends NetBase {
         path: '/domain/bind',
         method: 'post'
       },
+      // 解绑服务
+      'domain_unbind_service': {
+        path: '/domain/unbind',
+        method: 'post'
+      },
 
       /** 日志相关 */
       // 获取部署日志列表
@@ -2149,22 +2154,6 @@ class Net extends NetBase {
         });
       })
     })
-  }
-
-  // 为域名解绑服务
-  domainUnBindService(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_unbind_service.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          resolve(content);
-          this.showLog('domainUnBindService', content);
-        } else {
-          reject(null);
-        }
-      }).catch(err => {
-      })
-    });
   }
 
   // 白名单中添加IP

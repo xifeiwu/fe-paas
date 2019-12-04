@@ -38,8 +38,8 @@
         <el-button
                 size="mini"
                 type="warning"
-                :class="{'disabled': $storeHelper.permission['domain_unbind_service'].disabled || $storeHelper.serverIsPublishing}"
-                @click="handleButtonClick($event, 'domain_unbind_service')"
+                :class="{'disabled': $storeHelper.actionDisabled('open_dialog_domain_unbind_service')}"
+                @click="handleButtonClick($event, 'open_dialog_domain_unbind_service')"
         >解绑服务</el-button>
         <i style="font-size:12px; line-height: 24px; margin: 0px 3px;" class="paas-icon-question"
            v-pop-on-mouse-over="['已绑定的域名需要先进行解绑，才可绑定新的服务',
@@ -168,7 +168,7 @@
       <div slot="footer" class="dialog-footer flex" v-if="props4CreateDomain.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleDialogEvent('close-domain-in-dialog')">确&nbsp定</el-button>
+                     @click="handleDialogEvent('close-domain-in-dialog')">确定</el-button>
         </div>
       </div>
 
@@ -219,9 +219,9 @@
                   type="primary"
                   size="mini"
                   @click="handleDialogEvent('add-domain-in-dialog')"
-                  :loading="statusOfWaitingResponse('add-domain-in-dialog')">保&nbsp存</el-button></div>
+                  :loading="statusOfWaitingResponse('add-domain-in-dialog')">保存</el-button></div>
         <div class="item">
-          <el-button size="mini" @click="handleDialogEvent('close-domain-in-dialog')">取&nbsp消</el-button>
+          <el-button size="mini" @click="handleDialogEvent('close-domain-in-dialog')">取消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -229,20 +229,20 @@
     <el-dialog title="绑定服务"
                :visible="action.name == 'open_dialog_domain_bind_service'"
                v-if="action.name == 'open_dialog_domain_bind_service'"
-               :class="{'bind-service': true, 'size-650': true, 'show-response': action.data.showResponse}"
+               :class="{'domain_bind_service': true, 'size-650': true, 'show-response': action.data.showResponse}"
                :close-on-click-modal="false"
                bodyPadding="4px"
                @close="closeDialog"
     >
       <div v-if="action.data.showResponse">
-        <el-row class="title">
-          <el-col :span="8" class="key">外网域名</el-col>
-          <el-col :span="16" class="value">绑定状态</el-col>
-        </el-row>
-        <el-row class="item" v-for="(value, key) in action.data.serverResponse" :key="key">
-          <el-col :span="8" class="key">{{key}}</el-col>
-          <el-col :span="16" class="value">{{value}}</el-col>
-        </el-row>
+        <div class="title">
+          <div class="key">外网域名</div>
+          <div class="value">绑定状态</div>
+        </div>
+        <div class="item" v-for="(item, index) in action.data.serverResponse" :key="key">
+          <div class="key">{{item.internetDomain}}</div>
+          <div class="value">{{item.status}}</div>
+        </div>
       </div>
       <div slot="footer" class="dialog-footer flex" v-if="action.data.showResponse">
         <div class="item">
@@ -271,57 +271,55 @@
         <div class="item">
           <el-button type="primary" size="mini"
                      @click="handleDialogEvent('domain_bind_service')"
-                     :loading="action.requesting">保&nbsp存</el-button>
+                     :loading="action.requesting">保存</el-button>
         </div>
         <div class="item">
-          <el-button size="mini" @click="closeDialog">取&nbsp消</el-button>
+          <el-button size="mini" @click="closeDialog">取消</el-button>
         </div>
       </div>
     </el-dialog>
 
-    <el-dialog title="解绑服务" :visible="selected.action == 'unbind-service'"
-               :class="{'unbind-service': true, 'size-750': true, 'show-response': unBindServiceProps.showResponse}"
+    <el-dialog title="解绑服务"
+               :visible="action.name == 'open_dialog_domain_unbind_service'"
+               v-if="action.name == 'open_dialog_domain_unbind_service'"
+               :class="{'domain_unbind_service': true, 'size-700': true, 'show-response': action.data.showResponse}"
                :close-on-click-modal="false"
-               bodyPadding="6px 4px"
-               @close="selected.action = null"
+               bodyPadding="8px 10px"
+               @close="closeDialog"
     >
-      <div v-if="unBindServiceProps.showResponse">
+      <div v-if="action.data.showResponse">
         <div class="title">
           <div class="key">外网域名</div>
           <div class="value">绑定状态</div>
         </div>
-        <div class="item" v-for="(value, key) in unBindServiceProps.serverResponse">
-          <div class="key">{{key}}</div>
-          <div class="value">{{value}}</div>
+        <div class="item" v-for="(item, index) in action.data.serverResponse">
+          <div class="key">{{item.internetDomain}}</div>
+          <div class="value">{{item.status}}</div>
         </div>
       </div>
-      <div slot="footer" class="dialog-footer flex" v-if="unBindServiceProps.showResponse">
+      <div slot="footer" class="dialog-footer flex" v-if="action.data.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
-                   @click="handleDialogEvent('close-unbind-service-in-dialog')">确&nbsp定</el-button>
+                   @click="handleDialogEvent('close_dialog_domain_unbind_service')">确定</el-button>
         </div>
       </div>
 
-      <div class="selected-domain" v-if="!unBindServiceProps.showResponse">
-        <span>解绑</span>
-        <span
-                v-for="(item, index) in rowsSelected"
-                :key="index"
-                type="success"
-                size="small"
-        >{{'"' + item['internetDomain'] + '"'}}</span>
-        <span>域名将导致绑定在域名上的应用不能通过这个域名进行访问，你确定这么做吗？</span>
-        <br/>
+      <div class="selected-domain" v-if="!action.data.showResponse">
+        <div style="margin-bottom: 5px;">
+          <span>解绑域名</span>
+          <span>（{{rowsSelected.map(it => it.internetDomain).join(', ')}}）</span>
+          <span>将导致绑定在域名上的应用不能通过这个域名进行访问，你确定这么做吗？</span>
+        </div>
         <strong style="color: red">注：如果域名的服务在灰度发布中，解绑外网域名会删除该域名下的灰度策略</strong>
       </div>
-      <div slot="footer" class="dialog-footer flex" v-if="!unBindServiceProps.showResponse">
+      <div slot="footer" class="dialog-footer flex" v-if="!action.data.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleDialogEvent('unbind-service-in-dialog')"
-                     :loading="statusOfWaitingResponse('unbind-service-in-dialog')">确&nbsp定</el-button>
+                     @click="handleDialogEvent('domain_unbind_service')"
+                     :loading="action.requesting">确定</el-button>
         </div>
         <div class="item">
-          <el-button size="mini" @click="selected.action = null">取&nbsp消</el-button>
+          <el-button size="mini" @click="closeDialog">取消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -355,10 +353,10 @@
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
                        @click="handleDialogEvent('secure-check-in-dialog')"
-                       :loading="statusOfWaitingResponse('secure-check-in-dialog')">确&nbsp定</el-button>
+                       :loading="statusOfWaitingResponse('secure-check-in-dialog')">确定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
-            <el-button @click="selected.action = null">取&nbsp消</el-button>
+            <el-button @click="selected.action = null">取消</el-button>
           </el-col>
         </el-row>
       </div>
@@ -385,7 +383,7 @@
                      :loading="statusOfWaitingResponse('re-secure-check-in-dialog')">重新审核</el-button>
         </div>
         <div class="item">
-          <el-button @click="selected.action = null">取&nbsp消</el-button>
+          <el-button @click="selected.action = null">取消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -395,19 +393,6 @@
 <style lang="scss">
   #domain-main {
     .el-dialog__wrapper {
-      &.add-domain, &.bind-service, &.unbind-service {
-        .el-dialog {
-          width: 100%;
-          .el-dialog__body {
-          }
-        }
-        margin: 15px auto;
-        .el-form {
-          .el-form-item__content {
-            text-align: left;
-          }
-        }
-      }
       &.add-domain {
         &.show-response {
           .el-dialog__body {
@@ -443,19 +428,21 @@
           }
         }
       }
-      &.bind-service {
-        .paas-service-selector {
+      &.domain_bind_service {
+        .el-dialog {
           text-align: left;
         }
         &.show-response {
           .el-dialog__body {
             .title {
+              display: flex;
               margin-bottom: 3px;
               .key, .value {
                 font-weight: bold;
               }
             }
             .item {
+              display: flex;
               border-bottom: 1px solid #909399;
               margin-bottom: 3px;
               &:last-child {
@@ -463,6 +450,7 @@
               }
             }
             .key, .value {
+              flex: 1;
               text-align: center;
               text-overflow: ellipsis;
               word-wrap: break-word;
@@ -471,17 +459,15 @@
           }
         }
       }
-      &.unbind-service {
-        .selected-domain {
-          margin-top: 3px;
+      &.domain_unbind_service {
+        .el-dialog {
           text-align: left;
-          word-break: break-all;
-          word-wrap: break-word;
         }
         &.show-response {
           .el-dialog__body {
             .title {
               display: flex;
+              margin-bottom: 3px;
               .key, .value {
                 font-weight: bold;
               }
@@ -645,10 +631,6 @@
           noWhiteList: false,
           errMsgForLevel2Name: '',
           errMsgForDomainToAdd: '',
-        },
-        unBindServiceProps: {
-          showResponse: false,
-          serverResponse: {}
         },
         secureCheckProps: {
           passed: false,
@@ -907,7 +889,7 @@
        */
       async handleButtonClick(evt, action) {
         const permission = this.$storeHelper.actionToPermission(action);
-        if (['domain_add','domain_unbind_service'].indexOf(permission) > -1 && this.$storeHelper.serverIsPublishing) {
+        if (['domain_add'].indexOf(permission) > -1 && this.$storeHelper.serverIsPublishing) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
@@ -956,6 +938,7 @@
           case 'open_dialog_domain_bind_service':
             this.openDialog(action, {
               showResponse: false,
+              serverResponse: [],
               selected: {
                 appId: this.query.appId,
                 profileId: this.rowsSelected[0]['spaceId']
@@ -963,12 +946,15 @@
               // passed to my-version-condition-filter
             });
             break;
-          case 'domain_unbind_service':
+          case 'open_dialog_domain_unbind_service':
             if (this.rowsSelected.length == 0) {
               this.$message.warning('请先选择要操作的域名');
               return;
             }
-            this.selected.action = 'unbind-service';
+            this.openDialog(action, {
+              showResponse: false,
+              serverResponse: []
+            });
             break;
           case 'refresh':
             this.requestDomainList();
@@ -1100,9 +1086,18 @@
                 payload
               });
               dialogData.showResponse = true;
-              dialogData.serverResponse = resContent;
+              Object.keys(resContent).forEach(key => {
+                const domainItem = this.currentDomainList.find(it => it.id == key);
+                if (domainItem) {
+                  this.action.data.serverResponse.push({
+                    id: key,
+                    internetDomain: domainItem['internetDomain'],
+                    status: resContent[key],
+                  })
+                }
+              });
             } catch (err) {
-
+              console.log(err);
             } finally {
               this.action.requesting = false;
             }
@@ -1111,56 +1106,40 @@
             this.closeDialog();
             this.requestDomainList();
             break;
-          case 'unbind-service-in-dialog':
-            domainIdList = this.rowsSelected.map(it => {
-              return it.id;
-            });
-            if (domainIdList.length === 0) {
+          case 'domain_unbind_service':
+            if (this.rowsSelected.length === 0) {
               this.$message.error('请选择要操作的域名！');
               return;
             }
-            this.addToWaitingResponseQueue(action);
-            this.$net.domainUnBindService({
-              internetDomainIdList: domainIdList,
-              groupId: this.$storeHelper.currentGroupID,
-              spaceId: this.rowsSelected.spaceId,
-            }).then(content => {
-              let domainIDList = Object.keys(content);
-              for (let key in content) {
-                let target = null;
-                this.currentDomainList.some(it => {
-                  if (it.id == key) {
-                    target = it;
-                  }
-                  return target;
-                });
-                if (target) {
-                  content[target['internetDomain']] = content[key];
-                }
-              }
-              domainIDList.forEach(key => {
-                delete content[key];
-              });
-              this.unBindServiceProps.serverResponse = content;
-              this.unBindServiceProps.showResponse = true;
-              this.hideWaitingResponse(action);
-            }).catch(msg => {
-              this.$notify({
-                title: '绑定域名失败',
-                message: msg,
-                duration: 0,
-                onClose: function () {
+            try {
+              this.action.requesting = true;
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_unbind_service, {
+                payload: {
+                  internetDomainIdList: this.rowsSelected.map(it => it.id),
+                  groupId: this.$storeHelper.currentGroupId,
+                  spaceId: this.rowsSelected[0].spaceId,
                 }
               });
-              this.hideWaitingResponse(action);
-            });
-            break;
-          case 'close-unbind-service-in-dialog':
-            this.selected.action = null;
-            if (this.unBindServiceProps.showResponse) {
-              this.requestDomainList();
-              this.unBindServiceProps.showResponse = false;
+              Object.keys(resContent).forEach(key => {
+                const domainItem = this.currentDomainList.find(it => it.id == key);
+                if (domainItem) {
+                  this.action.data.serverResponse.push({
+                    id: key,
+                    internetDomain: domainItem['internetDomain'],
+                    status: resContent[key],
+                  })
+                }
+              });
+              this.action.data.showResponse = true;
+            } catch (err) {
+              console.log(err)
+            } finally {
+              this.action.requesting = false;
             }
+            break;
+          case 'close_dialog_domain_unbind_service':
+            this.closeDialog();
+            this.requestDomainList();
             break;
           case 'secure-check-in-dialog':
             if (!this.secureCheckProps.passed && !this.secureCheckProps.reason) {

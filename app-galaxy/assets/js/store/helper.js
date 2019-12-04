@@ -213,6 +213,8 @@ export default class StoreHelper extends Common {
       /** page domain */
       // 绑定域名
       open_dialog_domain_bind_service: 'domain_bind_service',
+      // 绑定域名
+      open_dialog_domain_unbind_service: 'domain_unbind_service',
 
       /** page oauth*/
       // 创建accessKey
