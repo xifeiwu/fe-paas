@@ -985,10 +985,7 @@ tolerations:
     watch: {
       '$storeHelper.currentGroupId': function (value, oldValue) {
         this.query.currentPage = 1;
-        this.getServiceListByPage({
-          refresh: true,
-          currentPage: 1
-        });
+        this.getServiceListByPage(true);
         // dataPassed.data同时包含groupId和appName属性时，appName需要再groupId生效之后生效
         if (this.dataPassed.data['appName']) {
           this.filterKey = this.dataPassed.data['appName'];
@@ -998,14 +995,14 @@ tolerations:
         }
       },
       'query.currentPage': function (page) {
-        this.getServiceListByPage({});
+        this.getServiceListByPage();
         this.$storeHelper.setUserConfig('service', {
           currentPage: page
         });
       },
       'query.pageSize'() {
         this.query.currentPage = 1;
-        this.getServiceListByPage({});
+        this.getServiceListByPage();
       },
       'filterKey': 'onFilterKey',
       // changed by el-tab
@@ -1027,10 +1024,7 @@ tolerations:
           currentPage = 1;
         }
         this.query.currentPage = currentPage;
-        this.getServiceListByPage({
-          refresh: true,
-          currentPage
-        });
+        this.getServiceListByPage(true);
         this.$storeHelper.setUserConfig('service', {
           profileName
         });
@@ -1167,9 +1161,8 @@ tolerations:
         }
       },
       onFilterKey (value) {
-        this.getServiceListByPage({
-          currentPage: 1
-        });
+        this.query.currentPage = 1;
+        this.getServiceListByPage();
         this.$storeHelper.setUserConfig('service', {
           filterKey: value
         });
@@ -1347,10 +1340,8 @@ tolerations:
         }
         switch (action) {
           case 'refresh-list':
-            this.getServiceListByPage({
-              refresh: true,
-              currentPage: 1
-            });
+            this.query.currentPage = 1;
+            this.getServiceListByPage(true);
             break;
         }
       },
@@ -2204,9 +2195,7 @@ tolerations:
                 }
               });
               this.hideWaitingResponse(action);
-              this.getServiceListByPage({
-                refresh: true
-              });
+              this.getServiceListByPage(true);
             } catch (err) {
               this.hideWaitingResponse(action);
               console.log(err);
@@ -2263,9 +2252,7 @@ tolerations:
                 }
               });
               this.hideWaitingResponse(action);
-              this.getServiceListByPage({
-                refresh: true
-              });
+              this.getServiceListByPage(true);
             } catch (err) {
               console.log(err);
               this.closeDialog();
@@ -2470,7 +2457,7 @@ tolerations:
        * request service list from server
        * only called by getServiceListByPage
        */
-      async requestServiceList() {
+      async _requestServiceList() {
         this.serviceList = [];
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_profile, {
           payload: {
@@ -2501,12 +2488,9 @@ tolerations:
        * @param refresh, request service list from server or not
        * @param currentPage, set currentPage by code
        */
-      async getServiceListByPage({refresh = false, currentPage = null}) {
+      async getServiceListByPage(refresh = false) {
         if (refresh) {
-          await this.requestServiceList();
-        }
-        if (currentPage) {
-          this.query.currentPage = currentPage;
+          await this._requestServiceList();
         }
         // check currentPage after item delete
         const maxPageSize = Math.ceil(this.totalSize / this.query.pageSize);
@@ -2520,18 +2504,12 @@ tolerations:
         const length = this.query.pageSize;
         const end = start + length;
 
-        var filterReg = null;
+        var regFilter = null;
         if (this.filterKey) {
-          filterReg = new RegExp(this.filterKey);
+          regFilter = this.$utils.getRegFromStr(this.filterKey);
         }
         const filteredServiceList = this.serviceList.filter(it => {
-          var result = true;
-
-          if (filterReg) {
-            const searchField = `${it.appName}${it.serviceName}${it.tag}`;
-            result = filterReg.exec(searchField);
-          }
-          return result;
+            return !regFilter || regFilter.test(`${it.appName}${it.serviceName}${it.tag}`);
         });
         this.totalSize = filteredServiceList.length;
         this.serviceListByPage = filteredServiceList.slice(start, end);
