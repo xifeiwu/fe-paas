@@ -1376,8 +1376,8 @@ tolerations:
                 appId: row.appId,
               }
             });
-            let notServiceSpaceList = resContent["notServiceSpaceList"];
-            if (notServiceSpaceList.length == 0 ) {
+            const profilesWithoutService = resContent["notServiceSpaceList"];
+            if (profilesWithoutService.length == 0 ) {
               this.$message({
                 showClose: true,
                 message: "该应用在所有环境下都有服务，不能进行复制!",
@@ -1390,7 +1390,7 @@ tolerations:
                 data: {
                   profileId: this.profileInfo.id,
                   appId: row.appId,
-                  notServiceSpaceList: notServiceSpaceList,
+                  profilesWithoutService,
                 }
               };
               this.$router.push(this.$net.page['profile/service/copy']);

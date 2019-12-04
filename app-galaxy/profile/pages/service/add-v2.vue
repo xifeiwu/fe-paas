@@ -674,7 +674,7 @@
         if (this.$router.helper.pages['/profile/service/copy'].pathReg.test(path)) {
           this.forGray = false;
           this.forCopy = true;
-          if (!dataTransfer || !dataTransfer.data || !this.$utils.hasProps(dataTransfer.data, 'appId', 'profileId', 'notServiceSpaceList')) {
+          if (!dataTransfer || !dataTransfer.data || !this.$utils.hasProps(dataTransfer.data, 'appId', 'profileId', 'profilesWithoutService')) {
             throw new Error('信息不完整');
           }
           profileInfo = this.$storeHelper.getProfileInfoByID(dataTransfer.data.profileId);
@@ -684,10 +684,10 @@
         this.from = dataTransfer ? dataTransfer.from : null;
         this.formData.spaceId = profileInfo.id;
         if (this.forCopy) {
-          this.formData.spaceId = dataTransfer.data.notServiceSpaceList[0];
+          this.formData.spaceId = dataTransfer.data.profilesWithoutService[0];
           let appInfo = this.$storeHelper.getAppInfoByID(serviceInfo.appId);
-          this.formRelated.profileList = appInfo['app']['profileList'].filter(it => {
-            return dataTransfer.data.notServiceSpaceList.indexOf(it.id) > -1;
+          this.formRelated.profileList = this.$storeHelper.profileListOfGroup.filter(it => {
+            return dataTransfer.data.profilesWithoutService.indexOf(it.id) > -1;
           });
         }
         // NOTICE: 修改/添加服务中的初始化参数都是从服务列表传递过来的
