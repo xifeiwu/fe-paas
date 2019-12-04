@@ -48,7 +48,7 @@
     </div>
     <div class="domain-list">
       <el-table
-              :data="currentDomainList"
+              :data="domainList"
               style="width: 100%"
               :height="heightOfTable"
               element-loading-text="加载中"
@@ -357,17 +357,16 @@
           ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-row>
-          <el-col :span="12" style="text-align: center">
+      <div slot="footer" class="dialog-footer flex">
+          <div class="item">
             <el-button type="primary"
+                       size="mini"
                        @click="handleDialogEvent('secure-check-in-dialog')"
                        :loading="statusOfWaitingResponse('secure-check-in-dialog')">确定</el-button>
-          </el-col>
-          <el-col :span="12" style="text-align: center">
-            <el-button @click="selected.action = null">取消</el-button>
-          </el-col>
-        </el-row>
+          </div>
+          <div class="item">
+            <el-button size="mini" @click="selected.action = null">取消</el-button>
+          </div>
       </div>
     </el-dialog>
 
@@ -387,12 +386,12 @@
       </el-form>
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
-          <el-button type="primary"
+          <el-button type="primary" size="mini"
                      @click="handleDialogEvent('re-secure-check-in-dialog')"
                      :loading="statusOfWaitingResponse('re-secure-check-in-dialog')">重新审核</el-button>
         </div>
         <div class="item">
-          <el-button @click="selected.action = null">取消</el-button>
+          <el-button size="mini" @click="selected.action = null">取消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -613,7 +612,7 @@
           keyword: '',
         },
 
-        currentDomainList: [],
+        domainList: [],
         selectedId: null,
         rowsSelected: [],
         queueForWaitingResponse: [],
@@ -800,7 +799,7 @@
           return;
         }
         this.totalSize = resContent['total'];
-        this.currentDomainList = resContent['internetDomainList'].map(it => {
+        this.domainList = resContent['internetDomainList'].map(it => {
           if (it.hasOwnProperty('spaceId')) {
             const profileInfo = this.$storeHelper.getProfileInfoById(it.spaceId);
             it.profileDesc = profileInfo.description;
@@ -809,8 +808,8 @@
           it['accessStatus'] = (it['status'] === 'EFFECTIVE' ? it['notHaveIPWhiteList'] : it['openAllInternet']) ? '已开启' : '未开启';
           return it;
         });
-        if (this.currentDomainList.length > 0) {
-          const firstRow = this.currentDomainList[0];
+        if (this.domainList.length > 0) {
+          const firstRow = this.domainList[0];
           this.rowsSelected = [firstRow];
           this.selectedId = firstRow['id'];
         }
@@ -1096,7 +1095,7 @@
               });
               dialogData.showResponse = true;
               Object.keys(resContent).forEach(key => {
-                const domainItem = this.currentDomainList.find(it => it.id == key);
+                const domainItem = this.domainList.find(it => it.id == key);
                 if (domainItem) {
                   this.action.data.serverResponse.push({
                     id: key,
@@ -1130,7 +1129,7 @@
                 }
               });
               Object.keys(resContent).forEach(key => {
-                const domainItem = this.currentDomainList.find(it => it.id == key);
+                const domainItem = this.domainList.find(it => it.id == key);
                 if (domainItem) {
                   this.action.data.serverResponse.push({
                     id: key,
