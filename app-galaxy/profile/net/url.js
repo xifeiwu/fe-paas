@@ -122,11 +122,6 @@ class URL extends BaseURL {
         url: API_PATH + '/domain/record/delete',
         path: '/domain/record/delete'
       },
-      // 绑定服务
-      'domain_bind_service': {
-        url: API_PATH + '/domain/bind',
-        path: '/domain/bind'
-      },
       // 解绑服务
       'domain_unbind_service': {
         url: API_PATH + '/domain/unbind',

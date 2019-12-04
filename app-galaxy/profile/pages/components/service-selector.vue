@@ -9,7 +9,7 @@
     </div>
     <div class="item">
       <label>运行环境:</label>
-      <el-select class="profile-list" v-model="selected.profileId" placeholder="请选择" size="mini"  :disabled="fixedInfo.type === 'profile'">
+      <el-select class="profile-list" v-model="selected.profileId" placeholder="请选择" size="mini" :disabled="disabled.profile">
         <el-option v-for="(item, index) in profileList" :key="index" :label="item.description" :value="item.id">
         </el-option>
       </el-select>
@@ -64,15 +64,15 @@
           }
         }
       },
-      fixedInfo: {
+      disabled: {
         type: Object,
         default() {
           return {
-            type: null,
-            id: null,
+            app: false,
+            profile: false
           }
         }
-      },
+      }
     },
     data() {
       return {
@@ -133,6 +133,7 @@
         } else {
           this.profileList = profileListOfGroup;
         }
+
         const profileInfo = this.profileList.find(it => it.id == this.selected.profileId);
         if (!profileInfo) {
           this.selected.profileId = this.profileList[0].id;

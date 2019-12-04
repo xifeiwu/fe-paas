@@ -210,6 +210,9 @@ export default class StoreHelper extends Common {
     const actionMap = {
       domain_add_open_dialog: 'domain_add',
       open_dialog_update_pod_spec: 'get_affinity',
+      /** page domain */
+      // 绑定域名
+      open_dialog_domain_bind_service: 'domain_bind_service',
 
       /** page oauth*/
       // 创建accessKey
@@ -230,6 +233,9 @@ export default class StoreHelper extends Common {
     };
     const permission = this.actionToPermission(action);
     var reason = false;
+    if (!permission || !this.permission[permission]) {
+      return reason;
+    }
     if (this.serverIsPublishing && !stillPermitWhenPublishing(permission)) {
       reason = '因云平台正在发布，在此期间不能进行此操作，谢谢您的合作'
     } else if (this._permissionDisabled(permission)) {

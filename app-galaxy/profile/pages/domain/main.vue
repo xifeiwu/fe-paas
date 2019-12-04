@@ -32,8 +32,8 @@
         <el-button
                 size="mini"
                 type="warning"
-                :class="{'disabled': $storeHelper.permission['domain_bind_service'].disabled || $storeHelper.serverIsPublishing}"
-                @click="handleButtonClick($event, 'domain_bind_service')"
+                :class="{'disabled': $storeHelper.actionDisabled('open_dialog_domain_bind_service')}"
+                @click="handleButtonClick($event, 'open_dialog_domain_bind_service')"
         >绑定服务</el-button>
         <el-button
                 size="mini"
@@ -153,7 +153,7 @@
                :class="{'add-domain': true, 'size-750': true, 'show-response': props4CreateDomain.showResponse}"
                :close-on-click-modal="false"
                bodyPadding="10px"
-               @close="handleClickInDialog('close-domain-in-dialog')"
+               @close="handleDialogEvent('close-domain-in-dialog')"
     >
       <div v-if="props4CreateDomain.showResponse">
         <div class="title" style="margin-bottom: 5px;">
@@ -168,7 +168,7 @@
       <div slot="footer" class="dialog-footer flex" v-if="props4CreateDomain.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleClickInDialog('close-domain-in-dialog')">确&nbsp定</el-button>
+                     @click="handleDialogEvent('close-domain-in-dialog')">确&nbsp定</el-button>
         </div>
       </div>
 
@@ -218,80 +218,63 @@
           <el-button
                   type="primary"
                   size="mini"
-                  @click="handleClickInDialog('add-domain-in-dialog')"
+                  @click="handleDialogEvent('add-domain-in-dialog')"
                   :loading="statusOfWaitingResponse('add-domain-in-dialog')">保&nbsp存</el-button></div>
         <div class="item">
-          <el-button size="mini" @click="handleClickInDialog('close-domain-in-dialog')">取&nbsp消</el-button>
+          <el-button size="mini" @click="handleDialogEvent('close-domain-in-dialog')">取&nbsp消</el-button>
         </div>
       </div>
     </el-dialog>
 
     <el-dialog title="绑定服务"
-               :visible="selected.action == 'bind-service'"
-               v-if="selected.action == 'bind-service'"
-               :class="{'bind-service': true, 'size-700': true, 'show-response': bindServiceProps.showResponse}"
+               :visible="action.name == 'open_dialog_domain_bind_service'"
+               v-if="action.name == 'open_dialog_domain_bind_service'"
+               :class="{'bind-service': true, 'size-650': true, 'show-response': action.data.showResponse}"
                :close-on-click-modal="false"
                bodyPadding="4px"
-               @close="selected.action = null"
+               @close="closeDialog"
     >
-      <div v-if="bindServiceProps.showResponse">
+      <div v-if="action.data.showResponse">
         <el-row class="title">
           <el-col :span="8" class="key">外网域名</el-col>
           <el-col :span="16" class="value">绑定状态</el-col>
         </el-row>
-        <el-row class="item" v-for="(value, key) in bindServiceProps.serverResponse" :key="key">
+        <el-row class="item" v-for="(value, key) in action.data.serverResponse" :key="key">
           <el-col :span="8" class="key">{{key}}</el-col>
           <el-col :span="16" class="value">{{value}}</el-col>
         </el-row>
       </div>
-      <div slot="footer" class="dialog-footer flex" v-if="bindServiceProps.showResponse">
+      <div slot="footer" class="dialog-footer flex" v-if="action.data.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleClickInDialog('close-bind-service-in-dialog')">确定</el-button>
+                     @click="handleDialogEvent('close_dialog_domain_bind_service')">确定</el-button>
         </div>
       </div>
 
-      <div v-if="!bindServiceProps.showResponse">
+      <div v-else="!action.data.showResponse">
         <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: -2px -4px 6px -4px;"
                               :msgList="[
-                                bindServiceProps.bindTipForApp,
+                                '绑定成功后5分钟内可使用外网域名访问应用',
                                 '如果绑定域名的服务在灰度发布中，如需调整流量策略请到该服务的灰度发布/设置灰度策略中进行调整'
                               ]"></paas-dismiss-message>
         <div style="padding-left: 10px;">
-          <paas-service-selector ref="service-selector-in-bind-service-dialog"
-                                 :fixedInfo="fixedInfoForVersionCondition"
-                                 :customConfig="dialogCustomConfig"
-                                 @service-selected="handleConditionChangeInDialog"
-                                 v-if="selected.action == 'bind-service'"
-          >
-          </paas-service-selector>
-          <el-form labelWidth="90px" class="selected-domain">
-            <el-form-item label="所选外网域名">
-              <el-tag
-                      v-for="(item, index) in rowsSelected"
-                      :key="index"
-                      type="success"
-                      size="small"
-              >{{item['internetDomain']}}</el-tag>
-            </el-form-item>
-          </el-form>
+        <div style="margin-bottom: 10px; text-align: left">
+          <span style="font-weight: bold">所选外网域名：</span>
+          <span>{{rowsSelected[0]['internetDomain']}}</span>
         </div>
-        <div class="helper-text-expanded" style="margin-top: 3px;" v-if="false">
-          <div>
-            <div style="font-weight: bold; font-size: 14px;">提示 <i class="el-icon-warning"></i></div>
-            <div style="font-size: 13px; margin-top: 3px;">1.{{bindServiceProps.bindTipForApp}}</div>
-            <div style="font-size: 13px; margin-top: 3px;">2.该域名如需使用灰度发布，请到灰度策略中配置</div>
-          </div>
+        <paas-service-selector :disabled="{app: false, profile: true}"
+                               :selected="action.data.selected">
+        </paas-service-selector>
         </div>
       </div>
-      <div slot="footer" class="dialog-footer flex" v-if="!bindServiceProps.showResponse">
+      <div slot="footer" class="dialog-footer flex" v-if="!action.data.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleClickInDialog('bind-service-in-dialog')"
-                     :loading="statusOfWaitingResponse('bind-service-in-dialog')">保&nbsp存</el-button>
+                     @click="handleDialogEvent('domain_bind_service')"
+                     :loading="action.requesting">保&nbsp存</el-button>
         </div>
         <div class="item">
-          <el-button size="mini" @click="selected.action = null">取&nbsp消</el-button>
+          <el-button size="mini" @click="closeDialog">取&nbsp消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -315,7 +298,7 @@
       <div slot="footer" class="dialog-footer flex" v-if="unBindServiceProps.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
-                   @click="handleClickInDialog('close-unbind-service-in-dialog')">确&nbsp定</el-button>
+                   @click="handleDialogEvent('close-unbind-service-in-dialog')">确&nbsp定</el-button>
         </div>
       </div>
 
@@ -334,7 +317,7 @@
       <div slot="footer" class="dialog-footer flex" v-if="!unBindServiceProps.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
-                     @click="handleClickInDialog('unbind-service-in-dialog')"
+                     @click="handleDialogEvent('unbind-service-in-dialog')"
                      :loading="statusOfWaitingResponse('unbind-service-in-dialog')">确&nbsp定</el-button>
         </div>
         <div class="item">
@@ -371,7 +354,7 @@
         <el-row>
           <el-col :span="12" style="text-align: center">
             <el-button type="primary"
-                       @click="handleClickInDialog('secure-check-in-dialog')"
+                       @click="handleDialogEvent('secure-check-in-dialog')"
                        :loading="statusOfWaitingResponse('secure-check-in-dialog')">确&nbsp定</el-button>
           </el-col>
           <el-col :span="12" style="text-align: center">
@@ -398,7 +381,7 @@
       <div slot="footer" class="dialog-footer flex">
         <div class="item">
           <el-button type="primary"
-                     @click="handleClickInDialog('re-secure-check-in-dialog')"
+                     @click="handleDialogEvent('re-secure-check-in-dialog')"
                      :loading="statusOfWaitingResponse('re-secure-check-in-dialog')">重新审核</el-button>
         </div>
         <div class="item">
@@ -463,23 +446,6 @@
       &.bind-service {
         .paas-service-selector {
           text-align: left;
-        }
-        .el-form.selected-domain {
-          margin-top: 10px;
-          .el-form-item {
-            margin-bottom: 5px;
-            .el-form-item__label {
-              padding-right: 5px;
-              line-height: 25px;
-            }
-            .el-form-item__content {
-              line-height: 25px;
-              .el-tag {
-                margin: 2px 3px;
-                padding: 0px 2px;
-              }
-            }
-          }
         }
         &.show-response {
           .el-dialog__body {
@@ -608,6 +574,7 @@
   import paasDismissMessage from 'assets/components/dismiss-message.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
   export default {
+    mixins: [commonUtils],
     components: {paasServiceSelector, paasDismissMessage},
     created() {
       // 1. page service
@@ -679,11 +646,6 @@
           errMsgForLevel2Name: '',
           errMsgForDomainToAdd: '',
         },
-        bindServiceProps: {
-          showResponse: false,
-          serverResponse: {},
-          bindTipForApp: '绑定成功后5分钟内可使用外网域名访问应用',
-        },
         unBindServiceProps: {
           showResponse: false,
           serverResponse: {}
@@ -700,11 +662,6 @@
           profileId: null,
         },
 
-        // passed to my-version-condition-filter
-        fixedInfoForVersionCondition: {
-          type: 'profile',
-          id: null,
-        },
         // whether bind button is enabled
 //        isProfileSelected: false,
 
@@ -741,7 +698,6 @@
       'props4CreateDomain.profileName': 'onProfileChangeInCreateDomainDialog',
       'profileInfo.id': function (id) {
 //        this.isProfileSelected = id !== this.$storeHelper.PROFILE_ID_FOR_ALL;
-        this.fixedInfoForVersionCondition.id = id;
       },
       '$storeHelper.currentGroupId': function () {
         this.requestDomainList();
@@ -951,14 +907,14 @@
        */
       async handleButtonClick(evt, action) {
         const permission = this.$storeHelper.actionToPermission(action);
-        if (['domain_add','domain_bind_service','domain_unbind_service'].indexOf(permission) > -1 && this.$storeHelper.serverIsPublishing) {
+        if (['domain_add','domain_unbind_service'].indexOf(permission) > -1 && this.$storeHelper.serverIsPublishing) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
         if (this.$storeHelper.actionDisabled(action)) {
           this.$storeHelper.globalPopover.show({
             ref: evt.target,
-            msg: this.$storeHelper.permission[permission].reason
+            msg: this.$storeHelper.reason4ActionDisabled(action)
           });
           return;
         }
@@ -997,15 +953,15 @@
               this.hideWaitingResponse(action);
             }
             break;
-          case 'domain_bind_service':
-            this.bindServiceProps.showResponse = false;
-            if (this.rowsSelected.length == 0) {
-              this.$message.warning('请先选择要操作的域名');
-              return;
-            }
-            this.dialogCustomConfig.appId = this.appInfo.appId;
-            this.dialogCustomConfig.profileId = this.rowsSelected[0]['spaceId'];
-            this.selected.action = 'bind-service';
+          case 'open_dialog_domain_bind_service':
+            this.openDialog(action, {
+              showResponse: false,
+              selected: {
+                appId: this.query.appId,
+                profileId: this.rowsSelected[0]['spaceId']
+              },
+              // passed to my-version-condition-filter
+            });
             break;
           case 'domain_unbind_service':
             if (this.rowsSelected.length == 0) {
@@ -1074,7 +1030,7 @@
        * action in popup dialog on the press of button-ok
        * @param action
        */
-      async handleClickInDialog(action) {
+      async handleDialogEvent(action) {
         let domainIdList = null;
         switch (action) {
           case 'add-domain-in-dialog':
@@ -1121,7 +1077,7 @@
               this.requestDomainList();
             }
             break;
-          case 'bind-service-in-dialog':
+          case 'domain_bind_service':
 //            console.log(this.rowsSelected);
             domainIdList = this.rowsSelected.map(it => {
               return it.id;
@@ -1130,67 +1086,30 @@
               this.$message.error('请选择要操作的域名！');
               return;
             }
-            let refKey = 'service-selector-in-bind-service-dialog';
-            if (!this.$refs.hasOwnProperty(refKey)) {
-              this.$message.error('未找到服务信息！');
-              return;
-            }
-            const {appModel, profileInfo} = this.$refs[refKey].getSelected();
-            if (appModel || profileInfo) {
-              this.$message.error('未找到服务信息！');
-              return;
-            }
-            this.addToWaitingResponseQueue(action);
+            try {
+              const dialogData = this.action.data;
+              const payload = {
+                internetDomainIdList: domainIdList,
+                spaceId: dialogData.selected.profileId,
+                applicationId: dialogData.selected.appId,
+                groupId: this.$storeHelper.currentGroupId,
+                // serviceId: ''
+              };
+              this.action.requesting = true;
+              const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.domain_bind_service, {
+                payload
+              });
+              dialogData.showResponse = true;
+              dialogData.serverResponse = resContent;
+            } catch (err) {
 
-            let options = {
-              internetDomainIdList: domainIdList,
-              spaceId: selectedValue['selectedProfile'].id,
-              applicationId: selectedValue['selectedApp']['appId'],
-              groupId: this.$storeHelper.currentGroupID,
-              // serviceId: ''
-            };
-            // if (selectedValue['selectedService']
-            //   && selectedValue['selectedService'].id !== this.$storeHelper.SERVICE_ID_FOR_ALL) {
-            //   options['serviceId'] = selectedValue['selectedService'].id;
-            // }
-//            console.log(options);
-            this.$net.domainBindService(options).then(content => {
-              let domainIDList = Object.keys(content);
-              for (let key in content) {
-                let target = null;
-                this.currentDomainList.some(it => {
-                  if (it.id == key) {
-                    target = it;
-                  }
-                  return target;
-                });
-                if (target) {
-                  content[target['internetDomain']] = content[key];
-                }
-              }
-              domainIDList.forEach(key => {
-                delete content[key];
-              });
-              this.bindServiceProps.serverResponse = content;
-              this.bindServiceProps.showResponse = true;
-              this.hideWaitingResponse(action);
-            }).catch(msg => {
-              this.$notify({
-                title: '绑定域名失败',
-                message: msg,
-                duration: 0,
-                onClose: function () {
-                }
-              });
-              this.hideWaitingResponse(action);
-            });
-            break;
-          case 'close-bind-service-in-dialog':
-            this.selected.action = null;
-            if (this.bindServiceProps.showResponse) {
-              this.requestDomainList();
-              this.bindServiceProps.showResponse = false;
+            } finally {
+              this.action.requesting = false;
             }
+            break;
+          case 'close_dialog_domain_bind_service':
+            this.closeDialog();
+            this.requestDomainList();
             break;
           case 'unbind-service-in-dialog':
             domainIdList = this.rowsSelected.map(it => {
@@ -1286,11 +1205,6 @@
         }
       },
 
-      handleConditionChangeInDialog(app, profile, service) {
-        if (profile && app) {
-          this.bindServiceProps.bindTipForApp = `所选域名正在绑定"${profile.description}"的"${app.appName}"应用，绑定成功后5分钟内可使用外网域名访问应用`;
-        }
-      },
       handleSuccessCopy(evt) {
         this.$storeHelper.globalTip.show({
           ref: evt.trigger,

@@ -504,6 +504,11 @@ class Net extends NetBase {
         path: '/domain/queryByPage',
         method: 'post'
       },
+      // 绑定服务
+      'domain_bind_service': {
+        path: '/domain/bind',
+        method: 'post'
+      },
 
       /** 日志相关 */
       // 获取部署日志列表
@@ -2145,24 +2150,7 @@ class Net extends NetBase {
       })
     })
   }
-  
-  // 为域名绑定服务
-  domainBindService(options) {
-    return new Promise((resolve, reject) => {
-      axios.post(URL_LIST.domain_bind_service.url, options).then(response => {
-        let content = this.getResponseContent(response);
-        if (content) {
-          resolve(content);
-          this.showLog('domainBindService', content);
-        } else {
-          reject(null);
-        }
-      }).catch(err => {
-        console.log(err);
-        reject('为域名绑定服务失败！');
-      })
-    });
-  }
+
   // 为域名解绑服务
   domainUnBindService(options) {
     return new Promise((resolve, reject) => {
