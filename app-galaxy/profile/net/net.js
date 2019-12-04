@@ -1420,6 +1420,7 @@ class Net extends NetBase {
     });
   }
 
+  /** request appInfoList*/
   async requestAppInfoListOfGroup(groupId) {
     var resData = await this.requestPaasServer(this.URL_LIST.app_list_by_group, {
       payload: {

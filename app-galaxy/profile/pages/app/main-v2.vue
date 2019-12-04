@@ -147,15 +147,15 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="showAppList && totalSize > pageSize">
+      <div class="pagination-container" v-if="showAppList && totalSize > query.pageSize">
         <div class="pagination">
           <el-pagination
-                  :current-page="currentPage"
                   layout="total, sizes, prev, pager, next, jumper"
-                  :page-size = "pageSize"
                   :total="totalSize"
-                  @current-change="page => {currentPage = page}"
+                  :current-page.sync="query.currentPage"
+                  :page-size.sync = "query.pageSize"
           >
+            <!--@current-change="page => {currentPage = page}"-->
           </el-pagination>
         </div>
       </div>
@@ -473,8 +473,10 @@
 
         showAppList: true,
         totalSize: 0,
-        pageSize: 10,
-        currentPage: 1,
+        query: {
+          pageSize: 10,
+          currentPage: 1,
+        },
 
         appList: [],
         appListByPage: [],
@@ -525,17 +527,17 @@
       '$storeHelper.screen.size': 'onScreenSizeChange',
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
       'filterMyApp': function () {
-        this.currentPage = 1;
+        this.query.currentPage = 1;
         this.requestAPPList({});
       },
       'filterKey': function () {
-        this.currentPage = 1;
+        this.query.currentPage = 1;
         this.requestAPPList({});
       },
-      currentPage() {
+      'query.currentPage'() {
         this.requestAPPList({});
       },
-      pageSize() {
+      'query.pageSize'() {
         this.requestAPPList({});
       }
     },
@@ -550,7 +552,6 @@
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
           this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
-          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 10 : 8;
         } catch(err) {
         }
       },
@@ -567,7 +568,7 @@
 
       onAppInfoListOfGroup(appInfoList, oldValue) {
         // go to first page
-        this.currentPage = 1;
+        this.query.currentPage = 1;
         this.getFromStore && this.requestAPPList({});
 
         // get the count of app of current user
@@ -962,10 +963,10 @@
         if (!appName) {
           appName = '';
         }
-        let page = this.currentPage - 1;
+        let page = this.query.currentPage - 1;
         page = page >= 0 ? page : 0;
-        let start = page * this.pageSize;
-        let length = this.pageSize;
+        let start = page * this.query.pageSize;
+        let length = this.query.pageSize;
         if (this.getFromStore) {
           let end = start + length;
           let theAppInfoList = this.appInfoListOfGroup;
