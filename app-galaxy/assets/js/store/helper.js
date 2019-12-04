@@ -245,16 +245,12 @@ export default class StoreHelper extends Common {
       return true;
     }
   }
-  // TODO: fix
-  // action
-  set publishStatus(value) {
-    this.$globalStore.dispatch('setPublishStatus', value);
+  // 后台服务是否正在部署
+  set serverIsPublishing(isPublishing) {
+    this.$globalStore.dispatch('serverIsPublishing', isPublishing);
   }
   // 后台服务是否正在部署
   get serverIsPublishing() {
-    return this.$globalStore.getters['publishStatus'];
-  }
-  get publishStatus() {
-    return this.$globalStore.getters['publishStatus'];
+    return this.$globalStore.getters['serverIsPublishing'];
   }
 }

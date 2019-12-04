@@ -15,6 +15,7 @@ export default new Vuex.Store({
       size: 0,
       ratioHeight: 0
     },
+    serverIsPublishing: false,
   },
   actions: {
     version({dispatch, state, commit}, version) {
@@ -35,6 +36,9 @@ export default new Vuex.Store({
       }
       state.screen.size = width * height;
     },
+    serverIsPublishing({state, commit}, serverIsPublishing) {
+      state.serverIsPublishing = serverIsPublishing;
+    }
   },
   mutations: {
     SET_VERSION(state, version) {
@@ -48,7 +52,7 @@ export default new Vuex.Store({
       state.permission = Object.assign(state.permission, permission);
     },
     CLEAR(state) {
-    }
+    },
   },
 
   getters: {
@@ -58,6 +62,9 @@ export default new Vuex.Store({
     'screen': (state) => {
       return state.screen;
     },
+    'serverIsPublishing': (state) => {
+      return state.serverIsPublishing;
+    }
   },
   modules:{
     user

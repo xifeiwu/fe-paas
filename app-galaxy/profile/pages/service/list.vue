@@ -96,7 +96,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_deploy', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['service_deploy'].disabled || publishStatus? 'disabled' : 'danger'">
+                      :class="$storeHelper.permission['service_deploy'].disabled || $storeHelper.serverIsPublishing? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('deploy') && action.row.appId == scope.row.appId ? '部署中': '部署'}}
               </el-button>
               <div v-if="!isProductionProfile" class="ant-divider"></div>
@@ -127,7 +127,7 @@
                       @click="handleTRClick($event, 'image_rollback', scope.$index, scope.row)"
                       :class="reason4ActionDisabled('image_rollback', scope.row) ||
                       $storeHelper.permission['image_rollback'].disabled ||
-                      publishStatus ? 'disabled' : 'danger'">
+                      $storeHelper.serverIsPublishing ? 'disabled' : 'danger'">
                 {{'回滚'}}
               </el-button>
               <div class="ant-divider" v-if="isProductionProfile"></div>
@@ -145,13 +145,13 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_delete') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_delete', scope.$index, scope.row)"
-                      :class="$storeHelper.permission['service_delete'].disabled || publishStatus? 'disabled' : 'danger'">
+                      :class="$storeHelper.permission['service_delete'].disabled || $storeHelper.serverIsPublishinglishStatus? 'disabled' : 'danger'">
                 删除
               </el-button>
               <div class="ant-divider"></div>
               <el-button
                       type="text"
-                      :class="['flex', $storeHelper.permission['service_update'].disabled || publishStatus ? 'disabled' : 'primary']"
+                      :class="['flex', $storeHelper.permission['service_update'].disabled || $storeHelper.serverIsPublishing ? 'disabled' : 'primary']"
                       @click="handleTRClick($event, 'service_update', scope.$index, scope.row)">
                 <span>修改配置</span><i class="paas-icon-level-up"></i>
               </el-button>
@@ -160,7 +160,7 @@
                       size="small"
                       type="text"
                       @click="handleTRClick($event, 'service_config_copy', scope.$index, scope.row)"
-                      :class="[$storeHelper.permission['copy-service'].disabled || publishStatus? 'disabled' : '', 'flex']">
+                      :class="[$storeHelper.permission['copy-service'].disabled || $storeHelper.serverIsPublishing? 'disabled' : '', 'flex']">
                 <span>复制服务</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled"></div>
@@ -226,7 +226,7 @@
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'update_toleration', scope.$index, scope.row)"
-                         :class="$storeHelper.permission['get_affinity'].disabled || publishStatus? 'disabled' : 'danger'">
+                         :class="$storeHelper.permission['get_affinity'].disabled || $storeHelper.serverIsPublishing? 'disabled' : 'danger'">
                 <span>容忍配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.permission['get_affinity'].disabled && false"></div>
@@ -243,7 +243,7 @@
                     size="small"
                     type="text"
                     :loading="statusOfWaitingResponse('service_config_add') && action.row.appId == scope.row.appId"
-                    :class="[$storeHelper.permission['service_create'].disabled || publishStatus? 'disabled' : 'warning','flex']"
+                    :class="[$storeHelper.permission['service_create'].disabled || $storeHelper.serverIsPublishing? 'disabled' : 'warning','flex']"
                     @click="handleTRClick($event, 'service_config_add', scope.$index, scope.row)">
               <span>创建服务</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -981,9 +981,6 @@ tolerations:
 //      ...mapGetters('user', {
 //        'userConfig': 'config'
 //      }),
-      publishStatus() {
-        return this.$store.getters['publishStatus'];
-      }
     },
     watch: {
       '$storeHelper.currentGroupID': function (value, oldValue) {
@@ -1904,7 +1901,7 @@ tolerations:
         let dialogData = null;
         var permission = action;
         if (['service_config_add','service_config_copy','service_delete', 'service_deploy', 'image_rollback',
-            'service_config_modify','service_update'].indexOf(action) > -1 && this.publishStatus) {
+            'service_config_modify','service_update'].indexOf(action) > -1 && this.$storeHelper.serverIsPublishing) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }

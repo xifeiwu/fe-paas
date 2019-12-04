@@ -25,20 +25,20 @@
         <el-button
                 size="mini"
                 type="primary"
-                :class="{'disabled': $storeHelper.actionDisabled('domain_add_open_dialog') || publishStatus}"
+                :class="{'disabled': $storeHelper.actionDisabled('domain_add_open_dialog') || $storeHelper.serverIsPublishing}"
                 :loading="statusOfWaitingResponse('domain_add_open_dialog')"
                 @click="handleButtonClick($event, 'domain_add_open_dialog')"
         >申请外网二级域名</el-button>
         <el-button
                 size="mini"
                 type="warning"
-                :class="{'disabled': $storeHelper.permission['domain_bind_service'].disabled || publishStatus}"
+                :class="{'disabled': $storeHelper.permission['domain_bind_service'].disabled || $storeHelper.serverIsPublishing}"
                 @click="handleButtonClick($event, 'domain_bind_service')"
         >绑定服务</el-button>
         <el-button
                 size="mini"
                 type="warning"
-                :class="{'disabled': $storeHelper.permission['domain_unbind_service'].disabled || publishStatus}"
+                :class="{'disabled': $storeHelper.permission['domain_unbind_service'].disabled || $storeHelper.serverIsPublishing}"
                 @click="handleButtonClick($event, 'domain_unbind_service')"
         >解绑服务</el-button>
         <i style="font-size:12px; line-height: 24px; margin: 0px 3px;" class="paas-icon-question"
@@ -115,21 +115,21 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['domain_secure_check'].disabled || publishStatus? 'disabled' : 'warning'"
+                    :class="$storeHelper.permission['domain_secure_check'].disabled || $storeHelper.serverIsPublishing? 'disabled' : 'warning'"
                     @click="handleRowButtonClick($event, 'domain_secure_check', scope.$index, scope.row)">
               安全审核
             </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="$storeHelper.permission['domain_remove'].disabled || publishStatus? 'disabled' : 'danger'"
+                    :class="$storeHelper.permission['domain_remove'].disabled || $storeHelper.serverIsPublishing? 'disabled' : 'danger'"
                     :loading="statusOfWaitingResponse('domain_remove') && selected.row.id === scope.row.id"
                     @click="handleRowButtonClick($event, 'domain_remove', scope.$index, scope.row)">删除
             </el-button>
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="['flex', $storeHelper.permission['domain_bind_white_list'].disabled || publishStatus? 'disabled' : 'primary']"
+                    :class="['flex', $storeHelper.permission['domain_bind_white_list'].disabled || $storeHelper.serverIsPublishing? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'domain_bind_white_list', scope.$index, scope.row)">
               <span>关联IP白名单</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -736,9 +736,6 @@
       }
     },
     computed: {
-      publishStatus() {
-        return this.$store.getters['publishStatus'];
-      }
     },
     watch: {
       'props4CreateDomain.profileName': 'onProfileChangeInCreateDomainDialog',
@@ -874,7 +871,7 @@
 
       // handle the button in operation column of table
       handleRowButtonClick(evt, action, index, row) {
-        if (this.publishStatus && ["domain_secure_check","domain_remove","domain_bind_white_list"].indexOf(action) > -1) {
+        if (this.$storeHelper.serverIsPublishing && ["domain_secure_check","domain_remove","domain_bind_white_list"].indexOf(action) > -1) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
@@ -954,7 +951,7 @@
        */
       async handleButtonClick(evt, action) {
         const permission = this.$storeHelper.actionToPermission(action);
-        if (['domain_add','domain_bind_service','domain_unbind_service'].indexOf(permission) > -1 && this.publishStatus) {
+        if (['domain_add','domain_bind_service','domain_unbind_service'].indexOf(permission) > -1 && this.$storeHelper.serverIsPublishing) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }

@@ -12,7 +12,7 @@
                    @click="handleButtonClick($event, 'refresh')">刷新</el-button>
         <el-button size="mini"
                    type="primary"
-                   :class="{'disabled': $storeHelper.permission['instance_change_count'].disabled || publishStatus}"
+                   :class="{'disabled': $storeHelper.permission['instance_change_count'].disabled || $storeHelper.serverIsPublishing}"
                    @click="handleButtonClick($event, 'instance_change_count')">手动伸缩</el-button>
       </div>
       <div class="item instance-count">
@@ -145,7 +145,7 @@
             <el-button
                     type="text"
                     v-if="true"
-                    :class="['flex', $storeHelper.permission['instance_replace'].disabled || isMesosService || publishStatus? 'disabled' : 'primary']"
+                    :class="['flex', $storeHelper.permission['instance_replace'].disabled || isMesosService || $storeHelper.serverIsPublishing? 'disabled' : 'primary']"
                     @click="handleRowButtonClick($event, 'instance_replace', scope.$index, scope.row)"
                     >
               <span>驱逐</span>
@@ -446,9 +446,6 @@
       isProductionProfile() {
         return this.$storeHelper.isProductionProfile(this.profileInfo.id);
       },
-      publishStatus() {
-        return this.$store.getters['publishStatus'];
-      }
     },
     data() {
       return {
@@ -647,7 +644,7 @@
       },
 
       handleButtonClick(evt, action) {
-        if (action == 'instance_change_count' && this.publishStatus) {
+        if (action == 'instance_change_count' && this.$storeHelper.serverIsPublishing) {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }
@@ -786,7 +783,7 @@
         if (action === 'go-to-page-instance-terminal-from-instance') {
           permission = 'go-to-page-terminal-from-instance';
         }
-        if (this.publishStatus && permission == "instance_replace") {
+        if (this.$storeHelper.serverIsPublishing && permission == "instance_replace") {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }

@@ -20,8 +20,7 @@ export default new Vuex.Store({
     toasts: [],        // toasts,
     config: {
       collapseMenu: false
-    },
-    publishStatus: false,
+    }
   },
   mutations: {
     toastPush(state, payload) {
@@ -41,9 +40,6 @@ export default new Vuex.Store({
     },
     CLEAR(state) {
     },
-    SET_PUBLISH_STATUS(state, status) {
-      state.publishStatus = status;
-    }
   },
   actions: {
     toastPush({ commit }, payload) {
@@ -60,9 +56,6 @@ export default new Vuex.Store({
       dispatch('user/clear');
       commit('CLEAR');
     },
-    setPublishStatus({commit}, publishStatus) {
-      commit('SET_PUBLISH_STATUS', publishStatus);
-    }
   },
 
   getters: {
@@ -78,9 +71,6 @@ export default new Vuex.Store({
       } else {
         return 190;
       }
-    },
-    'publishStatus': (state) => {
-      return state.publishStatus;
     }
   },
 

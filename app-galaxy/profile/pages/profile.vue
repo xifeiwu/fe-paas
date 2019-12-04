@@ -774,7 +774,7 @@
       //这个方法是用来确认是否正在发布的，对于正在发布的，禁用创建服务，复制服务，删除服务，创建公网域名，绑定，解除绑定公网域名。禁用所有环境的服务的部署，重启，实例动态伸缩。
       async getPublishStatus() {
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.publish_status);
-        this.$storeHelper.publishStatus = resContent && resContent == 'true' ? true : false;
+        this.$storeHelper.serverIsPublishing = resContent && resContent == 'true' ? true : false;
       },
 
       handleReadMessage(messageId) {

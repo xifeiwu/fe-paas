@@ -136,7 +136,7 @@
             <div class="ant-divider"></div>
             <el-button
               type="text"
-              :class="['flex', publishStatus ? 'disabled' : 'primary']"
+              :class="['flex', $storeHelper.serverIsPublishing ? 'disabled' : 'primary']"
               @click="handleTRClick($event, 'go-to-page-pipeline-records', scope.$index, scope.row)">
               <span>执行</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -370,9 +370,6 @@
       ...mapGetters('user', {
         'appInfoListOfGroup': 'appInfoListOfGroup'
       }),
-      publishStatus() {
-        return this.$store.getters['publishStatus'];
-      }
     },
     watch: {
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
@@ -594,7 +591,7 @@
       },
 
       async handleTRClick(evt, action, index, row) {
-        if (this.publishStatus && action == "go-to-page-pipeline-records") {
+        if (this.$storeHelper.serverIsPublishing && action == "go-to-page-pipeline-records") {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }

@@ -76,7 +76,7 @@
             <el-button
                     type="text"
                     v-if="scope.row.status!=='WORKORDER_APPLY'"
-                    :class="publishStatus && scope.row.status == 'DEPLOYING'? 'disabled' : 'warning'"
+                    :class="$storeHelper.serverIsPublishing && scope.row.status == 'DEPLOYING'? 'disabled' : 'warning'"
                     :loading="statusOfWaitingResponse(scope.row.status) && operation.rowID == scope.row.id"
                     @click="handleTRButton($event,scope.row.status, scope.$index, scope.row)">{{getStatusName(scope.row.status)}}</el-button>
             <el-button
@@ -413,9 +413,6 @@
         let end = start + length;
         let result = this.workOrderList.slice(start, end);
         return result
-      },
-      publishStatus() {
-        return this.$store.getters['publishStatus'];
       }
     },
     methods: {
@@ -489,7 +486,7 @@
         return name;
       },
       async handleTRButton(evt,action, index, row) {
-        if (this.publishStatus && action == "DEPLOYING") {
+        if (this.$storeHelper.serverIsPublishing && action == "DEPLOYING") {
           this.$storeHelper.popoverWhenPublish(evt.target);
           return;
         }

@@ -35,7 +35,7 @@
             <el-button
                     type="text"
                     style="font-size: 14px;"
-                    :class="[$storeHelper.permission['work-order_deploy_service'].disabled || publishStatus? 'disabled' : 'warning']"
+                    :class="[$storeHelper.permission['work-order_deploy_service'].disabled || $storeHelper.serverIsPublishing? 'disabled' : 'warning']"
                     @click="handleClick($event, 'work-order_deploy_service', scope.$index, scope.row)"
             >{{scope.row.hasCanary ? '灰度部署':'部署'}}</el-button>
             <i class="el-icon-question" v-if="scope.row.hasCanary" style="color: #E6A23C;"
@@ -210,9 +210,6 @@
     mounted() {
     },
     computed: {
-      publishStatus() {
-        return this.$store.getters['publishStatus'];
-      }
     },
     props: {
       workOrderDetail: Object,
