@@ -58,17 +58,11 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         pathRewrite: path => path.replace('\/j-api\/paas', ''),
       },
       '/n-api/assist': {
-        target: 'http://10.10.80.242:6002',
+        target: 'http://10.10.201.137:6003',
         changeOrigin: true,
         logLevel: 'debug',
         pathRewrite: path => path.replace('\/n-api\/assist', ''),
-      },
-      '/n-api/': {
-        target: 'http://127.0.0.1:6003',
-        changeOrigin: true,
-        logLevel: 'debug',
-        pathRewrite: path => path.replace('\/n-api', ''),
-      },
+      }
     },
     quiet: true, // necessary for FriendlyErrorsPlugin
     watchOptions: {
