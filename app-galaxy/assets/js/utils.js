@@ -522,4 +522,8 @@ export default class Utils extends BaseUtils {
     }
     return result;
   }
+
+  getRegFromStr(str) {
+    return new RegExp(str);
+  }
 }

@@ -147,13 +147,14 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="showAppList && totalSize > query.pageSize">
+      <div class="pagination-container" v-if="status.showPagination">
         <div class="pagination">
           <el-pagination
                   layout="total, sizes, prev, pager, next, jumper"
                   :total="totalSize"
                   :current-page.sync="query.currentPage"
                   :page-size.sync = "query.pageSize"
+                  :page-sizes="[10, 15, 20, 30]"
           >
             <!--@current-change="page => {currentPage = page}"-->
           </el-pagination>
@@ -477,15 +478,17 @@
           pageSize: 10,
           currentPage: 1,
         },
+        // save status of page
+        status: {
+          showPagination: true
+        },
 
         appList: [],
         appListByPage: [],
         appModelList: [],
         appModelListByPage: [],
-        showPagination: false,
         rules: AppPropUtils.rules,
 
-        getFromStore: true,
         selected: {
           prop: null,
           row: null,
@@ -514,31 +517,28 @@
     computed: {
       ...mapGetters('user', {
         'appInfoListOfGroup': 'appInfoListOfGroup',
-        'userConfig': 'config'
       }),
-      needFilter() {
-        return this.filterMyApp || (this.filterKey.length > 0);
-      },
     },
     watch: {
-      '$storeHelper.currentGroupID': function (value, oldValue) {
-        this.requestAPPList({});
+      '$storeHelper.currentGroupId'() {
+        this.updateListByPage();
       },
       '$storeHelper.screen.size': 'onScreenSizeChange',
+      'status.showPagination': 'onScreenSizeChange',
       'appInfoListOfGroup': 'onAppInfoListOfGroup',
       'filterMyApp': function () {
         this.query.currentPage = 1;
-        this.requestAPPList({});
+        this.updateListByPage();
       },
       'filterKey': function () {
         this.query.currentPage = 1;
-        this.requestAPPList({});
+        this.updateListByPage();
       },
       'query.currentPage'() {
-        this.requestAPPList({});
+        this.updateListByPage();
       },
       'query.pageSize'() {
-        this.requestAPPList({});
+        this.updateListByPage();
       }
     },
     methods: {
@@ -551,37 +551,15 @@
           // if this.showAppList == false, headerNode will not exist
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
-          this.heightOfTable = this.$el.clientHeight - headerHeight - 18;
+          this.heightOfTable = this.$el.clientHeight - headerHeight - (this.status.showPagination ? 26 : 0);
         } catch(err) {
-        }
-      },
-
-      // change value of showAppList
-      onAppListChange() {
-        // whether show page appList or createApp
-        if (this.appInfoListOfGroup.appList && this.appInfoListOfGroup.appList.length === 0) {
-          this.showAppList = false;
-        } else {
-          this.showAppList = true;
         }
       },
 
       onAppInfoListOfGroup(appInfoList, oldValue) {
         // go to first page
         this.query.currentPage = 1;
-        this.getFromStore && this.requestAPPList({});
-
-        // get the count of app of current user
-        let count = 0;
-        const myUserName = this.$storeHelper.getUserInfo('userName');
-        appInfoList['appList'].forEach(it => {
-          if (it.userName == myUserName) {
-            count += 1;
-          }
-        });
-        this.myAppCount = count;
-
-        this.onAppListChange();
+        this.updateListByPage();
       },
       handleButtonClick(evt, action) {
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
@@ -665,16 +643,15 @@
               });
               this.hideWaitingResponse(action);
               this.$storeHelper.deleteAppInfoByID(row.appId);
-              this.onAppListChange();
               this.$message({
                 type: 'success',
                 message: '删除成功!'
               });
-              this.requestAPPList({});
             } catch(err) {
               this.hideWaitingResponse(action);
+            } finally {
+              this.updateListByPage();
             }
-            this.onAppListChange();
             break;
           case 'app_show_profile':
             var target = evt.target;
@@ -907,108 +884,65 @@
       },
 
       /**
-       * filter appInfoList by myApp and Keys
-       */
-      filterAppInfoList() {
-        let filteredAppInfo = {
-          appList: [],
-          appModelList: [],
-          total: 0
-        };
-        let myUserName = this.$storeHelper.getUserInfo('userName');
-        let filterReg = null;
-        if (this.filterKey) {
-          filterReg = new RegExp(this.filterKey);
-        }
-//        console.log(this.filterMyApp);
-//        console.log(this.filterKey);
-        let checkItem = function (item) {
-          let isOK = true;
-          if (!item.hasOwnProperty('userName') || !item.hasOwnProperty('appName')) {
-            isOK = false;
-          }
-          if (isOK && this.filterMyApp) {
-            if (item.userName !== myUserName) {
-              isOK = false;
-            }
-          }
-          if (isOK && filterReg) {
-            if (!filterReg.test(item.appName)) {
-              isOK = false;
-            }
-          }
-          return isOK;
-        };
-        this.appInfoListOfGroup.appList.forEach((it, index) => {
-          if (checkItem.call(this, it)) {
-            filteredAppInfo.appList.push(it);
-            filteredAppInfo.appModelList.push(this.appInfoListOfGroup.appModelList[index]);
-          }
-        });
-        filteredAppInfo.total = filteredAppInfo.appList.length;
-        return filteredAppInfo;
-      },
-
-      /**
        * the place of request appList:
        * 1. at beginning of this page
        * 2. at the change of page in Pagination
        * 3. at the change of groupID
-       * 4. at the change of appInfoListOfGroup, if this.getFromStore is true
+       * 4. at the change of appInfoListOfGroup
        * 5. operation of app: delete app. [change profile]
        * 6. at the change of filterMyApp or filterKey
        * @param appName
        */
-      requestAPPList({appName}) {
-        if (!appName) {
-          appName = '';
+      updateListByPage() {
+        this.showAppList = true;
+        // whether show page appList or createApp
+        if (this.appInfoListOfGroup.appModelList && this.appInfoListOfGroup.appModelList.length === 0) {
+          this.showAppList = false;
         }
-        let page = this.query.currentPage - 1;
-        page = page >= 0 ? page : 0;
-        let start = page * this.query.pageSize;
-        let length = this.query.pageSize;
-        if (this.getFromStore) {
-          let end = start + length;
-          let theAppInfoList = this.appInfoListOfGroup;
-          if (this.needFilter) {
-            theAppInfoList = this.filterAppInfoList();
-          }
-          if (!theAppInfoList) {
-            return;
-          }
-          const filteredAppInfo = {
-            'appList': theAppInfoList.appList.slice(start, end),
-            'appModelList': theAppInfoList.appModelList.slice(start, end),
-            'total': theAppInfoList.total
-          };
-          this.updateAppInfoModel(filteredAppInfo);
-        } else {
+
+        const userName = this.$storeHelper.getUserInfo('userName');
+        var regFilter = null;
+        if (this.filterKey) {
+          regFilter = this.$utils.getRegFromStr(this.filterKey);
         }
-      },
-      /**
-       * assign value of appListByPage, appModelListByPage, totalSize from appInfoList
-       * @param appInfoList
-       * @param slice, whether appList and appModelList should be sliced
-       */
-      updateAppInfoModel(appInfoListByPage) {
-        this.appListByPage = [];
-        this.appModelListByPage = [];
-        this.totalSize = 0;
-        if (!appInfoListByPage) {
+        const filtered = {
+          appList: [],
+          appModelList: [],
+          total: 0
+        };
+        filtered.appModelList = this.appInfoListOfGroup.appModelList
+          .filter(it => !this.filterMyApp ||  it.userName == 'userName')
+          .filter(it => !regFilter || regFilter.test(it.appName));
+        filtered.appList = this.appInfoListOfGroup.appList
+          .filter(it => !this.filterMyApp ||  it.userName == 'userName')
+          .filter(it => !regFilter || regFilter.test(it.appName));
+        filtered.total = filtered.appModelList.length;
+        this.myAppCount = 0;
+        filtered.appModelList.forEach(it => {
+          if (it.userName = userName) {
+            this.myAppCount++;
+          }
+        });
+
+        if (!this.$utils.isNumber(parseInt(this.query.currentPage))) {
+          this.query.currentPage = 1;
           return;
         }
-        if (appInfoListByPage.hasOwnProperty('appList')) {
-          this.appListByPage = appInfoListByPage.appList;
+        const maxPageSize = Math.ceil(filtered.total / this.query.pageSize);
+        if (maxPageSize >= 1 && this.query.currentPage > maxPageSize) {
+          this.query.currentPage = maxPageSize;
         }
-        if (appInfoListByPage.hasOwnProperty('appModelList')) {
-          this.appModelListByPage = appInfoListByPage.appModelList;
-        }
-        if (appInfoListByPage.hasOwnProperty('total')) {
-          this.totalSize = appInfoListByPage.total;
-          if (this.totalSize > 0) {
-            this.showPagination = true;
-          }
-        }
+        var page = this.query.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.query.pageSize;
+        const length = this.query.pageSize;
+        const end = start + length;
+
+        this.appListByPage = filtered.appList.slice(start, end);
+        this.appModelListByPage = filtered.appModelList.slice(start, end);
+        this.totalSize = filtered.total;
+
+        this.status.showPagination = this.showAppList && this.totalSize > 10;
       },
 
       warningConfirm(content) {
