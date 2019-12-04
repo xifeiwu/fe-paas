@@ -23,7 +23,7 @@
       <el-button class="item button create"
               size="mini"
               type="primary"
-              :class="{'disabled': $storeHelper.reason4ActionDisabled('open_dialog_oauth_access_key_create')}"
+              :class="{'disabled': $storeHelper.actionDisabled('open_dialog_oauth_access_key_create')}"
               :loading="statusOfWaitingResponse('open_dialog_oauth_access_key_create')"
               @click="handleButtonClick($event, 'open_dialog_oauth_access_key_create')">
         创建ClientId
@@ -143,7 +143,7 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="$storeHelper.reason4ActionDisabled('open_dialog_oauth_access_key_and_config_update') ? 'disabled' : 'warning'"
+                    :class="$storeHelper.actionDisabled('open_dialog_oauth_access_key_and_config_update') ? 'disabled' : 'warning'"
                     :loading="statusOfWaitingResponse('open_dialog_oauth_access_key_and_config_update') && selected.row.id === scope.row.id"
                     @click="handleTRClick($event, 'open_dialog_oauth_access_key_and_config_update', scope.$index, scope.row)">
               修改访问配置
@@ -159,7 +159,7 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="[$storeHelper.reason4ActionDisabled('open_dialog_oauth_secret_change') ? 'disabled' : 'warning']"
+                    :class="[$storeHelper.actionDisabled('open_dialog_oauth_secret_change') ? 'disabled' : 'warning']"
                     :loading="statusOfWaitingResponse('open_dialog_oauth_secret_change') && selected.row.id === scope.row.id"
                     @click="handleTRClick($event, 'open_dialog_oauth_secret_change', scope.$index, scope.row)">修改秘钥
             </el-button>

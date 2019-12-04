@@ -232,7 +232,7 @@ export default class StoreHelper extends Common {
       return ['get_affinity', 'update_affinity'].includes(permission);
     };
     const permission = this.actionToPermission(action);
-    var reason = false;
+    var reason = '';
     if (!permission || !this.permission[permission]) {
       return reason;
     }
@@ -245,7 +245,7 @@ export default class StoreHelper extends Common {
   }
   actionDisabled(action) {
     const reason = this.reason4ActionDisabled(action);
-    if (reason === false) {
+    if (reason === '') {
       return false;
     } else {
       return true;

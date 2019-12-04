@@ -106,7 +106,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_deploy_canary') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_deploy_canary', scope.$index, scope.row)"
-                      :class="['flex', reason4ActionDisabled('service_deploy_canary', scope.row)? 'disabled' : 'warning']">
+                      :class="['flex', actionDisabled('service_deploy_canary', scope.row)? 'disabled' : 'warning']">
                 <span>{{'灰度发布'}}</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div v-if="isProductionProfile" class="ant-divider"></div>
@@ -115,7 +115,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_quick_deploy') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_quick_deploy', scope.$index, scope.row)"
-                      :class="reason4ActionDisabled('service_quick_deploy', scope.row)? 'disabled' : 'danger'">
+                      :class="actionDisabled('service_quick_deploy', scope.row)? 'disabled' : 'danger'">
                     {{statusOfWaitingResponse('service_quick_deploy') && action.row.appId == scope.row.appId ? '重启中': '重启'}}
               </el-button>
               <div class="ant-divider"></div>
@@ -125,7 +125,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('image_rollback') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'image_rollback', scope.$index, scope.row)"
-                      :class="reason4ActionDisabled('image_rollback', scope.row) ||
+                      :class="actionDisabled('image_rollback', scope.row) ||
                       $storeHelper.permission['image_rollback'].disabled ||
                       $storeHelper.serverIsPublishing ? 'disabled' : 'danger'">
                 {{'回滚'}}
@@ -136,7 +136,7 @@
                       type="text"
                       :loading="statusOfWaitingResponse('service_stop') && action.row.appId == scope.row.appId"
                       @click="handleTRClick($event, 'service_stop', scope.$index, scope.row)"
-                      :class="reason4ActionDisabled('service_stop', scope.row)? 'disabled' : 'danger'">
+                      :class="actionDisabled('service_stop', scope.row)? 'disabled' : 'danger'">
                 停止
               </el-button>
               <div class="ant-divider"></div>
@@ -218,7 +218,7 @@
                          size="small"
                          type="text"
                          @click="handleTRClick($event, 'open_dialog_update_pod_spec', scope.$index, scope.row)"
-                         :class="reason4ActionDisabled('open_dialog_update_pod_spec', scope.row)? 'disabled' : 'danger'">
+                         :class="actionDisabled('open_dialog_update_pod_spec', scope.row)? 'disabled' : 'danger'">
                 <span>PodSpec配置</span>
               </el-button>
               <div class="ant-divider" v-if="!$storeHelper.actionDisabled('get_affinity')"></div>
