@@ -501,7 +501,7 @@ export default class Utils extends BaseUtils {
       result = [];
     }
     const assignValue = (val, key) => {
-      if (this.isDate(val) || this.isRegExp(val) || null == val) {
+      if (this.isDate(val) || this.isRegExp(val) || this.isFormData(val) || this.isFunction(val) || null == val) {
         result[key] = val;
       } else if (Array.isArray(val)) {
         // override if origin is Array

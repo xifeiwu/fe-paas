@@ -11,13 +11,16 @@
     </div>
     <div class="status">
       <div class="chart">
-        <apxe-chart type=bar height=350 :options="chartBarCommon" :series="status.general_instance_count.series" v-if="chartBarCommon.ready"></apxe-chart>
+        <div class="title">{{status['general_instance_count'].title}}</div>
+        <apxe-chart type=bar height=300 :options="status['general_instance_count'].chartOptions" :series="status.general_instance_count.series" v-if="chartBarCommon.ready"></apxe-chart>
       </div>
       <div class="chart">
-        <apxe-chart type=bar height=350 :options="chartBarCommon" :series="status.general_cpu_count.series" v-if="chartBarCommon.ready"></apxe-chart>
+        <div class="title">{{status['general_cpu_count'].title}}</div>
+        <apxe-chart type=bar height=300 :options="status['general_cpu_count'].chartOptions" :series="status.general_cpu_count.series" v-if="chartBarCommon.ready"></apxe-chart>
       </div>
       <div class="chart">
-        <apxe-chart type=bar height=350 :options="chartBarCommon" :series="status.general_memory_size.series" v-if="chartBarCommon.ready"></apxe-chart>
+        <div class="title">{{status['general_memory_size'].title}}</div>
+        <apxe-chart type=bar height=300 :options="status['general_memory_size'].chartOptions" :series="status.general_memory_size.series" v-if="chartBarCommon.ready"></apxe-chart>
       </div>
     </div>
   </div>
@@ -25,10 +28,19 @@
 <style lang="scss" scoped>
   #general {
     .status {
+      display: flex;
+      flex-wrap: wrap;
       .chart {
+        .title {
+          font-size: 14px;
+          font-weight: bold;
+          text-align: center;
+        }
         display: inline-block;
-        background-color: white;
-        width: 600px;
+        padding-right: 20px;
+        width: 50%;
+        max-width: 400px;
+        /*background-color: white;*/
       }
     }
   }
@@ -37,6 +49,53 @@
   import apexCharts from 'vue-apexcharts';
   import commonUtils from 'assets/components/mixins/common-utils';
 
+  const CONSTANT = {
+    general_instance_count: {
+      title: '实例数',
+        chartOptions: {
+        yaxis: {
+          title: {
+            text: '（单位：个）',
+          },
+          labels: {
+            formatter: function(val, index) {
+              return parseInt(val);
+            }
+          }
+        }
+      }
+    },
+    general_cpu_count: {
+      title: 'CPU使用数',
+        chartOptions: {
+        yaxis: {
+          title: {
+            text: '（单位：个）',
+          },
+          labels: {
+            formatter: function(val, index) {
+              return parseInt(val);
+            }
+          }
+        }
+      }
+    },
+    general_memory_size: {
+      title: '内存使用量',
+        chartOptions: {
+        yaxis: {
+          title: {
+            text: '（单位：KB）',
+          },
+          labels: {
+            formatter: function(val, index) {
+              return parseInt(parseInt(val) / 1024);
+            }
+          }
+        }
+      }
+    }
+  };
   export default {
     mixins: [commonUtils],
     components: {
@@ -54,32 +113,33 @@
         instanceCount: 0,
         cpuCount: 0,
         memorySize: 0,
-//        series: [{
-////          data: [21, 22, 10, 28, 16, 21, 13, 30]
-////          data: [21, 22, 10, 28, 16]
-//          data: []
-//        }],
         status: {
           general_instance_count: {
+            title: '',
             timestamp: 0,
             series: [{
               name: '实例数',
               data: []
-            }]
+            }],
+            chartOptions: {}
           },
           general_cpu_count: {
+            title: '',
             timestamp: 0,
             series: [{
               name: 'cpu核数',
               data: []
-            }]
+            }],
+            chartOptions: {}
           },
           general_memory_size: {
+            title: '',
             timestamp: 0,
             series: [{
               name: '内存大小',
               data: []
-            }]
+            }],
+            chartOptions: {}
           },
         },
         chartBarCommon: {
@@ -112,39 +172,16 @@
                 fontSize: '14px'
               }
             }
+          },
+          yaxis: {
+            title: {
+              style: {
+                fontSize: '12px',
+                fontWeight: 'bold'
+              }
+            }
           }
         },
-
-//        chartOptions: {
-//          chart: {
-//            height: 320,
-//            type: 'bar',
-//            events: {
-//              click: function (chart, w, e) {
-//                console.log(chart, w, e)
-//              }
-//            },
-//          },
-//          colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'],
-//          plotOptions: {
-//            bar: {
-//              columnWidth: '45%',
-//              distributed: true
-//            }
-//          },
-//          dataLabels: {
-//            enabled: false,
-//          },
-//          xaxis: {
-//            categories: ['John', 'Joe', 'Jake', 'Amber', 'Peter', 'Mary', 'David', 'Lily'],
-//            labels: {
-//              style: {
-//                colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'],
-//                fontSize: '14px'
-//              }
-//            }
-//          }
-//        }
       }
     },
     watch: {
@@ -161,6 +198,10 @@
         chartBarCommon.xaxis.labels.style.colors = colors;
         chartBarCommon.ready = true;
 
+        // update chartOptions for each chart
+        ['general_instance_count', 'general_cpu_count', 'general_memory_size'].forEach(key => {
+          this.status[key].chartOptions = this.$utils.deepMerge(this.chartBarCommon, CONSTANT[key].chartOptions);
+        });
         // status request should after profileListOfGroup is get
         this.requestStatusAll();
       },
@@ -200,6 +241,7 @@
           console.log(`Error: data format is not ok! not sameTimeStamp`);
           return;
         }
+        this.status[type].title = `${CONSTANT[type].title}（${this.$utils.formatDate(timestamp, 'yyyy-MM-dd hh:mm:ss')}）`;
         this.status[type].timestamp = timestamp;
         this.status[type].series[0].data = valueList.map(it => it[1]);
       },
