@@ -12,15 +12,15 @@
     <div class="status">
       <div class="chart">
         <div class="title">{{status['general_instance_count'].title}}</div>
-        <apxe-chart type=bar height=300 :options="status['general_instance_count'].chartOptions" :series="status.general_instance_count.series" v-if="chartBarCommon.ready"></apxe-chart>
+        <apxe-chart type=bar height=300 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
       </div>
       <div class="chart">
         <div class="title">{{status['general_cpu_count'].title}}</div>
-        <apxe-chart type=bar height=300 :options="status['general_cpu_count'].chartOptions" :series="status.general_cpu_count.series" v-if="chartBarCommon.ready"></apxe-chart>
+        <apxe-chart type=bar height=300 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
       </div>
       <div class="chart">
         <div class="title">{{status['general_memory_size'].title}}</div>
-        <apxe-chart type=bar height=300 :options="status['general_memory_size'].chartOptions" :series="status.general_memory_size.series" v-if="chartBarCommon.ready"></apxe-chart>
+        <apxe-chart type=bar height=300 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="chartBarCommon.ready"></apxe-chart>
       </div>
     </div>
   </div>
@@ -89,7 +89,7 @@
           },
           labels: {
             formatter: function(val, index) {
-              return parseInt(parseInt(val) / 1024);
+              return `${parseInt(parseInt(val) / 1024)}KB`;
             }
           }
         }
@@ -243,7 +243,12 @@
         }
         this.status[type].title = `${CONSTANT[type].title}（${this.$utils.formatDate(timestamp, 'yyyy-MM-dd hh:mm:ss')}）`;
         this.status[type].timestamp = timestamp;
-        this.status[type].series[0].data = valueList.map(it => it[1]);
+        this.status[type].series = [{
+          name: CONSTANT[type].title,
+          data: valueList.map(it => it[1])
+        }];
+        // 确保series发生改变才能触发重绘
+        // this.status[type].series[0].data = valueList.map(it => it[1]);
       },
       handleButtonClick(evt, action) {
         switch (action) {
