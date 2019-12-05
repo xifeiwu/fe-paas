@@ -186,7 +186,7 @@
         <el-form-item labelWidth="0px" class="message-show">
           <span style="font-weight: bold">请选择相关服务：</span>
         </el-form-item>
-        <el-form-item labelWidth="0px" :error="action.data.errMsg">
+        <el-form-item labelWidth="0px">
           <paas-service-selector
                   ref="service-selector-for-gateway-create"
                   :addItemAll="{app: false, profile: false}"
@@ -652,11 +652,16 @@
         switch (action) {
           case 'gateway_create':
             try {
-              // const {appModel, profileInfo} = this.$refs['service-selector-for-gateway-create'].getSelected();
-              // const serviceModel = await this.$net.getServiceByAppIdAndSpaceId(appModel.appId, profileInfo.id);
+              await this.$net.requestPaasServer(this.$net.URL_LIST.service_is_running, {
+                data: {
+                  groupId: this.$storeHelper.currentGroupId,
+                  appId: this.action.data.serviceSelected.appId,
+                  spaceId: this.action.data.serviceSelected.profileId,
+                }
+              });
               this.action.promise.resolve(this.action.data);
             } catch (err) {
-              this.action.data.errMsg = err.message;
+              this.$message.warning(`${err.message}`);
             } finally {
             }
             break;
@@ -918,7 +923,6 @@
                   appId: this.query.appId,
                   profileId: this.query.profileId
                 },
-                errMsg: ''
               });
               this.$router.push({
                 path: this.$router.helper.pages['/profile/gateway/add'].fullPath,

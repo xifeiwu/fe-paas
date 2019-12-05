@@ -661,7 +661,13 @@ class Net extends NetBase {
       // 网关列表
       'gateway_list': {
         path: '/gateway/queryGatewayByAppIdAndSpaceId',
-        method: 'post'
+        method: 'post',
+      },
+      // 服务是否在运行
+      'service_is_running': {
+        path: '/gateway/checkRootPath',
+        method: 'post',
+        level: 'LEVEL_IGNORE'
       },
       // 创建网关相关参数
       'gateway_create_related': {
