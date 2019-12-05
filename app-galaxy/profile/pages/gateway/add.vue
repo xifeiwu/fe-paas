@@ -51,7 +51,11 @@
         </div>
       </el-form-item>
       <el-form-item label="请求路径" prop="path" class="path">
-        <el-input v-model="formData.path" placeholder="路径以/开头" class="max-width-600"></el-input>
+        <div v-if="forDetail">{{formData.path}}</div>
+        <el-input v-model="formData.path" placeholder="路径以/开头，且不能为根路径" class="max-width-600" v-else></el-input>
+      </el-form-item>
+      <el-form-item label="转发到">
+        {{gatewayStatusFromNet.appName}}<span style="display: inline-block;width: 20px;text-align: center;">/</span>{{gatewayStatusFromNet.spaceName}}
       </el-form-item>
       <div class="el-form-item el-form-item--mini timeout-setting" style="margin-bottom: 0px;">
         <div class="el-form-item__label" style="width: 90px; float: left; z-index: 11">
@@ -101,7 +105,7 @@
         </div>
       </div>
       <el-form-item label="缓存器设置" class="cache-setting">
-        <span class="item">请求缓冲区大小：{{gatewayStatusFromNet.requestCache}}</span>
+        <span class="item">请求缓存区大小：{{gatewayStatusFromNet.requestCache}}</span>
         <span class="item">客户端请求最大长度：{{gatewayStatusFromNet.requestMax}}</span>
         <span class="item">响应数据缓存区大小：{{gatewayStatusFromNet.responseCache}}</span>
       </el-form-item>
@@ -299,6 +303,11 @@
               }
               if (!values.startsWith('/')) {
                 callback('路径以/开头');
+                return;
+              }
+              if (values.length == 1) {
+                callback('请求路径不能为根路径');
+                return;
               }
               callback();
             }

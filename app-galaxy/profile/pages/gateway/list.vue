@@ -41,16 +41,16 @@
                 headerAlign="left" align="left">
         </el-table-column>
         <el-table-column
-                label="域名"
-                prop="host"
-                minWidth="100"
-                headerAlign="left" align="left">
-        </el-table-column>
-        <el-table-column
                 label="应用名称"
                 prop="appName"
                 minWidth="80"
                 headerAlign="center" align="center">
+        </el-table-column>
+        <el-table-column
+                label="域名"
+                prop="host"
+                minWidth="100"
+                headerAlign="left" align="left">
         </el-table-column>
         <!--<el-table-column-->
         <!--label="运行环境"-->

@@ -202,7 +202,7 @@
                       type="text"
                       @click="handleTRClick($event, 'go-to-page-gateway', scope.$index, scope.row)"
                       :class="['flex', 'primary']">
-                <span>网关配置</span><i class="paas-icon-level-up"></i>
+                <span>API网关</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider"></div>
               <el-button
