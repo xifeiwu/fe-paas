@@ -243,40 +243,36 @@
                bodyPadding="4px"
                @close="closeDialog"
     >
-      <div v-if="action.data.showResponse">
-        <div class="title">
-          <div class="key">外网域名</div>
-          <div class="value">绑定状态</div>
-        </div>
-        <div class="item" v-for="(item, index) in action.data.serverResponse" :key="key">
-          <div class="key">{{item.internetDomain}}</div>
-          <div class="value">{{item.status}}</div>
-        </div>
-      </div>
-      <div slot="footer" class="dialog-footer flex" v-if="action.data.showResponse">
-        <div class="item">
-          <el-button type="primary" size="mini"
-                     @click="handleDialogEvent('close_dialog_domain_bind_service')">确定</el-button>
-        </div>
-      </div>
-
-      <div v-else="!action.data.showResponse">
+      <div v-if="!action.data.showResponse" style="text-align: left">
         <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: -2px -4px 6px -4px;"
                               :msgList="[
                                 '绑定成功后5分钟内可使用外网域名访问应用',
                                 '如果绑定域名的服务在灰度发布中，如需调整流量策略请到该服务的灰度发布/设置灰度策略中进行调整'
                               ]"></paas-dismiss-message>
         <div style="padding-left: 10px;">
-        <div style="margin-bottom: 10px; text-align: left">
-          <span style="font-weight: bold">所选外网域名：</span>
-          <span>{{rowsSelected[0]['internetDomain']}}</span>
-        </div>
-        <paas-service-selector :disabled="{app: false, profile: true}"
-                               :selected="action.data.selected">
-        </paas-service-selector>
+          <div style="margin-bottom: 10px; text-align: left">
+            <span style="font-weight: bold">所选外网域名：</span>
+            <span>{{rowsSelected[0]['internetDomain']}}</span>
+          </div>
+          <paas-service-selector :disabled="{app: false, profile: true}"
+                                 :selected="action.data.selected">
+          </paas-service-selector>
         </div>
       </div>
-      <div slot="footer" class="dialog-footer flex" v-if="!action.data.showResponse">
+      <div class="content" v-else>
+        <div>
+          <div class="title">
+            <div class="key">外网域名</div>
+            <div class="value">绑定状态</div>
+          </div>
+          <div class="item" v-for="(item, index) in action.data.serverResponse" :key="index">
+            <div class="key">{{item.internetDomain}}</div>
+            <div class="value">{{item.status}}</div>
+          </div>
+        </div>
+      </div>
+
+      <div slot="footer" class="dialog-footer flex"  v-if="!action.data.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
                      @click="handleDialogEvent('domain_bind_service')"
@@ -284,6 +280,12 @@
         </div>
         <div class="item">
           <el-button size="mini" @click="closeDialog">取消</el-button>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer flex" v-else>
+        <div class="item">
+          <el-button type="primary" size="mini"
+                     @click="handleDialogEvent('close_dialog_domain_bind_service')">确定</el-button>
         </div>
       </div>
     </el-dialog>
@@ -437,9 +439,6 @@
         }
       }
       &.domain_bind_service {
-        .el-dialog {
-          text-align: left;
-        }
         &.show-response {
           .el-dialog__body {
             .title {
@@ -458,19 +457,22 @@
               }
             }
             .key, .value {
-              flex: 1;
+              padding: 0px 8px;
               text-align: center;
               text-overflow: ellipsis;
               word-wrap: break-word;
               word-break: break-all;
             }
+            .key {
+              flex: 1;
+            }
+            .value {
+              flex: 2;
+            }
           }
         }
       }
       &.domain_unbind_service {
-        .el-dialog {
-          text-align: left;
-        }
         &.show-response {
           .el-dialog__body {
             .title {
@@ -944,15 +946,16 @@
             }
             break;
           case 'open_dialog_domain_bind_service':
-            this.openDialog(action, {
-              showResponse: false,
-              serverResponse: [],
-              selected: {
-                appId: this.query.appId,
-                profileId: this.rowsSelected[0]['spaceId']
-              },
-              // passed to my-version-condition-filter
-            });
+            try {
+              this.openDialog(action, {
+                showResponse: false,
+                serverResponse: [],
+                selected: {
+                  appId: this.query.appId,
+                  profileId: this.rowsSelected[0]['spaceId']
+                },
+              });
+            } catch (err) {}
             break;
           case 'open_dialog_domain_unbind_service':
             if (this.rowsSelected.length == 0) {
