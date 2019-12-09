@@ -110,14 +110,14 @@
         <span class="item">响应数据缓存区大小：{{gatewayStatusFromNet.responseCache}}</span>
       </el-form-item>
       <el-form-item label="域名" v-if="forModify || forDetail">
-        {{formData.hostList.join(', ')}}
+        {{formData.host}}
       </el-form-item>
-      <el-form-item label="域名" prop="hostList" v-else>
-        <el-checkbox-group v-model="formData.hostList" style="display: inline-block;">
-          <el-checkbox v-for="(item, index) in gatewayStatusFromNet.domainList" :label="item" :key="index">
+      <el-form-item label="域名" prop="host" v-else>
+        <el-radio-group v-model="formData.host" size="mini" style="display: inline-block;">
+          <el-radio v-for="(item, index) in gatewayStatusFromNet.domainList" :label="item" :key="index">
             {{item}}
-          </el-checkbox>
-        </el-checkbox-group>
+          </el-radio>
+        </el-radio-group>
       </el-form-item>
     </el-form>
     <div class="section-footer">
@@ -276,6 +276,12 @@
               }
             }
           }],
+          host: [{
+            type: 'string',
+            required: true,
+            message: '至少选择一个域名',
+            trigger: ['blur', 'change']
+          }],
           hostList: [{
             type: 'array',
             required: true,
@@ -359,8 +365,10 @@
 
         const formData = {
           gatewayName: '',
-          hostList: [],         // 已选域名列表（domainList为完整的域名列表）
-          paths: [],
+          host: '',             // host为hostList（已不支持选择多个域名）中的一个元素
+          hostList: [],         // 已选域名列表（domainList为完整的域名列表），TODO: not used
+          path: '',             // path为paths（已不支持填写多个路径）中的一个元素
+          paths: [],            // 路径列表，TODO: not used
           pathToAdd: '',
           connTimeout: null,    // 连接超时
           sendTimeout: null,    // 发送超时
@@ -370,16 +378,21 @@
         };
         formData.paths = gatewayStatusFromNet.paths;
         formData.path = gatewayStatusFromNet.paths.length > 0 ? gatewayStatusFromNet.paths[0] : '';
+        // NOTICE: 创建时，domainList为完整的域名列表。在修改时，为用户所选择的域名列表
         if (this.forModify || this.forDetail) {
           formData.gatewayName = gatewayStatusFromNet.gatewayName;
-          formData.hostList = gatewayStatusFromNet.domainList;
+          formData.host = gatewayStatusFromNet.domainList[0] ? gatewayStatusFromNet.domainList[0] : '---';
           formData.connTimeout = gatewayStatusFromNet.connTimeout;
           formData.sendTimeout = gatewayStatusFromNet.sendTimeout;
           formData.readTimeout = gatewayStatusFromNet.readTimeout;
           formData.retryTimeout = gatewayStatusFromNet.retryTimeout;
           formData.retryNum = gatewayStatusFromNet.retryNum;
         } else {
-          formData.hostList = [];
+          // formData.hostList = [];
+          // set the first one as default
+          if (Array.isArray(gatewayStatusFromNet.domainList) && gatewayStatusFromNet.domainList.length > 0) {
+            formData.host = gatewayStatusFromNet.domainList[0];
+          }
           formData.connTimeout = gatewayStatusFromNet['defConnTimeout'];
           formData.sendTimeout = gatewayStatusFromNet['defSendTimeout'];
           formData.readTimeout = gatewayStatusFromNet['defReadTimeout'];
@@ -436,7 +449,7 @@
                   groupId: this.groupId,
                   appId: this.appId,
                   spaceId: this.profileId,
-                  domainList: formData.hostList,
+                  domainList: [formData.host],
                   paths: [formData.path],
                   connTimeout: formData.connTimeout,
                   sendTimeout: formData.sendTimeout,
