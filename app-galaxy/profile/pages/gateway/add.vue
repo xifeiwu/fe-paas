@@ -444,20 +444,26 @@
               await this.$refs['the-form'].validate();
               // console.log(this.formData);
               const formData = this.formData;
+              const payload = {
+                groupId: this.groupId,
+                appId: this.appId,
+                spaceId: this.profileId,
+                domainList: [formData.host],
+                paths: [formData.path],
+                gatewayName: formData.gatewayName
+              };
+              // 连接超时
+              (this.gatewayStatusFromNet.defConnTimeout != formData.connTimeout) && (payload.connTimeout = formData.connTimeout);
+              // 发送超时
+              (this.gatewayStatusFromNet.defSendTimeout != formData.sendTimeout) && (payload.sendTimeout = formData.sendTimeout);
+              // 读取超时
+              (this.gatewayStatusFromNet.defReadTimeout != formData.readTimeout) && (payload.readTimeout = formData.readTimeout);
+              // 重试次数
+              (this.gatewayStatusFromNet.defRetryTimeout != formData.retryTimeout) && (payload.retryTimeout = formData.retryTimeout);
+              // 重试超时请求时间
+              (this.gatewayStatusFromNet.defRetryNum != formData.retryNum) && (payload.retryNum = formData.retryNum);
               await this.$net.requestPaasServer(status.urlObj, {
-                payload: {
-                  groupId: this.groupId,
-                  appId: this.appId,
-                  spaceId: this.profileId,
-                  domainList: [formData.host],
-                  paths: [formData.path],
-                  connTimeout: formData.connTimeout,
-                  sendTimeout: formData.sendTimeout,
-                  readTimeout: formData.readTimeout,
-                  retryTimeout: formData.retryTimeout,
-                  retryNum: formData.retryNum,
-                  gatewayName: formData.gatewayName
-                }
+                payload
               });
               this.$message.success(`网关"${formData.gatewayName}"${status.desc}成功！`);
               this.$router.push({
