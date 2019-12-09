@@ -298,7 +298,15 @@
                bodyPadding="8px 10px"
                @close="closeDialog"
     >
-      <div v-if="action.data.showResponse">
+      <div class="selected-domain" v-if="!action.data.showResponse" style="text-align: left">
+        <div style="margin-bottom: 5px;">
+          <span>解绑域名</span>
+          <span>（{{rowsSelected.map(it => it.internetDomain).join(', ')}}）</span>
+          <span>将导致绑定在域名上的应用不能通过这个域名进行访问，你确定这么做吗？</span>
+        </div>
+        <strong style="color: red">注：如果域名的服务在灰度发布中，解绑外网域名会删除该域名下的灰度策略</strong>
+      </div>
+      <div v-else>
         <div class="title">
           <div class="key">外网域名</div>
           <div class="value">绑定状态</div>
@@ -308,22 +316,14 @@
           <div class="value">{{item.status}}</div>
         </div>
       </div>
+
       <div slot="footer" class="dialog-footer flex" v-if="action.data.showResponse">
         <div class="item">
           <el-button type="primary" size="mini"
                    @click="handleDialogEvent('close_dialog_domain_unbind_service')">确定</el-button>
         </div>
       </div>
-
-      <div class="selected-domain" v-if="!action.data.showResponse">
-        <div style="margin-bottom: 5px;">
-          <span>解绑域名</span>
-          <span>（{{rowsSelected.map(it => it.internetDomain).join(', ')}}）</span>
-          <span>将导致绑定在域名上的应用不能通过这个域名进行访问，你确定这么做吗？</span>
-        </div>
-        <strong style="color: red">注：如果域名的服务在灰度发布中，解绑外网域名会删除该域名下的灰度策略</strong>
-      </div>
-      <div slot="footer" class="dialog-footer flex" v-if="!action.data.showResponse">
+      <div slot="footer" class="dialog-footer flex" v-else>
         <div class="item">
           <el-button type="primary" size="mini"
                      @click="handleDialogEvent('domain_unbind_service')"
@@ -492,6 +492,7 @@
             }
             .key, .value {
               flex: 1;
+              padding: 0px 8px;
               text-align: center;
               text-overflow: ellipsis;
               word-wrap: break-word;
