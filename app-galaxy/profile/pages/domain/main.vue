@@ -59,9 +59,9 @@
                 minWidth="160">
             <template slot-scope="scope">
               <el-radio :label="scope.row.id"
-                        :value="selectedId"
+                        :value="rowsSelected.length > 0 ? rowsSelected[0].id : null"
                         :style="{marginLeft: '3px'}"
-                        @input="changeDefaultVersion(scope.row)">{{''}}</el-radio>
+                        @input="onRowSelected(scope.row)">{{''}}</el-radio>
               <span>{{scope.row.internetDomain}}</span>
               <i class="paas-icon-copy"
                  v-clipboard:copy="scope.row.internetDomain"
@@ -616,7 +616,6 @@
         },
 
         domainList: [],
-        selectedId: null,
         rowsSelected: [],
         queueForWaitingResponse: [],
         selected: {
@@ -767,6 +766,10 @@
         this.profileInfo = profileInfo;
         this.query.keyword = '';
       },
+      // handle the checkbox in table for domain-list
+      onRowSelected(row) {
+        this.rowsSelected = [row];
+      },
 
       /**
        * the place of calling requestDomainList;
@@ -811,10 +814,14 @@
           it['accessStatus'] = (it['status'] === 'EFFECTIVE' ? it['notHaveIPWhiteList'] : it['openAllInternet']) ? '已开启' : '未开启';
           return it;
         });
+
+        // update rowsSelected
         if (this.domainList.length > 0) {
-          const firstRow = this.domainList[0];
-          this.rowsSelected = [firstRow];
-          this.selectedId = firstRow['id'];
+          var rowSelected = this.rowsSelected[0];
+          if (!rowSelected || !this.domainList.find(it => it.id == rowSelected.id)) {
+            rowSelected =  this.domainList[0];
+            this.onRowSelected(rowSelected);
+          };
         }
       },
 
@@ -875,11 +882,6 @@
             this.selected.action = action;
             break;
         }
-      },
-      // handle the checkbox in table for domain-list
-      changeDefaultVersion(row) {
-        this.rowsSelected = [row];
-        this.selectedId = row['id'];
       },
 
       // some init action for domain props
