@@ -444,6 +444,7 @@
         listByPage: [],
 
         query: {
+          groupId: this.$storeHelper.currentGroupId,
           appId: this.$storeHelper.APP_ID_FOR_ALL,
           profileId: '',  // profileId set to '' to make sure it is changed on service-selector, then updateListByPage will be triggered
           currentPage: 1,
@@ -474,7 +475,7 @@
     },
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
-      '$storeHelper.currentGroupID'() {
+      '$storeHelper.currentGroupId'() {
         this.resetQuery();
         this.throttleUpdateListByPage(true);
       },
@@ -519,11 +520,17 @@
       },
       onRoute() {
         const query = this.$route.query;
-        query.hasOwnProperty('appId') && (this.query.appId = parseInt(query.appId));
-        query.hasOwnProperty('profileId') && (this.query.profileId = parseInt(query.profileId));
-        query.hasOwnProperty('currentPage') && (this.query.currentPage = parseInt(decodeURIComponent(query.currentPage)));
-        query.hasOwnProperty('pageSize') && (this.query.pageSize = parseInt(decodeURIComponent(query.pageSize)));
-        query.hasOwnProperty('filterKey') && (this.query.filterKey = decodeURIComponent(query.filterKey));
+        const groupId = query.groupId;
+        if (!groupId || groupId != this.$storeHelper.currentGroupId) {
+          this.resetQuery();
+        } else {
+          this.query.groupId = groupId;
+          query.hasOwnProperty('appId') && (this.query.appId = parseInt(query.appId));
+          query.hasOwnProperty('profileId') && (this.query.profileId = parseInt(query.profileId));
+          query.hasOwnProperty('currentPage') && (this.query.currentPage = parseInt(decodeURIComponent(query.currentPage)));
+          query.hasOwnProperty('pageSize') && (this.query.pageSize = parseInt(decodeURIComponent(query.pageSize)));
+          query.hasOwnProperty('filterKey') && (this.query.filterKey = decodeURIComponent(query.filterKey));
+        }
       },
       handleSuccessCopy(evt) {
         this.$storeHelper.globalTip.show({
@@ -963,6 +970,7 @@
 
       resetQuery() {
         const query = this.query;
+        query.groupId = this.$storeHelper.currentGroupId;
         query.appId = this.$storeHelper.APP_ID_FOR_ALL;
         query.profileId = '';
         query.currentPage = 1;
