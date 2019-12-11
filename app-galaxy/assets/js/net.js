@@ -997,6 +997,7 @@ class Net extends Common {
     notPermittedList.forEach(it => {
       result[it] = {
         disabled: true,
+        hide: false,
         reason: '您无权进行该操作'
       }
     });

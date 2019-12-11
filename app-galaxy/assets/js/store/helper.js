@@ -208,6 +208,10 @@ export default class StoreHelper extends Common {
 
   actionToPermission(action) {
     const actionMap = {
+      /** page app */
+      // 创建应用
+      app_update: 'app_create',
+
       domain_add_open_dialog: 'domain_add',
       open_dialog_update_pod_spec: 'get_affinity',
       /** page domain */

@@ -47,7 +47,7 @@
         <el-table-column label="应用名称" prop="appName" headerAlign="left" align="left" minWidth="100">
           <template slot-scope="scope">
             <span>{{scope.row.appName}}</span>
-            <i v-if="!$storeHelper.permission['app_change_name'].hide && false"
+            <i v-if="false"
                     class="el-icon-edit" @click="handleTRClick($event, 'app_change_name', scope.$index, scope.row)"></i>
           </template>
         </el-table-column>
@@ -124,15 +124,15 @@
               <el-col :span="24">
                 <el-button
                     type="text"
-                    :class="['flex', $storeHelper.permission['app_show_profile'].disabled ? 'disabled' : 'primary']"
+                    :class="['flex', 'primary']"
                     @click="handleTRClick($event, 'app_show_profile', scope.$index, scope.row)">
                   <span>运行环境</span><i class="paas-icon-popover" style="margin-left: 3px;"></i>
                 </el-button>
                 <div class="ant-divider"></div>
                 <el-button
                     type="text"
-                    :class="['flex', $storeHelper.permission['app_change_props'].disabled ? 'disabled' : 'warning']"
-                    @click="handleTRClick($event, 'app_change_props', scope.$index, scope.row)">
+                    :class="['flex', $storeHelper.actionDisabled('app_update') ? 'disabled' : 'warning']"
+                    @click="handleTRClick($event, 'app_update', scope.$index, scope.row)">
                   <span>修改应用</span><i class="paas-icon-level-up"></i>
                 </el-button>
                 <div class="ant-divider"></div>
@@ -598,9 +598,14 @@
        * handle click event in the operation-column
        */
       async handleTRClick(evt, action, index, row) {
-        if (this.$storeHelper.serverIsPublishing && action == "app_delete") {
-          this.$storeHelper.popoverWhenPublish(evt.target);
-          return;
+        if (['app_update', 'app_delete'].includes(action)) {
+          if (this.$storeHelper.actionDisabled(action)) {
+            this.$storeHelper.globalPopover.show({
+              ref: evt.target,
+              msg: this.$storeHelper.reason4ActionDisabled(action)
+            });
+            return;
+          }
         }
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({
@@ -619,7 +624,7 @@
         }
         var prop = null, formName = null;
         switch (action) {
-          case'app_change_props':
+          case 'app_update':
             this.$storeHelper.dataTransfer = {
               from: this.$net.page['profile/app'],
               data: this.selected.model
@@ -896,6 +901,9 @@
        */
       updateListByPage() {
         this.showAppList = true;
+        if (!this.appInfoListOfGroup) {
+          return;
+        }
         // whether show page appList or createApp
         if (this.appInfoListOfGroup.appModelList && this.appInfoListOfGroup.appModelList.length === 0) {
           this.showAppList = false;
