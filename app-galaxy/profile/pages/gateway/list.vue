@@ -281,7 +281,10 @@
             </div>
             <span>{{action.data.path}}</span>
           </el-form-item>
-          <el-form-item prop="targetPath">
+          <el-form-item label="启用请求改写" class="message-show">
+            <el-checkbox v-model="action.data.enable">启用</el-checkbox>
+          </el-form-item>
+          <el-form-item prop="targetPath" v-if="action.data.enable">
             <div slot="label" style="display: flex; justify-content: flex-end; align-items: center">
               <span>目标路径</span>
               <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'服务端响应的路径'"></i>
@@ -875,7 +878,8 @@
                 host: row.host,             // 域名
                 appId: row.appId,
                 path: row.path,
-                targetPath: row.pathRewrite,
+                enable: null != row.pathRewrite && '' != row.pathRewrite,
+                targetPath: row.pathRewrite ? row.pathRewrite : '',
                 groupId: row.groupId,
                 spaceId: row.spaceId,
               });
@@ -887,7 +891,7 @@
                   appId: dialogData.appId,
                   domainList: [dialogData.host],
                   paths: [dialogData.path],
-                  pathRewrite: dialogData.targetPath
+                  pathRewrite: dialogData.enable ? dialogData.targetPath.trim() : ''
                 }
               });
               // Object.assign(row, dialogData);   // update row by dialogData
