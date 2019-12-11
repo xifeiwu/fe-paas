@@ -859,6 +859,18 @@ class Net extends Common {
       '/2.x/order/list/download': 'work-order_download',
       '/2.x/order/todoList/end':'work-order_end',
 
+      /** 网关相关 */
+      '/2.x/gateway/create': 'gateway_create',
+      '/2.x/gateway/delete': 'gateway_delete',
+      '/2.x/gateway/update': 'gateway_update',
+      // 流量复制
+      '/2.x/gateway/copy': 'gateway_copy_request',
+      // 源IP限速
+      '/2.x/gateway/limit': 'gateway_limit_rating',
+      // 请求改写
+      '/2.x/gateway/rewrite': 'gateway_path_rewrite',
+
+
       /** 中间件(mariadb)相关 */
       // 创建MariaDB
       '/2.x/openShift/mariaDB/create': 'middleware_mariadb_instance_create',

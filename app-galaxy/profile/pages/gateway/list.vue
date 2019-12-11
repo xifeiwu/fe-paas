@@ -25,6 +25,7 @@
         <el-button v-if="true"
                    size="mini"
                    type="primary"
+                   :class="{'disabled': $storeHelper.actionDisabled('open_dialog_gateway_create')}"
                    @click="handleClick($event, 'open_dialog_gateway_create')">创建API网关</el-button>
       </div>
     </div>
@@ -107,8 +108,8 @@
           <template slot-scope="scope">
             <el-button
                     type="text"
-                    :class="['flex', 'primary']"
-                    @click="handleTRClick($event, 'gateway_modify', scope.row, scope.$index)"
+                    :class="['flex', $storeHelper.actionDisabled('gateway_update') ? 'disabled' : 'primary']"
+                    @click="handleTRClick($event, 'gateway_update', scope.row, scope.$index)"
             >
               <span>修改</span><i class="paas-icon-level-up"></i>
             </el-button>
@@ -123,33 +124,33 @@
             <div class="ant-divider"></div>
             <el-button
                     type="text"
-                    :class="['flex', 'danger']"
+                    :class="['flex', $storeHelper.actionDisabled('gateway_delete') ? 'disabled' : 'danger']"
                     @click="handleTRClick($event, 'gateway_delete', scope.row, scope.$index)"
             >
               <span>删除</span>
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                type="text"
-                :class="['flex', 'danger']"
-                @click="handleTRClick($event, 'open_dialog_config_rate_limiting', scope.row, scope.$index)"
-            >
-              <span>源IP限速</span>
-            </el-button>
-            <div class="ant-divider"></div>
-            <el-button
                     v-if="$storeHelper.isProductionProfile(query.profileId)"
                     type="text"
-                    :class="['flex', 'warning']"
-                    @click="handleTRClick($event, 'open_dialog_config_copy_request', scope.row, scope.$index)"
+                    :class="['flex', $storeHelper.actionDisabled('open_dialog_gateway_copy_request') ? 'disabled' : 'warning']"
+                    @click="handleTRClick($event, 'open_dialog_gateway_copy_request', scope.row, scope.$index)"
             >
               <span>流量复制</span>
             </el-button>
             <div class="ant-divider" v-if="$storeHelper.isProductionProfile(query.profileId)"></div>
             <el-button
+                type="text"
+                :class="['flex', $storeHelper.actionDisabled('open_dialog_gateway_limit_rating') ? 'disabled' : 'danger']"
+                @click="handleTRClick($event, 'open_dialog_gateway_limit_rating', scope.row, scope.$index)"
+            >
+              <span>源IP限速</span>
+            </el-button>
+            <div class="ant-divider"></div>
+            <el-button
                     type="text"
-                    :class="['flex', 'warning']"
-                    @click="handleTRClick($event, 'open_dialog_config_path_rewrite', scope.row, scope.$index)"
+                    :class="['flex', $storeHelper.actionDisabled('open_dialog_gateway_path_rewrite') ? 'disabled' : 'warning']"
+                    @click="handleTRClick($event, 'open_dialog_gateway_path_rewrite', scope.row, scope.$index)"
             >
               <span>请求改写</span>
             </el-button>
@@ -202,12 +203,12 @@
     </el-dialog>
 
     <el-dialog title="源IP限速"
-               :visible="action.name === 'open_dialog_config_rate_limiting'"
-               v-if="action.name === 'open_dialog_config_rate_limiting'"
+               :visible="action.name === 'open_dialog_gateway_limit_rating'"
+               v-if="action.name === 'open_dialog_gateway_limit_rating'"
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-700 config_rate_limiting"
+               class="size-700 gateway_limit_rating"
     >
       <div class="content">
         <el-form :model="action.data" size="mini" label-width="180px" >
@@ -255,12 +256,12 @@
     </el-dialog>
 
     <el-dialog title="请求改写"
-               :visible="action.name === 'open_dialog_config_path_rewrite'"
-               v-if="action.name === 'open_dialog_config_path_rewrite'"
+               :visible="action.name === 'open_dialog_gateway_path_rewrite'"
+               v-if="action.name === 'open_dialog_gateway_path_rewrite'"
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-600 config_path_rewrite"
+               class="size-600 gateway_path_rewrite"
     >
       <div class="content">
         <el-form :model="action.data" :rules="configRules" size="mini" label-width="140px" ref="configPathRewriteForm">
@@ -301,12 +302,12 @@
     </el-dialog>
 
     <el-dialog title="流量复制"
-               :visible="action.name === 'open_dialog_config_copy_request'"
-               v-if="action.name === 'open_dialog_config_copy_request'"
+               :visible="action.name === 'open_dialog_gateway_copy_request'"
+               v-if="action.name === 'open_dialog_gateway_copy_request'"
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-700 config_copy_request"
+               class="size-700 gateway_copy_request"
     >
       <div class="content">
         <el-form :model="action.data" :rules="configRules" size="mini" label-width="160px" ref="not-set">
@@ -351,7 +352,7 @@
 <style lang="scss">
   #gateway-list {
     .el-dialog__wrapper {
-      &.config_rate_limiting {
+      &.gateway_limit_rating {
         .el-form {
           .el-form-item.config {
             .el-input-number {
@@ -360,7 +361,7 @@
           }
         }
       }
-      &.config_copy_request {
+      &.gateway_copy_request {
         .el-form {
           .el-form-item {
             &.target-service {
@@ -671,7 +672,7 @@
             } finally {
             }
             break;
-          case 'config_rate_limiting':
+          case 'gateway_limit_rating':
             try {
               if (this.$utils.theSame(this.action.dataOrigin, this.action.data)) {
                 this.$message.warning('您没有做任何修改。未向后端发送更新请求！');
@@ -683,7 +684,7 @@
             } finally {
             }
             break;
-          case 'config_path_rewrite':
+          case 'gateway_path_rewrite':
             try {
               await this.$refs['configPathRewriteForm'].validate();
               this.action.promise.resolve(this.action.data);
@@ -691,7 +692,7 @@
               console.log(err);
             }
             break;
-          case 'config_copy_request':
+          case 'gateway_copy_request':
             // console.log(this.action.data);
             try {
               const dialogData = this.action.data;
@@ -715,10 +716,17 @@
       },
 
       async handleTRClick(evt, action, row, index) {
+        if (this.$storeHelper.actionDisabled(action)) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.reason4ActionDisabled(action)
+          });
+          return;
+        }
         switch (action) {
-          case 'gateway_modify':
+          case 'gateway_update':
             this.$router.push({
-              name: 'gateway_modify',
+              name: 'gateway_update',
               params: {
                 name: encodeURIComponent(row.gatewayName)
               },
@@ -789,7 +797,7 @@
               });
             }
             break;
-          case 'open_dialog_config_rate_limiting':
+          case 'open_dialog_gateway_limit_rating':
             // console.log(row);
             if (!row.appId || !row.gatewayName || !row.spaceId || !row.groupId) {
               this.$message.error('该网关不能设置原IP限速功能！');
@@ -843,7 +851,7 @@
             } finally {
             }
             break;
-          case 'open_dialog_config_path_rewrite':
+          case 'open_dialog_gateway_path_rewrite':
             // console.log(row);
             try {
               const dialogData = await this.openDialog(action, {
@@ -877,7 +885,7 @@
             } finally {
             }
             break;
-          case 'open_dialog_config_copy_request':
+          case 'open_dialog_gateway_copy_request':
             // console.log(row);
             // console.log(this.$storeHelper.profileListOfGroup);
             // console.log(this.$storeHelper.appInfoListOfGroup);
@@ -921,6 +929,13 @@
       },
 
       async handleClick(evt, action) {
+        if (this.$storeHelper.actionDisabled(action)) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.reason4ActionDisabled(action)
+          });
+          return;
+        }
         switch (action) {
           case 'open_dialog_gateway_create':
             try {

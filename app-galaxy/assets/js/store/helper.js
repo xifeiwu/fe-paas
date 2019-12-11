@@ -227,6 +227,15 @@ export default class StoreHelper extends Common {
       open_dialog_oauth_secret_change: 'oauth_update_secret',
       // 修改访问配置
       open_dialog_oauth_access_key_and_config_update: 'oauth_update_access_config',
+
+      /** page gateway */
+      open_dialog_gateway_create: 'gateway_create',
+      // 流量复制
+      open_dialog_gateway_copy_request: 'gateway_copy_request',
+      // 源IP限速
+      open_dialog_gateway_limit_rating: 'gateway_limit_rating',
+      // 请求改写
+      open_dialog_gateway_path_rewrite: 'gateway_path_rewrite',
     };
     return actionMap.hasOwnProperty(action) ? actionMap[action] : action
   }
