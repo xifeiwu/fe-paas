@@ -680,7 +680,7 @@ class Net extends NetBase {
         method: 'post'
       },
       // 修改网关
-      'gateway_modify': {
+      'gateway_update': {
         path: '/gateway/updateGateway',
         method: 'post'
       },

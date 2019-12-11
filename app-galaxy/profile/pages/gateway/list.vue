@@ -208,10 +208,10 @@
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-700 gateway_limit_rating"
+               class="size-600 gateway_limit_rating"
     >
       <div class="content">
-        <el-form :model="action.data" size="mini" label-width="180px" >
+        <el-form :model="action.data" size="mini" label-width="160px" >
           <el-form-item label="网关名称"class="message-show">
             <span> {{action.data.gatewayName}} </span>
           </el-form-item>

@@ -227,7 +227,7 @@
   export default {
     created() {
       this.forDetail = this.$route.name === 'gateway_detail';
-      this.forModify = this.$route.name === 'gateway_modify';
+      this.forModify = this.$route.name === 'gateway_update';
 
       var goBack = false;
       if (!this.$utils.hasProps(this.$route.query, 'groupId', 'appId', 'profileId')) {
@@ -436,7 +436,7 @@
             };
             if ('modify' == action) {
               status = {
-                urlObj: this.$net.URL_LIST.gateway_modify,
+                urlObj: this.$net.URL_LIST.gateway_update,
                 desc: '修改'
               }
             }

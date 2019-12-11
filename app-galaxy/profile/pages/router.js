@@ -289,9 +289,9 @@ class Helper extends RouterHelper {
         canSwitchGroup: false
       }
     }, {
-      name: 'gateway_modify',
+      name: 'gateway_update',
       label: '修改',
-      path: '/profile/gateway/:name/modify',
+      path: '/profile/gateway/:name/update',
       component: gatewayAdd,
       meta: {
         canSwitchGroup: false
