@@ -200,7 +200,7 @@
               <el-button
                       size="small"
                       type="text"
-                      @click="handleTRClick($event, 'go-to-page-gateway', scope.$index, scope.row)"
+                      @click="handleTRClick($event, 'to_page_gateway', scope.$index, scope.row)"
                       :class="['flex', 'primary']">
                 <span>API网关</span><i class="paas-icon-level-up"></i>
               </el-button>
@@ -2006,10 +2006,11 @@ tolerations:
             };
             this.$router.push(PATH_MAP[action]);
             break;
-          case 'go-to-page-gateway':
+          case 'to_page_gateway':
             this.$router.push({
               name: 'gateway_list',
               query: {
+                groupId: this.$storeHelper.currentGroupId,
                 appId: row.appId,
                 profileId: this.profileInfo.id,
               }
