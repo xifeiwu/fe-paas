@@ -307,7 +307,7 @@
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-700 gateway_copy_request"
+               class="size-650 gateway_copy_request"
     >
       <div class="content">
         <el-form :model="action.data" :rules="configRules" size="mini" label-width="160px" ref="not-set">
@@ -320,7 +320,14 @@
           <el-form-item label="应用名称/运行环境" class="message-show">
             <span> {{action.data.appName}} / {{action.data.spaceName}}</span>
           </el-form-item>
-          <el-form-item label="接受请求流量的服务" class="target-service message-show">
+          <el-form-item label="启用流量复制" class="message-show">
+            <el-checkbox v-model="action.data.enable">启用</el-checkbox>
+          </el-form-item>
+          <el-form-item class="target-service message-show" v-if="action.data.enable">
+            <div slot="label" style="display: flex; justify-content: flex-end; align-items: center">
+              <span>接受请求流量的服务</span>
+              <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'只能将生产环境服务的流量重定向到联调环境'"></i>
+            </div>
             <div style="display: flex; align-items: center">
               <el-select v-model="action.data.targetAppId" filterable>
                 <el-option v-for="(item,index) in $storeHelper.appModelListOfGroup" :label="item.appName" :key="item.appId" :value="item.appId">
@@ -331,7 +338,6 @@
                 <!--<el-option v-for="(item,index) in productionProfileListOfGroup" :label="item.description" :key="item.id" :value="item.id">-->
                 <!--</el-option>-->
               <!--</el-select>-->
-              <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'只能将生产环境服务的流量重定向到联调环境'"></i>
             </div>
           </el-form-item>
         </el-form>
@@ -709,8 +715,9 @@
                   groupId: dialogData.groupId,
                   spaceId: dialogData.spaceId,
                   appId: dialogData.appId,
-                  targetAppId: dialogData.targetAppId,
-                  targetSpaceId: this.$storeHelper.betaProfileId
+                  // targetAppId, targetSpaceId为空，代表禁用流量复制
+                  targetAppId: dialogData.enable ? dialogData.targetAppId : '',
+                  targetSpaceId: dialogData.enable ? this.$storeHelper.betaProfileId : ''
                 }
               });
               this.action.promise.resolve(this.action.data);
@@ -905,9 +912,12 @@
 
             var targetAppId = this.$storeHelper.appModelListOfGroup[0].appId;
             var targetProfileId = this.productionProfileListOfGroup[0].id;
+            // 流量复制是否启用？
+            var enabled = false;
             if (row.copyTargetAppId && row.targetApp && row.copyTargetSpaceId && row.targetProfile) {
               targetAppId = row.copyTargetAppId;
               targetProfileId = row.copyTargetSpaceId;
+              enabled = true
             }
 
             try {
@@ -917,6 +927,7 @@
                 appName: row.appName,
                 spaceName: row.spaceName,
                 host: row.host,             // 域名
+                enable: enabled,               // 是否启用流量复制
                 targetAppId,
                 targetProfileId,
 
