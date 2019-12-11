@@ -139,6 +139,7 @@ class Helper extends RouterHelper {
       label: '服务管理',
       redirect: '/profile/service/list',
     }, {
+      name: 'service_list',
       path: '/profile/service/list/:id(\\d+)?',
       label: '服务列表',
       component: serviceList,
@@ -155,6 +156,7 @@ class Helper extends RouterHelper {
       label: '复制服务',
       component: serviceAdd,
     }, {
+      name: 'service_id',
       path: '/profile/service/:id(\\d+)',
       messageShow: true,
       label: '---',
@@ -174,7 +176,8 @@ class Helper extends RouterHelper {
       label: '修改灰度版本',
       component: serviceGrayAdd
     }, {
-      path: '/profile/service/detail',
+      name: 'service_detail',
+      path: '/profile/service/:id(\\d+)/detail',
       label: '服务详情',
       component: serviceDetail
     }, {
@@ -564,6 +567,10 @@ class Helper extends RouterHelper {
 
   getConfigByFullPath(path) {
     return this.routeList.find(it => it.fullPath == path);
+  }
+
+  getConfigByName(name) {
+    return this.routeList.find(it => it.name == name);
   }
 
   /**
