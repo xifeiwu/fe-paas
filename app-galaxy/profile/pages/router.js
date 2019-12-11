@@ -732,7 +732,7 @@ class Helper extends RouterHelper {
       if (routeConfig) {
         // 1. isPermitted check
         if (!this.isPermitted(routeConfig)) {
-          result.jumpTo = getPermittedPath(routeConfig);
+          result.jumpTo = this.getPermittedPath(routeConfig);
         }
         // update routeConfig
         routeConfig = this.getConfigByRoutePath(result.jumpTo);

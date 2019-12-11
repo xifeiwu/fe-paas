@@ -321,8 +321,6 @@
         canSwitchGroup: true,
         messageCountTip: 0,
 
-        notPermitted: [],
-
         alertMessageQueen: [],
         currentAlertMessage: null,
       }
@@ -335,7 +333,7 @@
       }
 
       // 初始化权限信息(避免出现'can not read disabled of undefined')
-      this.initPermissionInfo();
+      this._updateButtonPermission();
       // 获取页面相关配置
       Promise.all([
         this.$net.requestPaasServer(this.$net.URL_LIST.user_group_list),
@@ -355,10 +353,9 @@
         this.$store.dispatch('app/globalConfig', configList);
 
         // permission
-        this.notPermitted = this.$net.parseNotPermittedCommands(resContentList[2]);
-        this.$router.helper.addPermission(this.notPermitted);
-        // trigger change of currentGroupId
-//        this.$store.dispatch('user/groupId', this.$storeHelper.currentGroupID);
+        const notPermittedList = this.$net.parseNotPermittedCommands(resContentList[2]);
+        this._updateButtonPermission(notPermittedList);
+        this.$router.helper.addPermission(notPermittedList);
       }).catch(err => {
         console.log(err);
         // requestPaasServer已经给出提示，不需重复提示
@@ -492,8 +489,6 @@
             this.$store.dispatch('user/profileList', profileList);
             const appInfoListOfGroup = await this.$net.requestAppInfoListOfGroup(groupId);
             this.$store.dispatch('user/appInfoList', appInfoListOfGroup);
-            // 更新（1.x支持、权限）相关信息
-            this.updatePermissionInfo();
             this.$storeHelper.promiseChangeGroup.resolve && this.$storeHelper.promiseChangeGroup.resolve();
           } catch(err) {
             this.$storeHelper.promiseChangeGroup.reject && this.$storeHelper.promiseChangeGroup.reject();
@@ -503,10 +498,9 @@
       },
       '$storeHelper.appInfoListOfGroup': function (appInfoList) {
         if (appInfoList) {
-          this.updatePermissionInfo();
+          this._updateMenuPermission();
         }
       },
-      'notPermitted': 'updatePermissionInfo'
     },
     methods: {
       // set el-menu profile as active menu of paasHeaderProfile
@@ -611,48 +605,36 @@
         }
       },
 
+      // TODO: can be replaced by reason4ActionDisabled in $storeHelper
       // 初始化部分权限相关信息（权限的更新在网络请求完成后，不初始化会导致无法访问，报错：undefined）
-      initPermissionInfo() {
+      _updateButtonPermission(permissionList) {
         const permission = {};
-        // TODO: can be replaced by reason4ActionDisabled in $storeHelper
-        const pageApp = ['app_change_name', 'app_show_profile', 'app_change_props'];
         const pageService = ['copy-service',
           'go-to-page-log-deploy-from-service', 'go-page-domain-from-service', 'go-page-domain-from-service-list'];
         const pageWorkOrder = ['work-order_restart_service'];
-        const allPermissionList1 = [...pageApp, ...pageService, ...pageWorkOrder];
-        const permissionMap = this.$net.getPermissionMap();
-        const allPermissionList = [];
-        Object.keys(permissionMap).forEach(it => {
-//          console.log(`${it} -> ${permissionMap[it]}`);
-          allPermissionList.push(permissionMap[it])
-        });
-
-        Array.from(new Set(allPermissionList.concat(allPermissionList1))).forEach(it => {
+        [...Object.values(this.$net.permissionMap), ...pageService, ...pageWorkOrder].forEach(it => {
           permission[it] = {
             disabled: false,
             hide: false,
             reason: ''
           }
         });
-//        allPermissionList1.forEach(it => {
-//          if (allPermissionList.indexOf(it) === -1) {
-//            console.log(it);
-//          }
-//        });
-//        console.log(permission);
+        if (permissionList) {
+
+        }
+        permissionList && permissionList.forEach(it => {
+          permission[it] = {
+            disabled: true,
+            hide: false,
+            reason: '您无权进行该操作'
+          }
+        });
         this.$storeHelper.permission = permission;
       },
-
       // 更新权限信息：页面访问权限；按钮点击权限。
-      // at change of: $storeHelper.appInfoListOfGroup, notPermitted, $storeHelper.groupInfo.id
-      updatePermissionInfo() {
-        this.initPermissionInfo();
+      // at change of: $storeHelper.appInfoListOfGroup, $storeHelper.groupInfo.id
+      _updateMenuPermission() {
         const appInfoListOfGroup = this.$storeHelper.appInfoListOfGroup;
-//        console.log('appInfoListOfGroup');
-//        console.log(appInfoListOfGroup);
-        if (!appInfoListOfGroup || !this.notPermitted) {
-          return;
-        }
         if (appInfoListOfGroup.total === 0) {
           // 当前团队应用数为零，能进入如下页面
           this.$router.helper.updateDisabledState({
@@ -684,7 +666,6 @@
             pathType: 'exclude'
           }, {key: 'NO_APP', value: false});
         }
-
         const groupVersion = this.$storeHelper.groupVersion;
         // 1.x团队不支持：外网域名、审批管理、Access Key、团队管理
         if (groupVersion === 'v1') {
@@ -708,9 +689,9 @@
 
         // update this.$storeHelper.permission
         const permission = this.$storeHelper.permission;
-        const notSupportedByV2 = ['app_create', 'app_delete', 'app_change_profile',
+        const notSupportedByV2 = ['app_create', 'app_delete',
           'service_create', 'service_delete', 'copy-service', 'go-page-domain-from-service-list', 'go-page-domain-from-service',
-        'go-to-log-run-from-instance'];
+          'go-to-log-run-from-instance'];
         if (groupVersion === 'v1') {
           notSupportedByV2.forEach(it => {
             permission[it]['disabled'] = true;
@@ -722,11 +703,11 @@
             }
           })
         }
-        this.notPermitted.forEach(it => {
-          permission[it]['disabled'] = true;
-          permission[it]['hide'] = false;
-          permission[it]['reason'] = '您无权使用该功能';
-        });
+//        this.notPermitted.forEach(it => {
+//          permission[it]['disabled'] = true;
+//          permission[it]['hide'] = false;
+//          permission[it]['reason'] = '您无权使用该功能';
+//        });
 //        console.log(permission);
       },
 
