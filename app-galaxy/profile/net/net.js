@@ -1539,7 +1539,7 @@ class Net extends NetBase {
     };
 
     /** copy prop */
-    ['id', 'appId', 'spaceId', 'orchId', 'orchIp', 'intranetDomain', 'internetDomainList',
+    ['id', 'appId', 'spaceId', 'orchId', 'orchIp', 'intranetDomain', 'intranetDomainList', 'internetDomainList', 'updateTime',
       'containerStatus', // 运行状态：几个实例；几个运行中实例
       'defaultSelect', // 是否是默认服务
       'k8s', // 是否是k8s应用
@@ -1696,8 +1696,9 @@ class Net extends NetBase {
     if (resContent['applicationServerList'].length === 0) {
       throw new Error('服务尚未创建');
     }
-    const serviceInfo = this.getServiceModel(resContent['applicationServerList'][0]);
-    return serviceInfo;
+    const serviceModel = this.getServiceModel(resContent['applicationServerList'][0]);
+    serviceModel.profileId = profileId;
+    return serviceModel;
   }
 
   /**
