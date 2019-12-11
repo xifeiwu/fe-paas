@@ -1,8 +1,8 @@
 <template>
   <div id="service-detail">
-    <div class="header" v-if="dataPassed.profileInfo && dataPassed.serviceInfo">
-      <div style="display: inline-block"><span style="font-weight: bold">运行环境：</span><span>{{dataPassed.profileInfo.name}}</span></div>
-      <div style="display: inline-block; margin-left: 15px;"><span style="font-weight: bold">应用名称：</span><span>{{dataPassed.serviceInfo.appName}}</span></div>
+    <div class="header">
+      <div style="display: inline-block"><span style="font-weight: bold">运行环境：</span><span>{{profileInfo ? profileInfo.description : '---'}}</span></div>
+      <div style="display: inline-block; margin-left: 15px;"><span style="font-weight: bold">应用名称：</span><span>{{serviceModel ? serviceModel.appName : '---'}}</span></div>
       <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'refresh')">刷新</el-button>
       <el-button style="margin-left: 15px;" size="mini" type="primary" @click="handleClick($event, 'show_topN_error_dialog')" v-if="false">查看错误排行榜</el-button>
       <el-tooltip slot="trigger" effect="dark" placement="bottom-start">
@@ -16,13 +16,13 @@
       <div class="by-text">
         <div class="section basic">
           <div class="title">基本信息</div>
-          <div class="content" v-if="serviceInfo">
+          <div class="content" v-if="serviceModel">
             <el-form label-position="right" label-width="100px" size="mini">
               <el-form-item label="服务ID">
-                {{serviceInfo["id"]}}
+                {{serviceModel["id"]}}
               </el-form-item>
               <el-form-item label="所在集群" v-if="$storeHelper.groupVersion === 'v1'">
-                {{serviceInfo["k8s"] === 1 ? 'k8s' : 'mesos'}}
+                {{serviceModel["k8s"] === 1 ? 'k8s' : 'mesos'}}
               </el-form-item>
               <el-form-item label="外网域名">
                 <div v-if="internetDomainList.length==0">未绑定</div>
@@ -42,8 +42,12 @@
                 </div>
               </el-form-item>
               <el-form-item label="内网域名">
-                <el-row v-if="intranetDomain" type="flex" align="middle">
-                  <el-col :span="14"><a :href="'http://' + intranetDomain" target="_blank">{{intranetDomain}}</a></el-col>
+                <el-row v-if="Array.isArray(serviceModel.intranetDomainList)" type="flex" align="middle">
+                  <el-col :span="18">
+                    <div v-for="(item, index) in serviceModel.intranetDomainList" :key="index">
+                      <a :href="`http://${item}`" target="_blank">{{item}}</a>
+                    </div>
+                  </el-col>
                   <!--<el-tooltip placement="top-start" effect="light" :content="dnsState.office.content">-->
                     <!--<el-col :class="dnsState.office.status ? 'el-icon-success' : 'el-icon-error'" :span="2" :style="{color: dnsState.office.status ? '#67C23A': '#F56C6C'}"></el-col>-->
                   <!--</el-tooltip>-->
@@ -57,22 +61,22 @@
                 <el-row v-else>未绑定</el-row>
               </el-form-item>
               <el-form-item label="更新时间">
-                {{this.$utils.formatDate(serviceInfo["updateTime"],"yyyy-MM-dd hh:mm:ss")}}
+                {{this.$utils.formatDate(serviceModel.updateTime, 'yyyy-MM-dd hh:mm:ss')}}
               </el-form-item>
               <el-form-item label="项目名称">
-                {{serviceInfo["tag"]}}
+                {{serviceModel["tag"]}}
               </el-form-item>
               <el-form-item label="二级域名">
-                {{dataPassed.serviceInfo["serviceName"]}}
+                {{serviceModel["serviceName"]}}
               </el-form-item>
               <el-form-item label="开发语言">
-                {{serviceInfo["language"] + "-" + serviceInfo["languageVersion"]}}
+                {{serviceModel.language.name + "-" + serviceModel.language.version}}
               </el-form-item>
-              <el-form-item label="构建类型" v-if="serviceInfo['language'].toUpperCase() === 'JAVA' && !serviceInfo['customImage']">
-                {{serviceInfo["packageType"] ? serviceInfo["packageType"] : '未知'}}
+              <el-form-item label="构建类型" v-if="serviceModel.isJavaLanguage && !serviceModel.image.customImage">
+                {{serviceModel.packageInfo.type ? serviceModel.packageInfo.type : '未知'}}
               </el-form-item>
-              <el-form-item label="服务期限" v-if="!isProductionProfile">
-                {{serviceInfo["remainExpiredDays"] ? (serviceInfo["remainExpiredDays"] < 0 ? 0 : serviceInfo["remainExpiredDays"]) + "天": "未配置"}}
+              <el-form-item label="服务期限" v-if="$storeHelper.isProductionProfile(profileInfo.id)">
+                {{`${serviceModel.remainExpiredDays}天`}}
               </el-form-item>
             </el-form>
           </div>
@@ -92,7 +96,7 @@
               </el-form-item>
               <el-form-item label="健康检查路径">
                 <a v-if="runningInfo['healthCheckType'] && runningInfo['healthCheckType'].toLowerCase() === 'http'"
-                   :href="'http://' + serviceInfo['intranetDomain'] + runningInfo['healthCheck']">{{runningInfo['healthCheck']}}</a>
+                   :href="'http://' + serviceModel.intranetDomain + runningInfo['healthCheck']">{{runningInfo['healthCheck']}}</a>
                 <span v-else>{{runningInfo['healthCheck'] ? runningInfo['healthCheck'] : "未知"}}</span>
               </el-form-item>
               <el-form-item label="健康检查延迟时间" v-if="this.$storeHelper.groupVersion !== 'v1'">
@@ -107,7 +111,7 @@
               <el-form-item label="滚动升级">
                 {{runningInfo["rollingUpdate"] ? "需要" : "未知"}}
               </el-form-item>
-              <el-form-item label="应用监控" v-if="serviceInfo && serviceInfo.language === 'JAVA'">
+              <el-form-item label="应用监控" v-if="serviceModel.isJavaLanguage">
                 {{profileUtils.getMonitorNameById(runningInfo["appMonitor"])}}
               </el-form-item>
               <el-form-item label="镜像">
@@ -122,7 +126,7 @@
                     <el-col :span="10" style="font-weight: bold;text-align: center">Key</el-col>
                     <el-col :span="10" style="font-weight: bold;text-align: center">Value</el-col>
                   </el-row>
-                  <el-row v-for="(item, index) in runningInfo.environments" :key="item.name">
+                  <el-row v-for="(item, index) in runningInfo.environments" :key="index">
                     <el-col :span="10" style="text-align: center">
                       <div class="expand-to-next-line">{{item.name}}</div>
                     </el-col>
@@ -644,27 +648,22 @@
       this.profileUtils = profileUtils;
       var goBack = false;
       this.recoveryStatus();
-      if (this.$storeHelper.dataTransfer) {
-        const dataTransfer = this.$storeHelper.dataTransfer;
-//        console.log(dataTransfer);
-        const from = dataTransfer['from'];
-        const theData = dataTransfer['data'];
-        switch (from) {
-          case this.$net.page['profile/service']:
-            this.dataPassed.profileInfo = theData['profileInfo'];
-            this.dataPassed.serviceInfo = theData['serviceInfo'];
-            this.dataPassed.profileId = this.dataPassed.profileInfo.id;
-            this.dataPassed.appId = this.dataPassed.serviceInfo.appId;
-            this.isProductionProfile = (this.dataPassed.profileInfo.name === 'production');
-            break;
-        }
-        this.$storeHelper.dataTransfer = null;
-        this.requestServiceInfo(this.dataPassed.appId, this.dataPassed.profileId);
+
+      const query = this.$route.query;
+      if (this.$utils.isNumber(parseInt(query.appId)) && this.$utils.isNumber(parseInt(query.profileId))) {
+        this.query.appId = parseInt(query.appId);
+        this.query.profileId = parseInt(query.profileId);
+        this.profileInfo = this.$storeHelper.getProfileInfoById(this.query.profileId);
+        this.requestServiceInfo(this.query.appId, this.query.profileId);
       } else {
         goBack = true;
       }
       if (goBack) {
-        this.$router.go(-1);
+        this.$message.error(`服务详情：信息不完整！`);
+        this.$router.push({
+          name: 'service_list',
+        });
+//        this.$router.go(-1);
         return;
       }
     },
@@ -690,18 +689,17 @@
     },
     data() {
       return {
+        query: {
+          appId: '',
+          profileId: ''
+        },
+        profileInfo: null,
+        serviceModel: null,
 //      1. 对于1.x团队的应用，服务管理页面中删除、配置外网域名、复制服务不可用，创建服务不可用。
 //      2. 对于mesos应用，服务管理页面中重启按钮不可用
         resizeListenerForServiceList: () => {},
         heightOfServiceInfo: '',
-        dataPassed: {
-          profileId: null,
-          serviceId: null,
-          profileInfo: null,
-          serviceInfo: null,
-        },
         // whether current profile is production
-        isProductionProfile: null,
         intranetDomain: null,
         internetDomainList: [],
         dateTimeRange: [],
@@ -759,7 +757,6 @@
         },
         // 请求次数统计信息
         requestStatisticList: [],
-        serviceInfo: null,
         deployLogs: [],
         props4CreateDomain: {
           prefixName: '',
@@ -799,19 +796,19 @@
       handleButtonClick(action) {
         switch (action) {
           case 'search':
-            this.getRequestStatistic(this.dataPassed.appId, this.dataPassed.profileId, this.dateTimeRange);
+            this.getRequestStatistic(this.query.appId, this.query.profileId, this.dateTimeRange);
             break;
         }
       },
       recoveryStatus() {
         this.runningInfo = null;
-        this.serviceInfo = null;
+        this.serviceModel = null;
       },
 
       handleClick(evt, action) {
         switch (action) {
           case 'refresh':
-            this.requestServiceInfo(this.dataPassed.appId, this.dataPassed.profileId);
+            this.requestServiceInfo(this.query.appId, this.query.profileId);
             break;
           case 'show_topN_error_dialog':
             this.topNException.showTopNErrorDialog = true;
@@ -971,11 +968,19 @@
           console.log('appId or profileId can not be empty');
           return;
         }
-        let payload = {
+        const serviceModel = await this.$net.getServiceByAppIdAndSpaceId(appId, profileId);
+
+        const routeConfig = this.$router.helper.getConfigByName('service_id');
+        if (routeConfig) {
+          routeConfig.label = `${serviceModel.appName}/${this.profileInfo.description}`;
+        }
+        // console.log(serviceModel);
+
+        const payload = {
           appId: appId,
           spaceId: profileId,
           groupTag: this.$storeHelper.groupInfo.tag,
-          buildName: this.dataPassed.serviceInfo.tag
+          buildName: serviceModel.tag
         };
         this.$net.requestPaasServer(this.$net.URL_LIST.service_info_running, {payload}).then(resContent => {
           if (resContent.hasOwnProperty("applicationConfigDeployment")) {
@@ -985,15 +990,9 @@
             this.processDnsState(resContent["dnsState"]);
           }
         });
-        const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_list_by_app_and_profile, {payload});
-        if (!resContent.hasOwnProperty('applicationServerList') && !Array.isArray(resContent['applicationServerList'])) {
-          this.$message.error('数据格式不正确');
-          return;
-        }
-        const basicInfo = resContent['applicationServerList'][0];//this.$net.getServiceModel(resContent['applicationServerList'][0]);
-        this.serviceInfo = basicInfo;
-        this.intranetDomain = basicInfo["intranetDomain"];
-        this.internetDomainList = basicInfo["internetDomainList"];
+        this.serviceModel = serviceModel;
+        this.intranetDomain = serviceModel["intranetDomain"];
+        this.internetDomainList = serviceModel["internetDomainList"];
 
         this.getRequestStatistic(appId, profileId, this.dateTimeRange, this.intranetDomain, this.internetDomainList);
         this.getMiddlewareInfo();
@@ -1012,8 +1011,8 @@
           this.middlewareLoading = true;
           let resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.middleware_service_relation, {
             payload: {
-              serviceName: this.dataPassed.serviceInfo.serviceName,
-              spaceId: this.dataPassed.profileInfo.id,
+              serviceName: this.serviceModel.serviceName,
+              spaceId: this.profileInfo.id,
             }
           });
           if (resContent.hasOwnProperty("type") && resContent.type === 'error') {
@@ -1076,6 +1075,10 @@
       },
 
       async requestTopNException() {
+        if (!this.serviceModel) {
+          console.log(`this.serviceModel is null`);
+          return;
+        }
         this.topNException.loadingStatus = true;
         this.topNException.topNExceptionList = [];
         this.topNException.count = 0;
@@ -1083,7 +1086,7 @@
           "endDate": this.topNException.dateTimeRange[1].getTime(),
           "fromDate": this.topNException.dateTimeRange[0].getTime(),
           "number": 10,
-          "serviceName": this.dataPassed.serviceInfo.serviceName
+          "serviceName": this.serviceModel.serviceName
         };
         try {
           const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.service_detail_topNException, {payload});

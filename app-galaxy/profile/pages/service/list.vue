@@ -168,7 +168,7 @@
                       size="small"
                       type="text"
                       :class="['flex', 'primary']"
-                      @click="handleTRClick($event, 'go-to-page-service-detail-from-page-service', scope.$index, scope.row)">
+                      @click="handleTRClick($event, 'service_list_to_page_service_detail', scope.$index, scope.row)">
                 <span>服务详情</span><i class="paas-icon-level-up"></i>
               </el-button>
               <div class="ant-divider"></div>
@@ -1974,7 +1974,18 @@ tolerations:
           case 'service_config_copy':
             this.goToPageServiceAdd(action, row);
             break;
-          case 'go-to-page-service-detail-from-page-service':
+          case 'service_list_to_page_service_detail':
+            this.$router.push({
+              name: 'service_detail',
+              params: {
+                id: row.id
+              },
+              query: {
+                appId: row.appId,
+                profileId: this.profileInfo.id,
+              }
+            });
+            break;
           case 'go-to-work-order-todo-add':
           case 'go-to-page-log-deploy-from-service':
           case 'go-to-instance-list':
@@ -1998,7 +2009,7 @@ tolerations:
               data
             };
             const PATH_MAP = {
-              'go-to-page-service-detail-from-page-service': this.$net.page['profile/service/detail'],
+              'service_list_to_page_service_detail': this.$net.page['profile/service/detail'],
               'go-to-work-order-todo-add': this.$net.page['profile/work-order/todo/add'],
               'go-to-page-log-deploy-from-service': this.$net.page['profile/log/deploy'],
               'go-to-instance-list': this.$net.page['profile/instance'],
