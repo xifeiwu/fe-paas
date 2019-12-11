@@ -311,10 +311,10 @@
                 callback('路径以/开头');
                 return;
               }
-              if (values.length == 1) {
-                callback('请求路径不能为根路径');
-                return;
-              }
+//              if (values.length == 1) {
+//                callback('请求路径不能为根路径');
+//                return;
+//              }
               callback();
             }
           }],

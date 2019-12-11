@@ -106,14 +106,13 @@
         <el-table-column label="操作" prop="operation" headerAlign="center" align="center" minWidth="120">
           <template slot-scope="scope">
             <el-button
-                    v-if="!scope.row.isRootPath"
                     type="text"
                     :class="['flex', 'primary']"
                     @click="handleTRClick($event, 'gateway_modify', scope.row, scope.$index)"
             >
               <span>修改</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider" v-if="!scope.row.isRootPath"></div>
+            <div class="ant-divider"></div>
             <el-button
                     type="text"
                     :class="['flex', 'primary']"
@@ -121,9 +120,8 @@
             >
               <span>详情</span><i class="paas-icon-level-up"></i>
             </el-button>
-            <div class="ant-divider" v-if="!scope.row.isRootPath"></div>
+            <div class="ant-divider"></div>
             <el-button
-                    v-if="!scope.row.isRootPath"
                     type="text"
                     :class="['flex', 'danger']"
                     @click="handleTRClick($event, 'gateway_delete', scope.row, scope.$index)"
