@@ -16,6 +16,7 @@
       <!--toasts-area-->
       <!--popover-message-area-->
       <paas-popover-message ref="global-popover-close-on-leave" popperClass="el-popover--small is-dark"
+                            style="font-size: 12px; font-weight: bold; color: #eb9e05"
                             placement="top" :closeDelay="0" :closeOnLeave="true"></paas-popover-message>
       <paas-popover-message ref="global-popover-close-on-delay" popperClass="el-popover--small is-dark"
                             placement="bottom" :closeDelay="1000" :closeOnLeave="false"></paas-popover-message>
