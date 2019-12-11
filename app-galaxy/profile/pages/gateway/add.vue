@@ -63,9 +63,9 @@
         </div>
         <div class="el-form-item__content" style="margin-left: 90px;">
           <div v-if="forDetail" class="detail">
-            <span class="item">连接超时：{{formData.connTimeout}}</span>
-            <span class="item">发送超时：{{formData.sendTimeout}}</span>
-            <span class="item">读取超时：{{formData.readTimeout}}</span>
+            <span class="item">连接超时：{{formData.connTimeout}}秒</span>
+            <span class="item">发送超时：{{formData.sendTimeout}}秒</span>
+            <span class="item">读取超时：{{formData.readTimeout}}秒</span>
           </div>
           <div v-else>
             <el-form-item label="连接超时" labelWidth="70px">
@@ -89,8 +89,8 @@
         </div>
         <div class="el-form-item__content" style="margin-left: 90px;">
           <div v-if="forDetail" class="detail">
-            <span class="item">重试次数：{{formData.retryNum}}</span>
-            <span class="item">重试超时时间：{{formData.retryTimeout}}</span>
+            <span class="item">重试次数：{{formData.retryNum}}次</span>
+            <span class="item">重试超时时间：{{formData.retryTimeout}}秒</span>
           </div>
           <div v-else>
             <el-form-item label="重试次数" labelWidth="70px">
@@ -353,6 +353,7 @@
           appId: this.appId,
           spaceId: this.profileId,
         };
+        // query中加入gatewayName，接口会返回网关详情信息
         if (this.forModify || this.forDetail) {
           query.gatewayName = decodeURIComponent(this.$route.params['name']);
         }
@@ -382,11 +383,11 @@
         if (this.forModify || this.forDetail) {
           formData.gatewayName = gatewayStatusFromNet.gatewayName;
           formData.host = gatewayStatusFromNet.domainList[0] ? gatewayStatusFromNet.domainList[0] : '---';
-          formData.connTimeout = gatewayStatusFromNet.connTimeout;
-          formData.sendTimeout = gatewayStatusFromNet.sendTimeout;
-          formData.readTimeout = gatewayStatusFromNet.readTimeout;
-          formData.retryTimeout = gatewayStatusFromNet.retryTimeout;
-          formData.retryNum = gatewayStatusFromNet.retryNum;
+          formData.connTimeout = null != gatewayStatusFromNet.connTimeout ? gatewayStatusFromNet.connTimeout : gatewayStatusFromNet.defConnTimeout;
+          formData.sendTimeout = null != gatewayStatusFromNet.sendTimeout ? gatewayStatusFromNet.sendTimeout : gatewayStatusFromNet.defSendTimeout;
+          formData.readTimeout = null != gatewayStatusFromNet.readTimeout ? gatewayStatusFromNet.readTimeout : gatewayStatusFromNet.defReadTimeout;
+          formData.retryTimeout = null != gatewayStatusFromNet.retryTimeout ? gatewayStatusFromNet.retryTimeout : gatewayStatusFromNet.defRetryTimeout;
+          formData.retryNum = null != gatewayStatusFromNet.retryNum ? gatewayStatusFromNet.retryNum : gatewayStatusFromNet.defRetryNum;
         } else {
           // formData.hostList = [];
           // set the first one as default
