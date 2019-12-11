@@ -457,7 +457,7 @@
             validator(rule, values, callback) {
               let passed = true;
               if (values.length > 0) {
-                const reg = /^\/[\u4e00-\u9fa5\w\-]{0,35}$/;
+                const reg = /^\/[\u4e00-\u9fa5\w\-\/]{0,35}$/;
                 if (!reg.test(values)) {
                   passed = false;
                   callback('以/开头，可以包含字母数字中划线，1-36个字符');
