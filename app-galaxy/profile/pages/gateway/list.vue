@@ -260,10 +260,10 @@
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
-               class="size-700 config_path_rewrite"
+               class="size-600 config_path_rewrite"
     >
       <div class="content">
-        <el-form :model="action.data" :rules="configRules" size="mini" label-width="180px" ref="configPathRewriteForm">
+        <el-form :model="action.data" :rules="configRules" size="mini" label-width="140px" ref="configPathRewriteForm">
           <el-form-item label="网关名称"class="message-show">
             <span> {{action.data.gatewayName}} </span>
           </el-form-item>
@@ -273,11 +273,19 @@
           <el-form-item label="应用名称/运行环境" class="message-show">
             <span> {{action.data.appName}} / {{action.data.spaceName}}</span>
           </el-form-item>
-          <el-form-item label="当前路径" class="message-show">
-            {{action.data.path}}
+          <el-form-item class="message-show">
+            <div slot="label" style="display: flex; justify-content: flex-end; align-items: center">
+              <span>当前路径</span>
+              <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'客户端请求的路径'"></i>
+            </div>
+            <span>{{action.data.path}}</span>
           </el-form-item>
-          <el-form-item label="目标路径" prop="targetPath">
-            <el-input size="mini" v-model="action.data.targetPath"></el-input>
+          <el-form-item prop="targetPath">
+            <div slot="label" style="display: flex; justify-content: flex-end; align-items: center">
+              <span>目标路径</span>
+              <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'服务端响应的路径'"></i>
+            </div>
+            <el-input size="mini" style="flex: 1;" v-model="action.data.targetPath"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -841,7 +849,7 @@
               const dialogData = await this.openDialog(action, {
                 gatewayName: row.gatewayName,
                 appName: row.appName,
-                spaceName: row.spaceName,
+                spaceName: row.spaceName ? row.spaceName : '---',
                 host: row.host,             // 域名
                 appId: row.appId,
                 path: row.path,
