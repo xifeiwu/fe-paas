@@ -316,13 +316,6 @@
         }
       },
 
-      // TODO: not used
-      getProductionProfile() {
-        const profileType = 'PRODUCTION';
-        const profileInfo = this.$storeHelper.getProfileInfoByType(profileType);
-        return profileInfo;
-      },
-
       async handleButtonClick(evt, action, index, row) {
         if (this.$storeHelper.permission.hasOwnProperty(action) && this.$storeHelper.permission[action].disabled) {
           this.$storeHelper.globalPopover.show({

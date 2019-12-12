@@ -131,14 +131,14 @@
             </el-button>
             <div class="ant-divider"></div>
             <el-button
-                    v-if="$storeHelper.isProductionProfile(query.profileId)"
+                    v-if="$storeHelper.isProductionProfile(query.profileId, 'name')"
                     type="text"
                     :class="['flex', $storeHelper.actionDisabled('open_dialog_gateway_copy_request') ? 'disabled' : 'warning']"
                     @click="handleTRClick($event, 'open_dialog_gateway_copy_request', scope.row, scope.$index)"
             >
               <span>流量复制</span>
             </el-button>
-            <div class="ant-divider" v-if="$storeHelper.isProductionProfile(query.profileId)"></div>
+            <div class="ant-divider" v-if="$storeHelper.isProductionProfile(query.profileId, 'name')"></div>
             <el-button
                 type="text"
                 :class="['flex', $storeHelper.actionDisabled('open_dialog_gateway_limit_rating') ? 'disabled' : 'danger']"

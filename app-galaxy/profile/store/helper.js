@@ -615,38 +615,26 @@ class StoreHelper extends BaseHelper{
    * }
    */
   getProfileInfoById(id) {
-    let target = null;
-    try {
-      this.profileListAll.some(it => {
-        target = it.id == id ? it : null;
-        return target
-      });
-    } catch(err) {
-      console.log(err);
+    if (Array.isArray(this.profileListAll)) {
+      return this.profileListAll.find(it => it.id == id);
+    } else {
+      return null;
     }
-    return target;
   }
-  getProfileInfoByType(type) {
-    let target = null;
-    this.profileListAll.some(it => {
-      target = it.spaceType === type ? it : null;
-      return target
-    });
-    return target;
-  }
-  getProductionProfile() {
-    return this.getProfileInfoByType('PRODUCTION');
-  }
+  // getProfileInfoByType(type) {
+  //   let target = null;
+  //   this.profileListAll.some(it => {
+  //     target = it.spaceType === type ? it : null;
+  //     return target
+  //   });
+  //   return target;
+  // }
   getProfileInfoByName(name) {
-    let target = null;
-    const profileListAll = this.profileListAll;
-    if (Array.isArray(profileListAll)) {
-      profileListAll.some(it => {
-        target = it.name === name ? it : null;
-        return target
-      });
+    if (Array.isArray(this.profileListAll)) {
+      return this.profileListAll.find(it => it.name == name);
+    } else {
+      return null;
     }
-    return target;
   }
   /**
    * change the format of profileList item from
@@ -669,12 +657,18 @@ class StoreHelper extends BaseHelper{
     return result;
   }
 
-  // getProfileInfoOfProduct() {
-  //   return this.getProfileInfoByName('production');
-  // }
-  isProductionProfile(id) {
-    let profileInfo = this.getProfileInfoByID(id);
-    return profileInfo && profileInfo.hasOwnProperty('spaceType') && profileInfo.spaceType === 'PRODUCTION';
+  /**
+   * check if production profile by name or id
+   * @param nameOrId, name or id
+   * @param by, spaceType of name
+   * @returns {*|boolean}
+   */
+  isProductionProfile(nameOrId, by = 'spaceType') {
+    var profileInfo = this.getProfileInfoByName(nameOrId);
+    if (!profileInfo) {
+      profileInfo = this.getProfileInfoById(nameOrId);
+    }
+    return profileInfo && profileInfo.hasOwnProperty(by) && profileInfo[by].toUpperCase() === 'PRODUCTION';
   }
 
   getGroupInfoByID(groupID) {
