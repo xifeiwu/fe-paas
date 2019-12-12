@@ -321,7 +321,7 @@
             <span> {{action.data.host}}</span>
           </el-form-item>
           <el-form-item label="应用名称/运行环境" class="message-show">
-            <span> {{action.data.appName}} / {{action.data.spaceName}}</span>
+            <span> {{action.data.appName}}（{{action.data.profileDescription}}）</span>
           </el-form-item>
           <el-form-item label="启用流量复制" class="message-show">
             <el-checkbox v-model="action.data.enable">启用</el-checkbox>
@@ -329,18 +329,14 @@
           <el-form-item class="target-service message-show" v-if="action.data.enable">
             <div slot="label" style="display: flex; justify-content: flex-end; align-items: center">
               <span>接受请求流量的服务</span>
-              <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'只能将生产环境服务的流量重定向到联调环境'"></i>
+              <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'只能将生产环境服务的流量重定向到预发布环境'"></i>
             </div>
             <div style="display: flex; align-items: center">
               <el-select v-model="action.data.targetAppId" filterable>
                 <el-option v-for="(item,index) in $storeHelper.appModelListOfGroup" :label="item.appName" :key="item.appId" :value="item.appId">
                 </el-option>
               </el-select>
-              <span style="display: inline-block; margin-left: 12px; font-weight: bold">联调环境</span>
-              <!--<el-select v-model="action.data.targetProfileId" filterable>-->
-                <!--<el-option v-for="(item,index) in productionProfileListOfGroup" :label="item.description" :key="item.id" :value="item.id">-->
-                <!--</el-option>-->
-              <!--</el-select>-->
+              <span style="display: inline-block; margin-left: 12px; font-weight: bold">预发布环境</span>
             </div>
           </el-form-item>
         </el-form>
@@ -574,7 +570,7 @@
         if (it.pathRewrite) {
           it.configList.push(`请求改写：${it.path} -> ${it.pathRewrite}`);
         }
-        var profileInfo = this.$storeHelper.profileListAll.find(it => it.id == it.spaceId);
+        var profileInfo = this.$storeHelper.profileListAll.find(it2 => it2.id == it.spaceId);
         !profileInfo && (profileInfo = {});
         it.profileInfo = profileInfo;
 
@@ -594,6 +590,7 @@
           resData.forEach(this._updateRowInfo);
           result = resData;
         } catch(err) {
+          console.log(err);
         }
         return result;
       },
@@ -724,7 +721,7 @@
                   appId: dialogData.appId,
                   // targetAppId, targetSpaceId为空，代表禁用流量复制
                   targetAppId: dialogData.enable ? dialogData.targetAppId : null,
-                  targetSpaceId: dialogData.enable ? this.$storeHelper.betaProfileId : null
+                  targetSpaceId: dialogData.enable ? dialogData.targetProfileId : null
                 }
               });
               this.action.promise.resolve(this.action.data);
@@ -863,7 +860,6 @@
             }
             break;
           case 'open_dialog_gateway_limit_rating':
-            // console.log(row);
             if (!row.appId || !row.gatewayName || !row.spaceId || !row.groupId) {
               this.$message.error('该网关不能设置原IP限速功能！');
               return;
@@ -963,12 +959,12 @@
 
 
             var targetAppId = this.$storeHelper.appModelListOfGroup[0].appId;
-            var targetProfileId = this.productionProfileListOfGroup[0].id;
-            // 流量复制是否启用？
+            // targetProfileId指定为预发布环境
+            // var targetProfileId = this.productionProfileListOfGroup[0].id;
+            // 流量复制是否启用
             var enabled = false;
             if (row.copyTargetAppId && row.targetApp && row.copyTargetSpaceId && row.targetProfile) {
               targetAppId = row.copyTargetAppId;
-              targetProfileId = row.copyTargetSpaceId;
               enabled = true
             }
 
@@ -977,11 +973,12 @@
                 gatewayName: row.gatewayName,
                 appId: row.appId,
                 appName: row.appName,
-                spaceName: row.spaceName,
-                host: row.host,             // 域名
-                enable: enabled,               // 是否启用流量复制
+                profileDescription: (row.profileInfo && row.profileInfo.description) ? row.profileInfo.description : '---',
+                spaceName: row.spaceName,       // not used
+                host: row.host,                 // 域名
+                enable: enabled,                // 是否启用流量复制
                 targetAppId,
-                targetProfileId,
+                targetProfileId: this.$storeHelper.stagingProfileId,
 
                 groupId: row.groupId,
                 spaceId: row.spaceId,
