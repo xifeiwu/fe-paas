@@ -289,7 +289,7 @@
               <span>目标路径</span>
               <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'服务端响应的路径'"></i>
             </div>
-            <el-input size="mini" style="flex: 1;" v-model="action.data.targetPath"></el-input>
+            <el-input size="mini" style="flex: 1;" v-model="action.data.targetPath" placeholder="以/开头，不能含有空格，最长长度90个字符"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -328,7 +328,7 @@
           </el-form-item>
           <el-form-item class="target-service message-show" v-if="action.data.enable">
             <div slot="label" style="display: flex; justify-content: flex-end; align-items: center">
-              <span>接受请求流量的服务</span>
+              <span>接收请求流量的服务</span>
               <i class="paas-icon-question" style="font-size: 12px; color: #E6A23C;" v-pop-on-mouse-over="'只能将生产环境服务的流量重定向到预发布环境'"></i>
             </div>
             <div style="display: flex; align-items: center">
@@ -463,10 +463,10 @@
             validator(rule, values, callback) {
               let passed = true;
               if (values.length > 0) {
-                const reg = /^\/[\u4e00-\u9fa5\w\-\/]{0,35}$/;
+                const reg = /^\/[^ ]{0,90}$/;
                 if (!reg.test(values)) {
                   passed = false;
-                  callback('以/开头，可以包含字母数字中划线，1-36个字符');
+                  callback('以/开头，不能含有空格，最长长度90个字符');
                 }
               } else {
               }
@@ -703,6 +703,8 @@
             break;
           case 'gateway_path_rewrite':
             try {
+              const dialogData = this.action.data;
+              // dialogData.targetPath = dialogData.targetPath.trim();
               await this.$refs['configPathRewriteForm'].validate();
               this.action.promise.resolve(this.action.data);
             } catch (err) {
