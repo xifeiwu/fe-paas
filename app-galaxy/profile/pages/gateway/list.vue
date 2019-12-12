@@ -574,8 +574,12 @@
         if (it.pathRewrite) {
           it.configList.push(`请求改写：${it.path} -> ${it.pathRewrite}`);
         }
+        var profileInfo = this.$storeHelper.profileListAll.find(it => it.id == it.spaceId);
+        !profileInfo && (profileInfo = {});
+        it.profileInfo = profileInfo;
+
         if (it.copyTargetAppId && it.targetApp && it.copyTargetSpaceId && it.targetProfile) {
-          it.configList.push(`流量复制：${it.appName}/${it.spaceName} -> ${it.targetApp.appName}/${it.targetProfile.description}`);
+          it.configList.push(`流量复制：${it.appName}/${profileInfo.description} -> ${it.targetApp.appName}/${it.targetProfile.description}`);
         }
       },
       async _requestList() {
