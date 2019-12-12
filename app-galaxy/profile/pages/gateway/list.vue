@@ -719,8 +719,8 @@
                   spaceId: dialogData.spaceId,
                   appId: dialogData.appId,
                   // targetAppId, targetSpaceId为空，代表禁用流量复制
-                  targetAppId: dialogData.enable ? dialogData.targetAppId : '',
-                  targetSpaceId: dialogData.enable ? this.$storeHelper.betaProfileId : ''
+                  targetAppId: dialogData.enable ? dialogData.targetAppId : null,
+                  targetSpaceId: dialogData.enable ? this.$storeHelper.betaProfileId : null
                 }
               });
               this.action.promise.resolve(this.action.data);
@@ -771,12 +771,56 @@
             break;
           case 'gateway_delete':
             try {
-              await this.$confirm(`删除API网关配置 "${row.gatewayName}" 吗？`, '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning',
-                dangerouslyUseHTMLString: true
-              });
+              if (this.$storeHelper.isProductionProfile(this.query.profileId)) {
+                const h = this.$createElement;
+                const {value, action} = await this.$msgbox({
+                  title: '提示',
+                  message: h('div', null, [
+                    '删除网关前，请子下面的输入框中输入网关名称',
+                    h('span', {
+                        style: {
+                          padding: ['1px', '2px'],
+                          fontSize: '90%',
+                          color: '#c0341d',
+                          backgroundColor: '#fcedea',
+                          borderRadius: '3px'
+                        }
+                      },
+                      row.gatewayName
+                    ),
+                    '，进行确认',
+                  ]),
+                  showCancelButton: true,
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  $type: 'prompt',
+                  showInput: true,
+                  inputPlaceholder: '请输入网关名称',
+                  inputValidator: (inputValue) => {
+                    if (inputValue !== row.gatewayName) {
+                      return '服务名称填写不正确';
+                    } else {
+                      return true;
+                    }
+                  },
+                  beforeClose(action, component, done) {
+                    if (action === 'confirm') {
+                      setTimeout(() => {
+                        done();
+                      }, 200);
+                    } else {
+                      done();
+                    }
+                  }
+                });
+              } else {
+                await this.$confirm(`删除API网关配置 "${row.gatewayName}" 吗？`, '提示', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  type: 'warning',
+                  dangerouslyUseHTMLString: true
+                });
+              }
               await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_delete, {
                 data: {
                   groupId: this.$storeHelper.groupInfo.id,
