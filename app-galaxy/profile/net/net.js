@@ -692,7 +692,8 @@ class Net extends NetBase {
       // 源IP限速
       'gateway_update_rate_limiting': {
         path: '/gateway/createOrUpdateSourceIPLimiting',
-        method: 'post'
+        method: 'post',
+        partial: true
       },
       // 修改请求改写
       'gateway_update_path_rewrite': {

@@ -208,6 +208,7 @@
                bodyPadding="6px 10px"
                :close-on-click-modal="false"
                @close="closeDialog"
+               :loading="action.requesting"
                class="size-600 gateway_limit_rating"
     >
       <div class="content">
@@ -695,10 +696,27 @@
                 this.$message.warning('您没有做任何修改。未向后端发送更新请求！');
                 return;
               }
-              this.action.promise.resolve(this.action.data);
+              const dialogData = this.action.data;
+              this.action.requesting = true;
+              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_rate_limiting, {
+                payload: {
+                  gatewayName: dialogData.gatewayName,
+                  groupId: dialogData.groupId,
+                  spaceId: dialogData.spaceId,
+                  appId: dialogData.appId,
+                  limitConnectionsSelected: dialogData.limitConnectionsSelected,
+                  limitRpmSelected: dialogData.limitRpmSelected,
+                  limitRpsSelected: dialogData.limitRpsSelected,
+                  limitConnections: dialogData.limitConnections,
+                  limitRpm: dialogData.limitRpm,
+                  limitRps: dialogData.limitRps,
+                }
+              });
+              this.action.promise.resolve(dialogData);
             } catch (err) {
               console.log(err);
             } finally {
+              this.action.requesting = false;
             }
             break;
           case 'gateway_path_rewrite':
@@ -890,21 +908,6 @@
                 limitRps: gatewayStatus.limitRps,
                 groupId: gatewayStatus.groupId,
                 spaceId: gatewayStatus.spaceId,
-              });
-
-              const resData = await this.$net.requestPaasServer(this.$net.URL_LIST.gateway_update_rate_limiting, {
-                payload: {
-                  gatewayName: dialogData.gatewayName,
-                  groupId: dialogData.groupId,
-                  spaceId: dialogData.spaceId,
-                  appId: dialogData.appId,
-                  limitConnectionsSelected: dialogData.limitConnectionsSelected,
-                  limitRpmSelected: dialogData.limitRpmSelected,
-                  limitRpsSelected: dialogData.limitRpsSelected,
-                  limitConnections: dialogData.limitConnections,
-                  limitRpm: dialogData.limitRpm,
-                  limitRps: dialogData.limitRps,
-                }
               });
               Object.assign(row, dialogData);   // update row by dialogData
               this.$message.success('更新成功！');
