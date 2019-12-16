@@ -726,9 +726,12 @@ class Net extends Common {
     } catch (err) {
       console.log(err);
     }
+    // NOTICE: cas server for renmai
+    // 公网：http://sso.renmaitech.com/puhui-cas
+    // 内网：http://puhui-cas.public.production/puhui-cas
     const casServer = {
       'finup': 'http://cas.finupgroup.com/puhui-cas',
-      'renmai': 'http://cas.renmaitech.com/puhui-cas'
+      'renmai': 'http://sso.renmaitech.com/puhui-cas'
     }[corp];
     return casServer;
   }
