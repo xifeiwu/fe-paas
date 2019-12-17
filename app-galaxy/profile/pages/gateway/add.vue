@@ -380,7 +380,7 @@
         formData.paths = gatewayStatusFromNet.paths;
         formData.path = gatewayStatusFromNet.paths.length > 0 ? gatewayStatusFromNet.paths[0] : '';
         // NOTICE: 创建时，domainList为完整的域名列表。在修改时，为用户所选择的域名列表
-        if (this.forModify || this.forDetail) {
+        if (this.forModify) {
           formData.gatewayName = gatewayStatusFromNet.gatewayName;
           formData.host = gatewayStatusFromNet.domainList[0] ? gatewayStatusFromNet.domainList[0] : '---';
           formData.connTimeout = null != gatewayStatusFromNet.connTimeout ? gatewayStatusFromNet.connTimeout : gatewayStatusFromNet.defConnTimeout;
@@ -388,7 +388,15 @@
           formData.readTimeout = null != gatewayStatusFromNet.readTimeout ? gatewayStatusFromNet.readTimeout : gatewayStatusFromNet.defReadTimeout;
           formData.retryTimeout = null != gatewayStatusFromNet.retryTimeout ? gatewayStatusFromNet.retryTimeout : gatewayStatusFromNet.defRetryTimeout;
           formData.retryNum = null != gatewayStatusFromNet.retryNum ? gatewayStatusFromNet.retryNum : gatewayStatusFromNet.defRetryNum;
-        } else {
+        } else if (this.forDetail) {
+          formData.gatewayName = gatewayStatusFromNet.gatewayName;
+          formData.host = gatewayStatusFromNet.domainList[0] ? gatewayStatusFromNet.domainList[0] : '---';
+          formData.connTimeout = null != gatewayStatusFromNet.connTimeout ? gatewayStatusFromNet.connTimeout : '--';
+          formData.sendTimeout = null != gatewayStatusFromNet.sendTimeout ? gatewayStatusFromNet.sendTimeout : '--';
+          formData.readTimeout = null != gatewayStatusFromNet.readTimeout ? gatewayStatusFromNet.readTimeout : '--';
+          formData.retryTimeout = null != gatewayStatusFromNet.retryTimeout ? gatewayStatusFromNet.retryTimeout : '--';
+          formData.retryNum = null != gatewayStatusFromNet.retryNum ? gatewayStatusFromNet.retryNum : '--';
+        }else {
           // formData.hostList = [];
           // set the first one as default
           if (Array.isArray(gatewayStatusFromNet.domainList) && gatewayStatusFromNet.domainList.length > 0) {
