@@ -121,7 +121,7 @@
       </el-form-item>
     </el-form>
     <div class="section-footer">
-      <div class="item">
+      <div class="item" v-if="!forDetail">
         <el-button type="primary" size="mini" @click="handleClick($event, forModify ? 'modify' : 'create')">完成</el-button>
       </div>
       <div class="item">

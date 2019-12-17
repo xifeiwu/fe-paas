@@ -792,12 +792,12 @@
             break;
           case 'gateway_delete':
             try {
+              const h = this.$createElement;
               if (this.$storeHelper.isProductionProfile(this.query.profileId)) {
-                const h = this.$createElement;
                 const {value, action} = await this.$msgbox({
                   title: '提示',
                   message: h('div', null, [
-                    '删除网关前，请子下面的输入框中输入网关名称',
+                    '删除网关前，请在下面的输入框中输入网关名称',
                     h('span', {
                         style: {
                           padding: ['1px', '2px'],
@@ -810,6 +810,12 @@
                       row.gatewayName
                     ),
                     '，进行确认',
+                    h('div', {
+                      style: {
+                        fontSize: '12px',
+                        color: '#eb9e05'
+                      }
+                    }, '如果你删除的是该服务的默认根网关（含内网域名和外网域名），此处的网关删除，只是临时删除，后续服务重新部署，会重新生成默认网关。')
                   ]),
                   showCancelButton: true,
                   confirmButtonText: '确定',
@@ -835,7 +841,18 @@
                   }
                 });
               } else {
-                await this.$confirm(`删除API网关配置 "${row.gatewayName}" 吗？`, '提示', {
+                await this.$msgbox({
+                  title: '提示',
+                  message: h('div', null, [
+                    h('div', null, `删除API网关配置 "${row.gatewayName}" 吗？`),
+                    h('div', {
+                      style: {
+                        fontSize: '12px',
+                        color: '#eb9e05'
+                      }
+                    }, '如果你删除的是该服务的默认根网关（含内网域名和外网域名），此处的网关删除，只是临时删除，后续服务重新部署，会重新生成默认网关。')
+                  ]),
+                  showCancelButton: true,
                   confirmButtonText: '确定',
                   cancelButtonText: '取消',
                   type: 'warning',
