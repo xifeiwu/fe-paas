@@ -314,6 +314,8 @@
                class="size-650 gateway_copy_request"
     >
       <div class="content">
+        <paas-dismiss-message :toExpand="true" showSeconds="0" style="margin: -4px -10px 4px;"
+                              :msgList="'一个应用下只能对其一个网关进行流量复制配置，如果对多个网关进行了配置，将只会有一个网关配置生效'"></paas-dismiss-message>
         <el-form :model="action.data" :rules="configRules" size="mini" label-width="160px" ref="not-set">
           <el-form-item label="网关名称"class="message-show">
             <span> {{action.data.gatewayName}} </span>
@@ -415,11 +417,12 @@
 
 <script>
   import paasServiceSelector from '../components/service-selector.vue';
+  import paasDismissMessage from 'assets/components/dismiss-message.vue';
   import commonUtils from 'assets/components/mixins/common-utils';
 
   export default {
     mixins: [commonUtils],
-    components: {paasServiceSelector},
+    components: {paasServiceSelector, paasDismissMessage},
 
     /**
      * the sequence of create and mount in parent and child element is:
