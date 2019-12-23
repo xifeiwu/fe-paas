@@ -66,7 +66,7 @@
       }
     },
     general_cpu_count: {
-      title: 'CPU使用数',
+      title: '申请的CPU核数',
         chartOptions: {
         yaxis: {
           title: {
@@ -81,15 +81,15 @@
       }
     },
     general_memory_size: {
-      title: '内存使用量',
+      title: '内存申请量',
         chartOptions: {
         yaxis: {
           title: {
-            text: '（单位：KB）',
+            text: '（单位：GB）',
           },
           labels: {
             formatter: function(val, index) {
-              return `${parseInt(parseInt(val) / 1024)}KB`;
+              return `${parseInt(parseInt(val) / (1024  * 1024 * 1024))}GB`;
             }
           }
         }
