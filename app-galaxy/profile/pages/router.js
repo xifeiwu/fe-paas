@@ -53,8 +53,14 @@ const [
 });
 
 /** api网关 */
-import gatewayList from './gateway/list.vue';
-import gatewayAdd from './gateway/add.vue';
+// import gatewayList from './gateway/list.vue';
+// import gatewayAdd from './gateway/add.vue';
+const [gatewayList, gatewayAdd] = ['./gateway/list.vue', './gateway/add.vue'].map(file => {
+  return () => import(
+    /* webpackChunkName: "profile-chunk-[request][index]" */
+    /* webpackMode: "lazy" */
+    `${file}`)
+});
 
 /** AccessKey管理 */
 import OAuthMain from './oauth/main.vue';
