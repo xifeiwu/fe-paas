@@ -384,14 +384,14 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         if (!resContent) {
           return null;
         }
-        const {userInfo, menuConfig} = this.$net.formatLoginResContent(resContent);
+        const {userInfo, menuList} = this.$net.formatLoginResContent(resContent);
         this.$storeHelper.menus = {
-          profile: menuConfig
+          profile: menuList
         };
         this.$store.dispatch('updateUserInfo', userInfo);
         return {
           userInfo,
-          menuConfig
+          menuList
         }
       },
 

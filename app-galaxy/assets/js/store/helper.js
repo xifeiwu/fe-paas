@@ -66,13 +66,6 @@ export default class StoreHelper extends Common {
   get menus() {
     return this.$globalStore.getters['user/menus'];
   }
-  get profileNavMenu() {
-    let result = [];
-    if (this.menus && this.menus.hasOwnProperty('profile')) {
-      result = this.menus['profile'];
-    }
-    return result;
-  }
 
   // TODO: not used
   setUserConfig(keys, value) {

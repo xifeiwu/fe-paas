@@ -16,19 +16,21 @@
             active-text-color="#409EFF"
             :setActiveIndexByDefaultActive="true"
             :defaultActive="activeSideMenuItem">
-      <el-submenu v-for="menu in navMenu.level2" :key="menu.name" :index="menu.router">
-        <template slot="title">
-          <i v-if="menu.icon" :class="menu.icon"></i><span>{{menu.name}}</span>
-        </template>
-        <el-menu-item v-for="subMenu in menu.children" :key="subMenu.name" :index="subMenu.router">
-          <i v-if="subMenu.icon" :class="subMenu.icon"></i><a :href="subMenu.router" @click="evt => evt.preventDefault()" style="color: inherit">{{subMenu.name}}</a>
-          <span class="beta" v-if="subMenu.beta">beta</span>
+      <div v-for="(item, index) in menuList" :key="index">
+        <el-submenu :index="item.router" v-if="item.children">
+          <template slot="title">
+            <i v-if="item.icon" :class="item.icon"></i><span>{{item.name}}</span>
+          </template>
+          <el-menu-item v-for="subMenu in item.children" :key="subMenu.name" :index="subMenu.router">
+            <i v-if="subMenu.icon" :class="subMenu.icon"></i><a :href="subMenu.router" @click="evt => evt.preventDefault()" style="color: inherit">{{subMenu.name}}</a>
+            <span class="beta" v-if="subMenu.beta">beta</span>
+          </el-menu-item>
+        </el-submenu>
+        <el-menu-item :index="item.router" v-else>
+          <i :class="item.icon"></i><a slot="title" :href="item.router" @click="evt => evt.preventDefault()" style="color: inherit">{{item.name}}</a>
+          <span :class="['beta', collapseMenu?'hide':'']" v-if="item.beta">beta</span>
         </el-menu-item>
-      </el-submenu>
-      <el-menu-item v-for="menu in navMenu.level1" :key="menu.name" :index="menu.router">
-        <i :class="menu.icon"></i><a slot="title" :href="menu.router" @click="evt => evt.preventDefault()" style="color: inherit">{{menu.name}}</a>
-        <span :class="['beta', collapseMenu?'hide':'']" v-if="menu.beta">beta</span>
-      </el-menu-item>
+      </div>
     </el-menu>
     <div :class="{'toggle': true, collapse: collapseMenu}">
       <i :class="{'paas-icon-double-arrow-right': true, collapse: collapseMenu}" @click="toggleMenu"></i>
@@ -143,21 +145,122 @@
   import {mapGetters} from 'vuex';
   export default {
     created() {
-
+      // if data format is not correct, relogin
+      if (!Array.isArray(this.profileMenus)) {
+        this.$storeHelper.logout();
+        const targetHref = this.$net.getCasLogoutHref();
+        window.location.href = targetHref;
+      }
     },
     mounted() {
-
     },
     computed: {
       ...mapGetters({
         'collapseMenu': 'collapseMenu'
       }),
-      navMenu() {
-        let value = {}
-        if (this.$storeHelper.profileNavMenu) {
-          value = this.$storeHelper.profileNavMenu;
-        }
-        return value;
+      profileMenus() {
+        return this.$storeHelper.menus['profile'];
+      },
+      menuList() {
+        const MENU_ALL = [{
+          name: '概况',
+          router: '/profile/general',
+          icon: 'paas-icon-app',
+          path: '/2.x/general',
+        }, {
+          name: '应用引擎',
+          router: '/profile/app-engine',
+          icon: 'paas-icon-app',
+          path: '/custom/2.x/app_engine',
+          children: [{
+            name: '应用管理',
+            router: '/profile/app',
+            icon: 'paas-icon-app',
+            path: '/2.x/app',
+          }, {
+            name: '服务管理',
+            router: '/profile/service',
+            icon: 'paas-icon-service',
+            path: '/2.x/service',
+          }, {
+            name: '实例列表',
+            router: '/profile/instance',
+            icon: 'paas-icon-instance',
+            path: '/2.x/instances',
+          }, {
+            name: '外网域名',
+            router: '/profile/domain',
+            icon: 'paas-icon-domain',
+            path: '/2.x/internet'
+          }, {
+            name: '日志中心',
+            router: '/profile/log',
+            icon: 'paas-icon-log',
+            path: '/2.x/logs'
+          }, {
+            name: '审批管理',
+            router: '/profile/work-order',
+            icon: 'paas-icon-work-order',
+            path: '/2.x/orders',
+          }, {
+            name: '应用监控',
+            router: '/profile/monitor',
+            icon: 'paas-icon-charts',
+            path: '/2.x/apm'
+          }, {
+            name: 'API网关',
+            router: '/profile/gateway',
+            icon: 'paas-icon-gateway',
+            path: '/2.x/gateway'
+          }]
+        }, {
+          name: '中间件与数据库',
+          router: '/profile/middleware',
+          icon: 'paas-icon-openshift',
+          path: '/custom/2.x/openshift',
+          children: [{
+            name: 'Mariadb(非生产)',
+            router: '/profile/middleware/mariadb',
+            icon: 'paas-icon-mysql',
+            path: '/2.x/openShift/mariaDB',
+            beta: true
+          }, {
+            name: 'Redis',
+            router: '/profile/middleware/redis',
+            icon: 'paas-icon-redis',
+            path: '/2.x/openShift/redis',
+            beta: true
+          }]
+        }, {
+          name: 'Access Key管理',
+          router: '/profile/oauth',
+          icon: 'paas-icon-key',
+          path: '/2.x/keys',
+        }, {
+          name: '应用配置',
+          router: '/profile/config-server',
+          icon: 'paas-icon-config',
+          path: '/2.x/config/server'
+        }, {
+          name: '镜像中心',
+          router: '/profile/image/repo',
+          icon: 'paas-icon-image',
+          path: '/2.x/images',
+        }, {
+          name: 'Pipeline',
+          router: '/profile/pipeline',
+          icon: 'paas-icon-jenkins',
+          path: '/2.x/pipeline',
+          beta: true
+        }];
+        const pathList = this.profileMenus.map(it => it.path).concat(['/custom/2.x/app_engine', '/custom/2.x/openshift'])
+        var menuList = MENU_ALL.filter(it => pathList.includes(it.path));
+        menuList.forEach(it => {
+          if (it.hasOwnProperty('children')) {
+            it.children = it.children.filter(it2 => pathList.includes(it2.path));
+          }
+        });
+        return menuList;
       }
     },
     data() {
