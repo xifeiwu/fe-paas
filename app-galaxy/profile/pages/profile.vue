@@ -556,10 +556,10 @@
           return;
         }
         var activeSideMenuItem = null;
-        ['profile/app', 'profile/service', 'profile/instance', 'profile/domain', 'profile/log', 'profile/gateway', 'profile/work-order',
+        ['profile/general', 'profile/app', 'profile/service', 'profile/instance', 'profile/domain', 'profile/log', 'profile/gateway', 'profile/work-order',
           'profile/monitor', 'profile/oauth', 'profile/config-server', 'profile/image/repo', 'profile/middleware/mariadb',
           'profile/middleware/redis', 'profile/pipeline'].map(it => {
-            return this.$net.page[it];
+            return this.$router.helper.pages[it];
         }).some(it => {
           if (path.startsWith(it)) {
             activeSideMenuItem = it;

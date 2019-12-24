@@ -10,18 +10,23 @@
       </el-button>
     </div>
     <div class="status">
-      <div class="chart">
-        <div class="title">{{status['general_instance_count'].title}}</div>
-        <apxe-chart type=bar height=300 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
-      </div>
-      <div class="chart">
-        <div class="title">{{status['general_cpu_count'].title}}</div>
-        <apxe-chart type=bar height=300 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
-      </div>
-      <div class="chart">
-        <div class="title">{{status['general_memory_size'].title}}</div>
-        <apxe-chart type=bar height=300 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="chartBarCommon.ready"></apxe-chart>
-      </div>
+      <section class="request-statistic">
+        <div class="chart">
+          <div class="title">{{status['general_instance_count'].title}}</div>
+          <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
+        </div>
+        <div class="chart">
+          <div class="title">{{status['general_cpu_count'].title}}</div>
+          <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
+        </div>
+        <div class="chart">
+          <div class="title">{{status['general_memory_size'].title}}</div>
+          <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="chartBarCommon.ready"></apxe-chart>
+        </div>
+      </section>
+      <section class="ratio">
+
+      </section>
     </div>
   </div>
 </template>
@@ -39,7 +44,7 @@
         display: inline-block;
         padding-right: 20px;
         width: 50%;
-        max-width: 400px;
+        max-width: 300px;
         /*background-color: white;*/
       }
     }
@@ -146,7 +151,7 @@
           // custom property
           ready: false,
           chart: {
-            height: 320,
+            height: 200,
             type: 'bar',
             events: {
               click: function (chart, w, e) {
@@ -169,7 +174,7 @@
             labels: {
               style: {
                 colors: [],
-                fontSize: '14px'
+                fontSize: '12px'
               }
             }
           },

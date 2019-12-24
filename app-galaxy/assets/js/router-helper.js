@@ -6,6 +6,7 @@ export default class RouterHelper {
       'cas-login': '/cas-login',
       'paas-login': '/paas-login',
       'profile': '/profile',
+      'profile/general': '/profile/general',
       'profile/app': '/profile/app',
       'profile/app/add': '/profile/app/add',
       'profile/app/update': '/profile/app/update',
