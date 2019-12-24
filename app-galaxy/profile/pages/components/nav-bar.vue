@@ -145,7 +145,7 @@
   import {mapGetters} from 'vuex';
   export default {
     created() {
-      // if data format is not correct, relogin
+      // NOTICE: if data format is not correct, re-login. 过渡代码
       if (!Array.isArray(this.profileMenus)) {
         this.$storeHelper.logout();
         const targetHref = this.$net.getCasLogoutHref();
@@ -260,6 +260,8 @@
             it.children = it.children.filter(it2 => pathList.includes(it2.path));
           }
         });
+        // remove menu with zero-length submenu
+        menuList = menuList.filter(it => !(it.hasOwnProperty('children') && it.children.length === 0));
         return menuList;
       }
     },
