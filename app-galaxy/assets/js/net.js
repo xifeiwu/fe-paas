@@ -598,9 +598,10 @@ class Net extends Common {
         LEVEL_ERROR: this.debouncedShowError
       }[level];
       const title = error.isAxiosError ? '网络请求失败' : '请求失败';
-      var message = `请求路径：${path.replace(this.PAAS_PREFIX, '')}，${error.message}`;
+      const realPath = path.replace(new RegExp(`^${this.PAAS_PREFIX}|${this.ASSIST_PREFIX}`), '');
+      var message = `请求路径：${realPath}，${error.message}`;
       if (error.code === 'ECONNABORTED') {
-        message = `网络请求超时，请稍后再试。请求路径：${path.replace(this.PAAS_PREFIX, '')}`;
+        message = `网络请求超时，请稍后再试。请求路径：${realPath}`;
       }
       showTip({
         title,
