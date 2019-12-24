@@ -9,43 +9,51 @@
         刷新
       </el-button>
     </div>
-    <div class="status">
-      <section class="request-statistic">
-        <div class="chart">
-          <div class="title">{{status['general_instance_count'].title}}</div>
-          <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
+    <div class="statistic">
+      <div class="section request">
+        <div class="title">申请数统计</div>
+        <div class="chart-list">
+          <div class="chart">
+            <div class="title">{{status['general_instance_count'].title}}</div>
+            <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
+          </div>
+          <div class="chart">
+            <div class="title">{{status['general_cpu_count'].title}}</div>
+            <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
+          </div>
+          <div class="chart">
+            <div class="title">{{status['general_memory_size'].title}}</div>
+            <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="chartBarCommon.ready"></apxe-chart>
+          </div>
         </div>
-        <div class="chart">
-          <div class="title">{{status['general_cpu_count'].title}}</div>
-          <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
-        </div>
-        <div class="chart">
-          <div class="title">{{status['general_memory_size'].title}}</div>
-          <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="chartBarCommon.ready"></apxe-chart>
-        </div>
-      </section>
-      <section class="ratio">
+      </div>
+      <div class="section ratio">
+        <div class="title">使用率统计</div>
 
-      </section>
+      </div>
     </div>
   </div>
 </template>
 <style lang="scss" scoped>
   #general {
-    .status {
-      display: flex;
-      flex-wrap: wrap;
-      .chart {
-        .title {
-          font-size: 14px;
-          font-weight: bold;
-          text-align: center;
+    & > .statistic {
+      .section {
+        .chart-list {
+          display: flex;
+          flex-wrap: wrap;
+          .chart {
+            .title {
+              font-size: 14px;
+              font-weight: bold;
+              text-align: center;
+            }
+            display: inline-block;
+            padding-right: 20px;
+            width: 50%;
+            max-width: 300px;
+            /*background-color: white;*/
+          }
         }
-        display: inline-block;
-        padding-right: 20px;
-        width: 50%;
-        max-width: 300px;
-        /*background-color: white;*/
       }
     }
   }
@@ -57,7 +65,7 @@
   const CONSTANT = {
     general_instance_count: {
       title: '实例数',
-        chartOptions: {
+      chartOptions: {
         yaxis: {
           title: {
             text: '（单位：个）',
@@ -72,7 +80,7 @@
     },
     general_cpu_count: {
       title: '申请的CPU核数',
-        chartOptions: {
+      chartOptions: {
         yaxis: {
           title: {
             text: '（单位：个）',
@@ -87,7 +95,7 @@
     },
     general_memory_size: {
       title: '内存申请量',
-        chartOptions: {
+      chartOptions: {
         yaxis: {
           title: {
             text: '（单位：GB）',
@@ -182,7 +190,7 @@
             title: {
               style: {
                 fontSize: '12px',
-                fontWeight: 'bold'
+                fontWeight: 'normal'
               }
             }
           }
