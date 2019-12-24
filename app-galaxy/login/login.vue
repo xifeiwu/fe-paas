@@ -284,7 +284,7 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
 //        this.$storeHelper.version = version
       }
     },
-    async mounted () {
+    mounted () {
       // jump to destination page when token is found
       if (this.$storeHelper.getUserInfo('token')) {
         this.pageJump();
@@ -304,7 +304,8 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
         // code-writter effect
         backgroundEffectOfCodeWriter(this.$el.querySelector('.main .writting-code pre code'));
       } else if (this.pathName === 'cas-login') {
-        this.startCasLogin();
+        // this._casLogin();
+        this._paasLoginWithCasIndentity();
       } else if (this.pathName === 'login') {
         window.location.href = this.$net.page['cas-login'];
       }
@@ -363,39 +364,102 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
 //          toPath = hash.substr(1);
 //        }
 
-
         window.location.href = toPath;
-//        this.$utils.goToPath(toPath);
       },
 
-      async requestAndProcessData(payload) {
-        const PATH_MAP = {
-          'paas-login': this.$net.URL_LIST.login,
-          'cas-login': this.$net.URL_LIST['cas-login']
-        };
-        const path = PATH_MAP[this.pathName];
-        if (!path) {
+      async _paasLoginWithCasIndentity() {
+        const queryString = window.location.search.replace(/^\?/, '');
+        const queryObj = this.$utils.parseQueryString(queryString);
+        // check if the url is validate
+        this.showLoading = true;
+        try {
+          if (!queryObj.hasOwnProperty('ticket')) {
+            throw new Error('queryString中未找到ticket信息');
+          }
+          var service = `${location.origin}${location.pathname}`;
+          if (queryObj.hasOwnProperty('to')) {
+            service = `${service}?to=${queryObj.to}`
+          }
+          const loginResContent = await this.$net.requestAssistServer(this.$net.URL_LIST.paas_login_with_cas_indentity, {
+            payload: {
+              service,
+              ticket: queryObj['ticket']
+            }
+          });
+          this._processLoginResponse(loginResContent);
+        } catch(err) {
+          console.log(err);
+          this.errMsg = err.message;
+//          this.$message.error(`登录失败：${err.message}`);
+        } finally {
+          this.showLoading = false;
+        }
+      },
+
+      // on click of login button
+      async onSubmit() {
+        if (!this.checkData()) {
           return;
         }
+        this._paasLogin();
+      },
 
-        const resContent = await this.$net.requestPaasServer(path, {
-          payload
-        });
-        if (!resContent) {
-          return null;
+      async _paasLogin() {
+        try {
+          this.showLoading = true;
+          const payload = {
+            username: this.form.userName,
+            password: this.form.password,
+            randomCode: this.form.verifyCode,
+            verificationCode: this.form.verificationCode,
+            freeLogin: this.freeLogin15Days,
+          };
+
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.login, {
+            payload
+          });
+          this._processLoginResponse(resContent);
+        } catch(err) {
+          if (err.hasOwnProperty('msg')) {
+            // status err
+            this.showError(err.msg, true);
+          } else {
+            // network error
+            this.showError(err.message, true);
+          }
+        } finally {
+          this.showLoading = false;
         }
-        const {userInfo, menuList} = this.$net.formatLoginResContent(resContent);
+      },
+
+      // 处理登录返回的用户信息
+      _processLoginResponse(loginResponseContent) {
+        const {userInfo, menuList} = this.$net.formatLoginResContent(loginResponseContent);
         this.$storeHelper.menus = {
           profile: menuList
         };
         this.$store.dispatch('updateUserInfo', userInfo);
-        return {
-          userInfo,
-          menuList
+
+        if (!userInfo) {
+          throw new Error('用户信息获取失败！');
+        }
+        if (!userInfo.token) {
+          throw new Error('未获得token信息');
+        }
+        if (!userInfo.role) {
+          throw new Error('未获得角色信息');
+        }
+
+        // 如果用户是游客，只能进入首页
+        if (userInfo.role === 'guest') {
+          window.location.href = this.$net.page['index'];
+        } else {
+          this.pageJump();
         }
       },
 
-      async startCasLogin() {
+      // TODO: replaced by _paasLoginWithCasIndentity
+      async _casLogin() {
         const queryString = window.location.search.replace(/^\?/, '');
         const queryObj = this.$utils.parseQueryString(queryString);
         // check if the url is validate
@@ -414,62 +478,24 @@ codeWriter(<span class="hljs-built_in">document</span>.querySelector(<span class
               ticket: queryObj['ticket']
             }
           });
+          // console.log(JSON.stringify(casInfo));
+          // console.log(casInfo.xml);
           const serviceResponse = casInfo.json.serviceResponse;
           if (serviceResponse.hasOwnProperty('authenticationFailure')) {
             throw new Error('CAS认证失败！');
           }
-//          console.log(JSON.stringify(casInfo));
-//          console.log(casInfo.xml);
-          const payload = {
-            casLoginInfo: casInfo.xml
-          };
-          const parsedLoginData = await this.requestAndProcessData(payload);
-          if (parsedLoginData && parsedLoginData.hasOwnProperty('userInfo') && parsedLoginData.userInfo.token) {
-            // 如果用户是游客，只能进入首页
-            if (parsedLoginData['userInfo'].role === 'guest') {
-              window.location.href = this.$net.page['index'];
-            } else {
-              this.pageJump();
+
+          const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST['cas-login'], {
+            payload: {
+              casLoginInfo: casInfo.xml
             }
-          } else {
-            throw new Error('未获得token');
-          }
-          this.showLoading = false;
+          });
+          this._processLoginResponse(resContent);
         } catch(err) {
           console.log(err);
           this.errMsg = err.message;
-          this.showLoading = false;
 //          this.$message.error(`登录失败：${err.message}`);
-        }
-      },
-
-      // on click of login button
-      async onSubmit() {
-        if (!this.checkData()) {
-          return;
-        }
-        try {
-          this.showLoading = true;
-          const payload = {
-            username: this.form.userName,
-            password: this.form.password,
-            randomCode: this.form.verifyCode,
-            verificationCode: this.form.verificationCode,
-            freeLogin: this.freeLogin15Days,
-          };
-          const parsedLoginData = await this.requestAndProcessData(payload);
-          this.showLoading = false;
-          if (parsedLoginData && parsedLoginData.hasOwnProperty('userInfo') && parsedLoginData.userInfo.token) {
-            this.pageJump();
-          }
-        } catch(err) {
-          if (err.hasOwnProperty('msg')) {
-            // status err
-            this.showError(err.msg, true);
-          } else {
-            // network error
-            this.showError(err.message, true);
-          }
+        } finally {
           this.showLoading = false;
         }
       },

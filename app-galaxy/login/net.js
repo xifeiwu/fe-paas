@@ -34,8 +34,14 @@ class Net extends NetBase {
       item.path = this.PAAS_PREFIX + item.path;
     });
     const ASSIST_URL_LIST = {
+      // 获取cas认证后，返回的用户信息
       cas_validate: {
         path: '/api/cas/service-validate',
+        method: 'post'
+      },
+      // 获取paas平台的用户信息（包括两个步骤：cas认证后的用户信息；根据cas认证后的用户信息获取paas平台的用户信息）
+      paas_login_with_cas_indentity: {
+        path: '/api/cas/paas/login',
         method: 'post'
       }
     };
