@@ -15,20 +15,26 @@
         <div class="chart-list">
           <div class="chart">
             <div class="title">{{status['general_instance_count'].title}}</div>
-            <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="defaultChartBarOptions.ready"></apxe-chart>
+            <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="hasInitDefaultChartBarOptions"></apxe-chart>
           </div>
           <div class="chart">
             <div class="title">{{status['general_cpu_count'].title}}</div>
-            <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="defaultChartBarOptions.ready"></apxe-chart>
+            <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="hasInitDefaultChartBarOptions"></apxe-chart>
           </div>
           <div class="chart">
             <div class="title">{{status['general_memory_size'].title}}</div>
-            <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="defaultChartBarOptions.ready"></apxe-chart>
+            <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="hasInitDefaultChartBarOptions"></apxe-chart>
           </div>
         </div>
       </div>
       <div class="section ratio">
         <div class="title">使用率统计</div>
+        <div class="chart-list">
+          <div class="chart">
+            <div class="title">{{status['general_instance_count'].title}}</div>
+            <apxe-chart type=line height=300 :options="status['general_ratio_cpu_usage'].chartOptions" :series="status['general_ratio_cpu_usage'].series" v-if="hasInitDefaultChartBarOptions"></apxe-chart>
+          </div>
+        </div>
 
       </div>
     </div>
@@ -47,11 +53,18 @@
               /*font-weight: bold;*/
               text-align: center;
             }
-            display: inline-block;
+          }
+        }
+        &.request {
+          .chart {
             padding-right: 20px;
-            width: 50%;
             max-width: 300px;
             /*background-color: white;*/
+          }
+        }
+        &.ratio {
+          .chart {
+            width: 500px;
           }
         }
       }
@@ -108,6 +121,21 @@
           }
         }
       }
+    },
+    general_ratio_cpu_usage: {
+      title: 'CPU使用率',
+      chartOptions: {
+        yaxis: {
+          title: {
+            text: '（单位：%）',
+          },
+          labels: {
+            formatter: function(val, index) {
+              return val;
+            }
+          }
+        }
+      }
     }
   };
   export default {
@@ -156,14 +184,35 @@
             }],
             chartOptions: {}
           },
+          general_ratio_cpu_usage: {
+            series: [],
+            chartOptions: {}
+          }
         },
-        defaultChartBarOptions: {
-          // custom property
-          ready: false,
+        // is the basic info for draw has done
+        hasInitDefaultChartBarOptions: false,
+      }
+    },
+    watch: {
+      '$storeHelper.profileListOfGroup': 'onProfileListOfGroup',
+    },
+    methods: {
+      onProfileListOfGroup(profileListOfGroup) {
+        // status request should after profileListOfGroup is get
+        this.drawChartBar(profileListOfGroup);
+        this.drawChartLine(profileListOfGroup);
+      },
+
+      drawChartBar(profileListOfGroup) {
+        if (this.drawChartBar.lastRequest && ((Date.now() - this.drawChartBar.lastRequest) < 2 * 1000)) {
+          console.log(`ignore this request for status all`);
+          return;
+        }
+        const commonChartOptions = {
           chart: {
             height: 200,
-            type: 'bar',
-            events: {
+//            type: 'bar',
+              events: {
               click: function (chart, w, e) {
                 console.log(chart, w, e)
               }
@@ -173,7 +222,7 @@
           plotOptions: {
             bar: {
               columnWidth: '45%',
-              distributed: true
+                distributed: true
             }
           },
           dataLabels: {
@@ -181,10 +230,10 @@
           },
           xaxis: {
             categories: [],
-            labels: {
+              labels: {
               style: {
                 colors: [],
-                fontSize: '12px'
+                  fontSize: '12px'
               }
             }
           },
@@ -192,46 +241,27 @@
             title: {
               style: {
                 fontSize: '12px',
-                fontWeight: 'normal'
+                  fontWeight: 'normal'
               }
             }
           }
-        },
-      }
-    },
-    watch: {
-      '$storeHelper.profileListOfGroup': 'onProfileListOfGroup',
-    },
-    methods: {
-      onProfileListOfGroup(profileListOfGroup) {
-        // console.log(profileListOfGroup);
-        const defaultChartBarOptions = this.defaultChartBarOptions;
+        };
         // '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'
         const colors = profileListOfGroup.map(it => this.style[`$env-${it.name}-color`]);
-        defaultChartBarOptions.colors = colors;
-        defaultChartBarOptions.xaxis.categories = profileListOfGroup.map(it => it.description);
-        defaultChartBarOptions.xaxis.labels.style.colors = colors;
-        defaultChartBarOptions.ready = true;
+        commonChartOptions.colors = colors;
+        commonChartOptions.xaxis.categories = profileListOfGroup.map(it => it.description);
+        commonChartOptions.xaxis.labels.style.colors = colors;
+        this.hasInitDefaultChartBarOptions = true;
 
-        // update chartOptions for each chart
+        // update commonChartOptions for each chart
         ['general_instance_count', 'general_cpu_count', 'general_memory_size'].forEach(key => {
-          this.status[key].chartOptions = this.$utils.deepMerge(this.defaultChartBarOptions, CONSTANT[key].chartOptions);
+          this.status[key].chartOptions = this.$utils.deepMerge(commonChartOptions, CONSTANT[key].chartOptions);
         });
-        // status request should after profileListOfGroup is get
-        this.requestStatusAll();
-      },
-      requestStatusAll() {
-        if (this.requestStatusAll.lastRequest && ((Date.now() - this.requestStatusAll.lastRequest) < 2 * 1000)) {
-          console.log(`ignore this request for status all`);
-          return;
-        }
-        this.requestStatusAll.lastRequest = Date.now();
+
+        this.drawChartBar.lastRequest = Date.now();
         this._request('general_instance_count');
         this._request('general_cpu_count');
         this._request('general_memory_size');
-
-        this._requestUseRatio('general_ratio_cpu_usage');
-        this._requestUseRatio('general_ratio_memory_usage');
       },
       async _request(type) {
         if (!['general_instance_count', 'general_cpu_count', 'general_memory_size'].includes(type)) {
@@ -269,8 +299,64 @@
         // this.status[type].series[0].data = valueList.map(it => it[1]);
       },
 
+      drawChartLine(profileListOfGroup) {
+        if (this.drawChartLine.lastRequest && ((Date.now() - this.drawChartLine.lastRequest) < 2 * 1000)) {
+          console.log(`ignore this request for status all`);
+          return;
+        }
+        const commonChartOptions = {
+          chart: {
+            height: 360,
+            type: 'line',
+            zoom: {
+              enabled: true
+            },
+          },
+          stroke: {
+            width: 1,
+            curve: 'smooth'
+          },
+          dataLabels: {
+            enabled: false
+          },
+
+          title: {
+            text: 'Page Statistics',
+            align: 'left'
+          },
+          markers: {
+            size: 0,
+
+            hover: {
+              sizeOffset: 6
+            }
+          },
+          xaxis: {
+            type: 'datetime'
+          },
+          grid: {
+            borderColor: '#f1f1f1',
+          }
+        };
+        // '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'
+        const colors = profileListOfGroup.map(it => this.style[`$env-${it.name}-color`]);
+        commonChartOptions.colors = colors;
+//        commonChartOptions.xaxis.categories = profileListOfGroup.map(it => it.description);
+//        commonChartOptions.xaxis.labels.style.colors = colors;
+//        this.hasInitDefaultChartBarOptions = true;
+
+        // update commonChartOptions for each chart
+        ['general_ratio_cpu_usage'].forEach(key => {
+          this.status[key].chartOptions = this.$utils.deepMerge(commonChartOptions, CONSTANT[key].chartOptions);
+        });
+
+        this.drawChartLine.lastRequest = Date.now();
+        this._requestUseRatio('general_ratio_cpu_usage');
+//        this._requestUseRatio('general_ratio_memory_usage');
+      },
+
       async _requestUseRatio(type) {
-        if (!['general_ratio_cpu_usage', 'general_ratio_memory_usage'].includes(type)) {
+        if (!['general_ratio_cpu_usage'].includes(type)) {
           return;
         }
         const data = {
@@ -285,7 +371,41 @@
         const resData = await this.$net.requestPaasServer(this.$net.URL_LIST[type], {
           data
         });
-        console.log(resData);
+
+        // data check and fix
+//        const timestampList = Array.from(new Set(resData.reduce((sum, it) => {
+//          if (Array.isArray(it.values)) {
+//            return sum.concat(it.values.map(it2 => it2[0]))
+//          } else {
+//            return sum;
+//          }
+//        }, []))).sort((pre, next) => pre - next);
+//        this.status[type].chartOptions.xaxis.categories = timestampList;
+
+        this.status[type].series = resData.map(it => {
+//          if (!Array.isArray(it.values)) {
+//            it.values = timestampList.map(it2 => [it2, 0])
+//          }
+//          timestampList.forEach((it2, index) => {
+//            if (!it.values[index]) {
+//              it.values[index] = [it2, 0];
+//            }
+//          });
+          return {
+            name: it.spaceId,
+            data: it.values.map(it => {
+              return [it[0], (it[1] * 100).toFixed(4)];
+            })
+          }
+        });
+//        console.log('timestampList');
+//        console.log(timestampList);
+//        return;
+
+
+//        console.log(resData);
+//        console.log(timestampList);
+        console.log(this.status[type]);
       },
 
       handleButtonClick(evt, action) {
