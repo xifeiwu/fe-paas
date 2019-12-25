@@ -15,15 +15,15 @@
         <div class="chart-list">
           <div class="chart">
             <div class="title">{{status['general_instance_count'].title}}</div>
-            <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
+            <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="defaultChartBarOptions.ready"></apxe-chart>
           </div>
           <div class="chart">
             <div class="title">{{status['general_cpu_count'].title}}</div>
-            <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="chartBarCommon.ready"></apxe-chart>
+            <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="defaultChartBarOptions.ready"></apxe-chart>
           </div>
           <div class="chart">
             <div class="title">{{status['general_memory_size'].title}}</div>
-            <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="chartBarCommon.ready"></apxe-chart>
+            <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="defaultChartBarOptions.ready"></apxe-chart>
           </div>
         </div>
       </div>
@@ -43,8 +43,8 @@
           flex-wrap: wrap;
           .chart {
             .title {
-              font-size: 14px;
-              font-weight: bold;
+              font-size: 12px;
+              /*font-weight: bold;*/
               text-align: center;
             }
             display: inline-block;
@@ -62,6 +62,7 @@
   import apexCharts from 'vue-apexcharts';
   import commonUtils from 'assets/components/mixins/common-utils';
 
+  // default values for status
   const CONSTANT = {
     general_instance_count: {
       title: '实例数',
@@ -126,6 +127,7 @@
         instanceCount: 0,
         cpuCount: 0,
         memorySize: 0,
+        // all data related for chart drawing, including data(series), chart config(chartOptions), and others, such as title
         status: {
           general_instance_count: {
             title: '',
@@ -155,7 +157,7 @@
             chartOptions: {}
           },
         },
-        chartBarCommon: {
+        defaultChartBarOptions: {
           // custom property
           ready: false,
           chart: {
@@ -203,17 +205,17 @@
     methods: {
       onProfileListOfGroup(profileListOfGroup) {
         // console.log(profileListOfGroup);
-        const chartBarCommon = this.chartBarCommon;
+        const defaultChartBarOptions = this.defaultChartBarOptions;
         // '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'
         const colors = profileListOfGroup.map(it => this.style[`$env-${it.name}-color`]);
-        chartBarCommon.colors = colors;
-        chartBarCommon.xaxis.categories = profileListOfGroup.map(it => it.description);
-        chartBarCommon.xaxis.labels.style.colors = colors;
-        chartBarCommon.ready = true;
+        defaultChartBarOptions.colors = colors;
+        defaultChartBarOptions.xaxis.categories = profileListOfGroup.map(it => it.description);
+        defaultChartBarOptions.xaxis.labels.style.colors = colors;
+        defaultChartBarOptions.ready = true;
 
         // update chartOptions for each chart
         ['general_instance_count', 'general_cpu_count', 'general_memory_size'].forEach(key => {
-          this.status[key].chartOptions = this.$utils.deepMerge(this.chartBarCommon, CONSTANT[key].chartOptions);
+          this.status[key].chartOptions = this.$utils.deepMerge(this.defaultChartBarOptions, CONSTANT[key].chartOptions);
         });
         // status request should after profileListOfGroup is get
         this.requestStatusAll();
@@ -227,6 +229,9 @@
         this._request('general_instance_count');
         this._request('general_cpu_count');
         this._request('general_memory_size');
+
+        this._requestUseRatio('general_ratio_cpu_usage');
+        this._requestUseRatio('general_ratio_memory_usage');
       },
       async _request(type) {
         if (!['general_instance_count', 'general_cpu_count', 'general_memory_size'].includes(type)) {
@@ -263,6 +268,26 @@
         // 确保series发生改变才能触发重绘
         // this.status[type].series[0].data = valueList.map(it => it[1]);
       },
+
+      async _requestUseRatio(type) {
+        if (!['general_ratio_cpu_usage', 'general_ratio_memory_usage'].includes(type)) {
+          return;
+        }
+        const data = {
+          groupId: this.$storeHelper.currentGroupId,
+          startTime: 1577167195773,
+          endTime: 1577177195773,
+//            spaceList: [1,2]
+        };
+//        const data = {
+//          groupId: 246, endTime: 1576228265800, startTime: 1576206665800
+//        };
+        const resData = await this.$net.requestPaasServer(this.$net.URL_LIST[type], {
+          data
+        });
+        console.log(resData);
+      },
+
       handleButtonClick(evt, action) {
         switch (action) {
           case 'refresh':

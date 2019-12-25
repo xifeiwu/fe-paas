@@ -65,17 +65,27 @@ class Net extends NetBase {
         path: '/group/users',
         method: 'post'
       },
-      /***/
+      /** 概况 */
+      // 申请的实例数
       general_instance_count: {
         path: '/overview/queryInstanceNumberByGroup',
         method: 'post',
       },
+      // 申请
       general_cpu_count: {
         path: '/overview/queryCpuByGroup',
         method: 'post',
       },
       general_memory_size: {
         path: '/overview/queryMemoryByGroup',
+        method: 'post'
+      },
+      general_ratio_cpu_usage: {
+        path: '/overview/queryCpuAvgUsage',
+        method: 'post'
+      },
+      general_ratio_memory_usage: {
+        path: '/overview/queryMemoryAvgUsage',
         method: 'post'
       },
       /** 应用相关 */
