@@ -14,15 +14,15 @@
         <div class="title">申请数统计</div>
         <div class="chart-list">
           <div class="chart">
-            <div class="title">{{status['general_instance_count'].title}}</div>
+            <!--<div class="title">{{status['general_instance_count'].title}}</div>-->
             <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="hasInitDefaultChartBarOptions"></apxe-chart>
           </div>
           <div class="chart">
-            <div class="title">{{status['general_cpu_count'].title}}</div>
+            <!--<div class="title">{{status['general_cpu_count'].title}}</div>-->
             <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="hasInitDefaultChartBarOptions"></apxe-chart>
           </div>
           <div class="chart">
-            <div class="title">{{status['general_memory_size'].title}}</div>
+            <!--<div class="title">{{status['general_memory_size'].title}}</div>-->
             <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="hasInitDefaultChartBarOptions"></apxe-chart>
           </div>
         </div>
@@ -78,8 +78,15 @@
   // default values for status
   const CONSTANT = {
     general_instance_count: {
-      title: '实例数',
       chartOptions: {
+        title: {
+          text: '实例数',
+          align: 'left',
+          margin: 0,
+          style: {
+            fontSize: '12px'
+          }
+        },
         yaxis: {
           title: {
             text: '（单位：个）',
@@ -93,8 +100,15 @@
       }
     },
     general_cpu_count: {
-      title: '申请的CPU核数',
       chartOptions: {
+        title: {
+          text: '申请的CPU核数',
+          align: 'left',
+          margin: 0,
+          style: {
+            fontSize: '12px'
+          }
+        },
         yaxis: {
           title: {
             text: '（单位：个）',
@@ -108,8 +122,16 @@
       }
     },
     general_memory_size: {
-      title: '内存申请量',
+      // title: '内存申请量',
       chartOptions: {
+        title: {
+          text: '内存申请量',
+          align: 'left',
+          margin: 0,
+          style: {
+            fontSize: '12px'
+          }
+        },
         yaxis: {
           title: {
             text: '（单位：GB）',
@@ -123,8 +145,11 @@
       }
     },
     general_ratio_cpu_usage: {
-      title: 'CPU使用率',
       chartOptions: {
+        title: {
+          text: 'CPU使用率',
+          align: 'left'
+        },
         yaxis: {
           title: {
             text: '（单位：%）',
@@ -164,25 +189,35 @@
               name: '实例数',
               data: []
             }],
-            chartOptions: {}
+            chartOptions: {
+            }
           },
           general_cpu_count: {
             title: '',
             timestamp: 0,
             series: [{
-              name: 'cpu核数',
+              name: 'CPU核数',
               data: []
             }],
-            chartOptions: {}
+            chartOptions: {
+              title: {
+                text: 'CPU核数',
+                align: 'left'
+              }
+            }
           },
           general_memory_size: {
             title: '',
             timestamp: 0,
             series: [{
-              name: '内存大小',
+              name: '内存申请量',
               data: []
             }],
-            chartOptions: {}
+            chartOptions: {
+              title: {
+                text: '内存申请量',
+                align: 'left'
+              }}
           },
           general_ratio_cpu_usage: {
             series: [],
@@ -290,7 +325,6 @@
           return;
         }
         this.status[type].title = `${CONSTANT[type].title}（${this.$utils.formatDate(timestamp, 'yyyy-MM-dd hh:mm:ss')}）`;
-        this.status[type].timestamp = timestamp;
         this.status[type].series = [{
           name: CONSTANT[type].title,
           data: valueList.map(it => it[1])
@@ -318,11 +352,6 @@
           },
           dataLabels: {
             enabled: false
-          },
-
-          title: {
-            text: 'Page Statistics',
-            align: 'left'
           },
           markers: {
             size: 0,
