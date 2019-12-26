@@ -283,7 +283,7 @@
                 <el-input v-model="hostKey" placeholder="IP" size="mini"></el-input>
               </el-col>
               <el-col :span="11" class="value">
-                <el-input v-model="hostValue" placeholder="域名" size="mini"></el-input>
+                <el-input v-model="hostValue" size="mini" placeholder="域名可包含字母、数字、中划线、下划线"></el-input>
               </el-col>
               <el-col :span="2" style="text-align: center">
                 <el-button type="primary" size="mini" round
@@ -1445,7 +1445,7 @@
               return;
             }
             if (!this.$utils.getReg('domain').test(domain)) {
-              this.$message.error('域名格式不正确');
+              this.$message.error('域名格式不正确：只能包含字母、数字、中划线、下划线');
               return;
             }
 //            if (this.formData.hosts.length >= 10) {
