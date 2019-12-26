@@ -15,16 +15,13 @@
           </el-button>
         </div>
         <div class="chart-list">
-          <div class="chart">
-            <!--<div class="title">{{status['general_instance_count'].title}}</div>-->
+          <div class="chart" v-loading="!status['general_instance_count'].ready">
             <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="status['general_instance_count'].ready"></apxe-chart>
           </div>
-          <div class="chart">
-            <!--<div class="title">{{status['general_cpu_count'].title}}</div>-->
+          <div class="chart" v-loading="!status['general_cpu_count'].ready">
             <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="status['general_cpu_count'].ready"></apxe-chart>
           </div>
-          <div class="chart">
-            <!--<div class="title">{{status['general_memory_size'].title}}</div>-->
+          <div class="chart" v-loading="!status['general_memory_size'].ready">
             <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="status['general_memory_size'].ready"></apxe-chart>
           </div>
         </div>
@@ -32,6 +29,19 @@
       <div class="section ratio">
         <div class="header">
           <div class="title">使用率统计</div>
+          <el-date-picker style="display: inline-block; "
+                          class=" disable-close"
+                          v-model="searchForm.dateRange"
+                          type="datetimerange"
+                          size="mini"
+                          align="right"
+                          unlink-panels
+                          range-separator="至"
+                          start-placeholder="开始日期"
+                          end-placeholder="结束日期"
+                          :enableClose="false"
+                          :picker-options="datePickerOptions">
+          </el-date-picker>
           <el-button
                   size="mini-extral"
                   :type="'primary'"
@@ -41,7 +51,7 @@
           </el-button>
         </div>
         <div class="chart-list">
-          <div class="chart">
+          <div class="chart" v-loading="!status['general_ratio_cpu_usage'].ready">
             <apxe-chart type=line height=240 :options="status['general_ratio_cpu_usage'].chartOptions" :series="status['general_ratio_cpu_usage'].series" v-if="status['general_ratio_cpu_usage'].ready"></apxe-chart>
           </div>
         </div>
@@ -164,7 +174,7 @@
           },
           labels: {
             formatter: function(val, index) {
-              return val;
+              return val.toFixed(4);
             }
           }
         }
@@ -233,6 +243,45 @@
             series: [],
             chartOptions: {}
           }
+        },
+        searchForm: {
+          userName: '',
+          dateRange: [Date.now() - 1000 * 3600 * 3, Date.now()],
+        },
+        datePickerOptions: {
+          shortcuts: [{
+            text: '最近一天',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三天',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 3);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
         },
       }
     },
@@ -434,10 +483,11 @@
           return;
         }
         this.status[type].ready = false;
+        // console.log(this.searchForm.dateRange);
         const data = {
           groupId: this.$storeHelper.currentGroupId,
-          startTime: 1577167195773,
-          endTime: 1577177195773,
+          startTime: this.searchForm.dateRange[0],
+          endTime: this.searchForm.dateRange[1],
 //            spaceList: [1,2]
         };
 //        const data = {

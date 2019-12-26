@@ -70,23 +70,28 @@ class Net extends NetBase {
       general_instance_count: {
         path: '/overview/queryInstanceNumberByGroup',
         method: 'post',
+        partial: true,
       },
       // 申请
       general_cpu_count: {
         path: '/overview/queryCpuByGroup',
         method: 'post',
+        partial: true,
       },
       general_memory_size: {
         path: '/overview/queryMemoryByGroup',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       general_ratio_cpu_usage: {
         path: '/overview/queryCpuAvgUsage',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       general_ratio_memory_usage: {
         path: '/overview/queryMemoryAvgUsage',
-        method: 'post'
+        method: 'post',
+        partial: true,
       },
       /** 应用相关 */
       // 应用列表
