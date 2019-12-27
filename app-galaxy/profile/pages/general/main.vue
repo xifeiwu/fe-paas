@@ -5,7 +5,7 @@
     <div class="statistic">
       <div class="section request">
         <div class="header">
-          <div class="title">申请数统计</div>
+          <div class="title">资源使用量统计</div>
           <el-button
                   size="mini-extral"
                   :type="'primary'"
@@ -28,7 +28,7 @@
       </div>
       <div class="section ratio">
         <div class="header">
-          <div class="title">使用率统计</div>
+          <div class="title">资源使用率统计</div>
           <el-date-picker style="display: inline-block; "
                           class=" disable-close"
                           v-model="searchForm.dateRange"
@@ -134,7 +134,7 @@
     general_cpu_count: {
       chartOptions: {
         title: {
-          text: '申请的CPU核数',
+          text: 'CPU申请核数',
         },
         yaxis: {
           title: {
@@ -157,10 +157,12 @@
         yaxis: {
           title: {
             text: '（单位：GB）',
-          },
-          labels: {
-            formatter: function(val, index) {
-              return `${parseInt(parseInt(val) / (1024  * 1024 * 1024))}GB`;
+          }
+        },
+        tooltip: {
+          y: {
+            formatter(val) {
+              return `${val}G`;
             }
           }
         }
@@ -174,10 +176,12 @@
         yaxis: {
           title: {
             text: '（单位：%）',
-          },
-          labels: {
-            formatter: function(val, index) {
-              return `${val.toFixed(2)}%`;
+          }
+        },
+        tooltip: {
+          y: {
+            formatter(val) {
+              return `${val}%`;
             }
           }
         }
@@ -192,9 +196,11 @@
           title: {
             text: '（单位：%）',
           },
-          labels: {
-            formatter: function(val, index) {
-              return `${val.toFixed(2)}%`;
+        },
+        tooltip: {
+          y: {
+            formatter(val) {
+              return `${val}%`;
             }
           }
         }
@@ -386,6 +392,11 @@
         if (!['general_instance_count', 'general_cpu_count', 'general_memory_size'].includes(type)) {
           return;
         }
+        const dataFomatter = {
+          general_memory_size(val) {
+            return parseInt(parseInt(val) / (1024  * 1024 * 1024));
+          }
+        };
         this.status[type].ready = false;
         // format of resData:
         // [{
@@ -415,7 +426,7 @@
         }
         this.status[type].series = [{
           name: CONSTANT[type].chartOptions.title.text,
-          data: valueList.map(it => it[1])
+          data: valueList.map(it => dataFomatter[type] ? dataFomatter[type](it[1]): it[1])
         }];
 
         // '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'
@@ -507,6 +518,22 @@
         if (!['general_ratio_cpu_usage', 'general_ratio_memory_usage'].includes(type)) {
           return;
         }
+        const dataFormatter = {
+          general_ratio_cpu_usage(val) {
+            if (!val) {
+              return 0;
+            } else {
+              return (val * 100).toFixed(2)
+            }
+          },
+          general_ratio_memory_usage(val) {
+            if (!val) {
+              return 0;
+            } else {
+              return (val * 100).toFixed(2)
+            }
+          }
+        };
         this.status[type].ready = false;
         // console.log(this.searchForm.dateRange);
         const data = {
@@ -545,7 +572,7 @@
           return {
             name: it.profileInfo.description,
             data: it.values.map(it => {
-              return [it[0], (it[1] * 100).toFixed(4)];
+              return [it[0], dataFormatter[type] ? dataFormatter[type](it[1]) : it[1]];
             })
           }
         });
