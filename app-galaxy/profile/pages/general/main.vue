@@ -317,6 +317,14 @@
         },
         datePickerOptions: {
           shortcuts: [{
+            text: '最近三小时',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 3);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
             text: '最近一天',
             onClick(picker) {
               const end = new Date();
@@ -338,14 +346,6 @@
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
               picker.$emit('pick', [start, end]);
             }
           }]
@@ -572,11 +572,32 @@
         };
         this.status[type].ready = false;
         // console.log(this.searchForm.dateRange);
+        /**
+        3小时以内，取值区间：30s；
+        3小时-12h，取值区间：2min;
+        12h-24h,取值区间：3min；
+        1天-3天，取值区间：12min;
+        3天以上，取值区间：1h；
+        */
+        const timeRange =  this.searchForm.dateRange[1] -  this.searchForm.dateRange[0];
+        const ONE_MINUTE = 3600 * 60;
+        const ONE_HOUR = ONE_MINUTE * 60;
+        const ONE_DAY = ONE_HOUR * 24;
+        var timeStep = ONE_MINUTE;
+        if (timeRange > ONE_DAY * 3) {
+          timeStep = ONE_HOUR;
+        } else if (timeRange > ONE_DAY) {
+          timeStep = ONE_MINUTE * 12;
+        } else if (timeRange > ONE_HOUR * 12) {
+          timeStep = ONE_MINUTE * 3;
+        } else if (timeRange > ONE_HOUR * 3) {
+          timeStep = ONE_MINUTE * 2;
+        }
         const data = {
           groupId: this.$storeHelper.currentGroupId,
           startTime: this.searchForm.dateRange[0],
           endTime: this.searchForm.dateRange[1],
-//            spaceList: [1,2]
+          step: timeStep,
         };
 //        const data = {
 //          groupId: 246, endTime: 1576228265800, startTime: 1576206665800
