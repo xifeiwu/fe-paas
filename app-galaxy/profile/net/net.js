@@ -86,6 +86,7 @@ class Net extends NetBase {
       general_ratio_cpu_usage: {
         path: '/overview/queryCpuAvgUsage',
         method: 'post',
+        timeout: 30000,
         partial: true,
       },
       general_ratio_memory_usage: {

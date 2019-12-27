@@ -213,7 +213,8 @@
         yaxis: {
           title: {
             text: '（单位：%）',
-          }
+          },
+          // tickAmount: 3
         },
         tooltip: {
           y: {
@@ -607,35 +608,40 @@
         // [{
         //   spaceId: 2, values: [{timestamp, ratio}, {timestamp, ratio}, ...]
         // }, ...]
-        var resData = await this.$net.requestPaasServer(this.$net.URL_LIST[type], {
-          data
-        });
-        // filter, sort, map resData
-        const spaceIdListOfGroup = this.$storeHelper.profileListOfGroup.map(it => it.id);
-        resData = resData.filter(it => spaceIdListOfGroup.includes(it.spaceId))
-          .filter(it => it.values.length > 0)
-          .sort((pre, next) => parseInt(pre.spaceId) - parseInt(next.spaceId))
-          .map(it => {
-            it.profileInfo = this.$storeHelper.getProfileInfoById(it.spaceId);
-            return it;
+        try {
+          var resData = await this.$net.requestPaasServer(this.$net.URL_LIST[type], {
+            data
           });
-        // console.log(resData);
+          // filter, sort, map resData
+          const spaceIdListOfGroup = this.$storeHelper.profileListOfGroup.map(it => it.id);
+          resData = resData.filter(it => spaceIdListOfGroup.includes(it.spaceId))
+            .filter(it => it.values.length > 0)
+            .sort((pre, next) => parseInt(pre.spaceId) - parseInt(next.spaceId))
+            .map(it => {
+              it.profileInfo = this.$storeHelper.getProfileInfoById(it.spaceId);
+              return it;
+            });
+          // console.log(resData);
 
-        this.status[type].series = resData.map(it => {
-          return {
-            name: it.profileInfo.description,
-            data: it.values.map(it => {
-              return [it[0], dataFormatter[type] ? dataFormatter[type](it[1]) : it[1]];
-            })
-          }
-        });
+          this.status[type].series = resData.map(it => {
+            return {
+              name: it.profileInfo.description,
+              data: it.values.map(it => {
+                return [it[0], dataFormatter[type] ? dataFormatter[type](it[1]) : it[1]];
+              })
+            }
+          });
 
-        // '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'
-        const colors = resData.map(it => this.style[`$env-${it.profileInfo.name}-color`]);
-        this.status[type].chartOptions.colors = colors;
-        // this.status[type].chartOptions.xaxis.categories = resData.map(it => it.profileInfo.description);
-        // this.status[type].chartOptions.xaxis.labels.style.colors = colors;
-        this.status[type].ready = true;
+          // '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'
+          const colors = resData.map(it => this.style[`$env-${it.profileInfo.name}-color`]);
+          this.status[type].chartOptions.colors = colors;
+          // this.status[type].chartOptions.xaxis.categories = resData.map(it => it.profileInfo.description);
+          // this.status[type].chartOptions.xaxis.labels.style.colors = colors;
+        } catch (err) {
+          console.log(err);
+        } finally {
+          this.status[type].ready = true;
+        }
       },
 
       handleButtonClick(evt, action) {
