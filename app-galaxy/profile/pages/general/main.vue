@@ -54,6 +54,9 @@
           <div class="chart" v-loading="!status['general_ratio_cpu_usage'].ready">
             <apxe-chart type=line height=240 :options="status['general_ratio_cpu_usage'].chartOptions" :series="status['general_ratio_cpu_usage'].series" v-if="status['general_ratio_cpu_usage'].ready"></apxe-chart>
           </div>
+          <div class="chart" v-loading="!status['general_ratio_memory_usage'].ready">
+            <apxe-chart type=line height=240 :options="status['general_ratio_memory_usage'].chartOptions" :series="status['general_ratio_memory_usage'].series" v-if="status['general_ratio_memory_usage'].ready"></apxe-chart>
+          </div>
         </div>
 
       </div>
@@ -174,7 +177,24 @@
           },
           labels: {
             formatter: function(val, index) {
-              return val.toFixed(4);
+              return `${val.toFixed(2)}%`;
+            }
+          }
+        }
+      }
+    },
+    general_ratio_memory_usage: {
+      chartOptions: {
+        title: {
+          text: '内存使用率',
+        },
+        yaxis: {
+          title: {
+            text: '（单位：%）',
+          },
+          labels: {
+            formatter: function(val, index) {
+              return `${val.toFixed(2)}%`;
             }
           }
         }
@@ -242,7 +262,12 @@
             ready: false,
             series: [],
             chartOptions: {}
-          }
+          },
+          general_ratio_memory_usage: {
+            ready: false,
+            series: [],
+            chartOptions: {}
+          },
         },
         searchForm: {
           userName: '',
@@ -425,17 +450,17 @@
               enabled: true,
               type: 'x',
               autoScaleYaxis: false,
-              zoomedArea: {
-                fill: {
-                  color: '#90CAF9',
-                  opacity: 0.4
-                },
-                stroke: {
-                  color: '#0D47A1',
-                  opacity: 0.4,
-                  width: 1
-                }
-              }
+//              zoomedArea: {
+//                fill: {
+//                  color: '#90CAF9',
+//                  opacity: 0.4
+//                },
+//                stroke: {
+//                  color: '#0D47A1',
+//                  opacity: 0.4,
+//                  width: 1
+//                }
+//              }
             },
           },
           stroke: {
@@ -469,17 +494,17 @@
         };
 
         // update commonChartOptions for each chart
-        ['general_ratio_cpu_usage'].forEach(key => {
+        ['general_ratio_cpu_usage', 'general_ratio_memory_usage'].forEach(key => {
           this.status[key].chartOptions = this.$utils.deepMerge(commonChartOptions, CONSTANT[key].chartOptions);
         });
 
         this.drawChartLine.lastRequest = Date.now();
         this._requestUseRatio('general_ratio_cpu_usage');
-//        this._requestUseRatio('general_ratio_memory_usage');
+        this._requestUseRatio('general_ratio_memory_usage');
       },
 
       async _requestUseRatio(type) {
-        if (!['general_ratio_cpu_usage'].includes(type)) {
+        if (!['general_ratio_cpu_usage', 'general_ratio_memory_usage'].includes(type)) {
           return;
         }
         this.status[type].ready = false;
@@ -503,6 +528,7 @@
         // filter, sort, map resData
         const spaceIdListOfGroup = this.$storeHelper.profileListOfGroup.map(it => it.id);
         resData = resData.filter(it => spaceIdListOfGroup.includes(it.spaceId))
+          .filter(it => it.values.length > 0)
           .sort((pre, next) => parseInt(pre.spaceId) - parseInt(next.spaceId))
           .map(it => {
             it.profileInfo = this.$storeHelper.getProfileInfoById(it.spaceId);
