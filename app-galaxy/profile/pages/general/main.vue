@@ -31,7 +31,7 @@
           <div class="title">资源使用率统计</div>
           <el-date-picker style="display: inline-block; "
                           class=" disable-close"
-                          v-model="searchForm.dateRange"
+                          v-model="query.dateRange"
                           type="datetimerange"
                           size="mini"
                           align="right"
@@ -106,6 +106,7 @@
           .chart {
             min-width: 300px;
             min-height: 200px;
+            margin-right: 5px;
             .title {
               font-size: 12px;
               /*font-weight: bold;*/
@@ -311,9 +312,8 @@
             chartOptions: {}
           },
         },
-        searchForm: {
-          userName: '',
-          dateRange: [Date.now() - 1000 * 3600 * 3, Date.now()],
+        query: {
+          dateRange: [new Date(Date.now() - 1000 * 3600 * 3), new Date()],
         },
         datePickerOptions: {
           shortcuts: [{
@@ -571,7 +571,6 @@
           }
         };
         this.status[type].ready = false;
-        // console.log(this.searchForm.dateRange);
         /**
         3小时以内，取值区间：30s；
         3小时-12h，取值区间：2min;
@@ -579,7 +578,9 @@
         1天-3天，取值区间：12min;
         3天以上，取值区间：1h；
         */
-        const timeRange =  this.searchForm.dateRange[1] -  this.searchForm.dateRange[0];
+        const startTime = this.query.dateRange[0].getTime();
+        const endTime = this.query.dateRange[1].getTime();
+        const timeRange = endTime - startTime;
         const ONE_MINUTE = 3600 * 60;
         const ONE_HOUR = ONE_MINUTE * 60;
         const ONE_DAY = ONE_HOUR * 24;
@@ -595,8 +596,8 @@
         }
         const data = {
           groupId: this.$storeHelper.currentGroupId,
-          startTime: this.searchForm.dateRange[0],
-          endTime: this.searchForm.dateRange[1],
+          startTime,
+          endTime,
           step: timeStep,
         };
 //        const data = {
