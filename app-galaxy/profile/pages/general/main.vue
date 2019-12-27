@@ -1,5 +1,5 @@
 <template>
-  <div id="general">
+  <div id="profile_general">
     <div class="header">
     </div>
     <div class="statistic">
@@ -63,8 +63,29 @@
     </div>
   </div>
 </template>
+<style lang="scss">
+  #profile_general {
+    .chart-list {
+      .chart {
+        .apexcharts-tooltip {
+          background: rgba(220, 220, 220, .5);
+          .apexcharts-tooltip-series-group {
+            padding-bottom: 2px;
+            .apexcharts-tooltip-marker {
+              width: 8px;
+              height: 8px;
+            }
+            .apexcharts-tooltip-y-group {
+              padding: 0px;
+            }
+          }
+        }
+      }
+    }
+  }
+</style>
 <style lang="scss" scoped>
-  #general {
+  #profile_general {
     & > .statistic {
       .section {
         .header {
@@ -112,6 +133,13 @@
   import apexCharts from 'vue-apexcharts';
   import commonUtils from 'assets/components/mixins/common-utils';
 
+  // it seems there is not enough info for customToolTip
+  const customToolTip = ({series, seriesIndex, dataPointIndex, w}) => {
+      return '<div class="arrow_box">' +
+        '<span>' + series[seriesIndex][dataPointIndex] + '</span>' +
+        '</div>'
+  };
+
   // default values for status
   const CONSTANT = {
     general_instance_count: {
@@ -124,8 +152,12 @@
             text: '（单位：个）',
           },
           labels: {
-            formatter: function(val, index) {
-              return parseInt(val);
+            formatter(val, index) {
+              if (val < 1) {
+                return 0;
+              }
+              val = parseInt(val);
+              return val;
             }
           }
         }
@@ -141,8 +173,12 @@
             text: '（单位：个）',
           },
           labels: {
-            formatter: function(val, index) {
-              return parseInt(val);
+            formatter(val, index) {
+              if (val < 1) {
+                return 0;
+              }
+              val = parseInt(val);
+              return val;
             }
           }
         }
