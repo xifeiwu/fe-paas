@@ -564,11 +564,6 @@
         // console.log(resData);
 
         this.status[type].series = resData.map(it => {
-          if (it.spaceId == 2) {
-            it.values.forEach(it => {
-              it[1] -= 0.001;
-            });
-          }
           return {
             name: it.profileInfo.description,
             data: it.values.map(it => {
