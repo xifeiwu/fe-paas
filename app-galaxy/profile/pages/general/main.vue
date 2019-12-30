@@ -15,14 +15,17 @@
           </el-button>
         </div>
         <div class="chart-list">
-          <div class="chart" v-loading="!status['general_instance_count'].ready">
-            <apxe-chart type=bar height=200 :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="status['general_instance_count'].ready"></apxe-chart>
+          <div class="chart" v-loading="!status['general_instance_count'].ready"
+               :style="{width: `${size.barChart.width}px`, height: `${size.barChart.height}px`}">
+            <apxe-chart :width="size.barChart.width" :height="size.barChart.height" type=bar :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="status['general_instance_count'].ready"></apxe-chart>
           </div>
-          <div class="chart" v-loading="!status['general_cpu_count'].ready">
-            <apxe-chart type=bar height=200 :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="status['general_cpu_count'].ready"></apxe-chart>
+          <div class="chart" v-loading="!status['general_cpu_count'].ready"
+               :style="{width: `${size.barChart.width}px`, height: `${size.barChart.height}px`}">
+            <apxe-chart :width="size.barChart.width" :height="size.barChart.height" type=bar :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="status['general_cpu_count'].ready"></apxe-chart>
           </div>
-          <div class="chart" v-loading="!status['general_memory_size'].ready">
-            <apxe-chart type=bar height=200 :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="status['general_memory_size'].ready"></apxe-chart>
+          <div class="chart" v-loading="!status['general_memory_size'].ready"
+               :style="{width: `${size.barChart.width}px`, height: `${size.barChart.height}px`}">
+            <apxe-chart :width="size.barChart.width" :height="size.barChart.height" type=bar :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="status['general_memory_size'].ready"></apxe-chart>
           </div>
         </div>
       </div>
@@ -51,11 +54,13 @@
           </el-button>
         </div>
         <div class="chart-list">
-          <div class="chart" v-loading="!status['general_ratio_cpu_usage'].ready">
-            <apxe-chart type=line height=240 :options="status['general_ratio_cpu_usage'].chartOptions" :series="status['general_ratio_cpu_usage'].series" v-if="status['general_ratio_cpu_usage'].ready"></apxe-chart>
+          <div class="chart" v-loading="!status['general_ratio_cpu_usage'].ready"
+               :style="{width: `${size.lineChart.width}px`, height: `${size.lineChart.height}px`}">
+            <apxe-chart :width="size.lineChart.width" :height="size.lineChart.height" type=line :options="status['general_ratio_cpu_usage'].chartOptions" :series="status['general_ratio_cpu_usage'].series" v-if="status['general_ratio_cpu_usage'].ready"></apxe-chart>
           </div>
-          <div class="chart" v-loading="!status['general_ratio_memory_usage'].ready">
-            <apxe-chart type=line height=240 :options="status['general_ratio_memory_usage'].chartOptions" :series="status['general_ratio_memory_usage'].series" v-if="status['general_ratio_memory_usage'].ready"></apxe-chart>
+          <div class="chart" v-loading="!status['general_ratio_memory_usage'].ready"
+               :style="{width: `${size.lineChart.width}px`, height: `${size.lineChart.height}px`}">
+            <apxe-chart :width="size.lineChart.width" :height="size.lineChart.height" type=line :options="status['general_ratio_memory_usage'].chartOptions" :series="status['general_ratio_memory_usage'].series" v-if="status['general_ratio_memory_usage'].ready"></apxe-chart>
           </div>
         </div>
 
@@ -104,8 +109,6 @@
           display: flex;
           flex-wrap: wrap;
           .chart {
-            min-width: 300px;
-            min-height: 200px;
             margin-right: 5px;
             .title {
               font-size: 12px;
@@ -116,14 +119,11 @@
         }
         &.request {
           .chart {
-            padding-right: 20px;
-            max-width: 300px;
             /*background-color: white;*/
           }
         }
         &.ratio {
           .chart {
-            width: 400px;
           }
         }
       }
@@ -259,10 +259,17 @@
     },
     data() {
       return {
-        instanceCount: 0,
-        cpuCount: 0,
-        memorySize: 0,
         // all data related for chart drawing, including data(series), chart config(chartOptions), and others, such as title
+        size: {
+          barChart: {
+            width: 320,
+            height: 240,
+          },
+          lineChart: {
+            width: 360,
+            height: 240,
+          }
+        },
         status: {
           general_instance_count: {
             // custom property: if data is ready
@@ -378,7 +385,8 @@
             }
           },
           chart: {
-            height: 200,
+            // height: 400,
+            // width: 500,
             // type: 'bar',
             events: {
               click: function (chart, w, e) {
