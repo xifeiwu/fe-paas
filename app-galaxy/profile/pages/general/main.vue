@@ -136,6 +136,7 @@
 
   // it seems there is not enough info for customToolTip
   const customToolTip = ({series, seriesIndex, dataPointIndex, w}) => {
+      // console.log({series, seriesIndex, dataPointIndex, w});
       return '<div class="arrow_box">' +
         '<span>' + series[seriesIndex][dataPointIndex] + '</span>' +
         '</div>'
@@ -217,6 +218,8 @@
           // tickAmount: 3
         },
         tooltip: {
+          // intersect: false,
+          shared: true,
           y: {
             formatter(val) {
               return `${val}%`;
@@ -236,6 +239,7 @@
           },
         },
         tooltip: {
+          shared: true,
           y: {
             formatter(val) {
               return `${val}%`;
@@ -623,13 +627,37 @@
           // filter, sort, map resData
           const spaceIdListOfGroup = this.$storeHelper.profileListOfGroup.map(it => it.id);
           resData = resData.filter(it => spaceIdListOfGroup.includes(it.spaceId))
-            .filter(it => it.values.length > 0)
+            .filter(it => it.values.length > 0) // ignore item without values
             .sort((pre, next) => parseInt(pre.spaceId) - parseInt(next.spaceId))
             .map(it => {
               it.profileInfo = this.$storeHelper.getProfileInfoById(it.spaceId);
               return it;
             });
           // console.log(resData);
+
+          const timeStampList = Array.from(new Set(resData.reduce((sum, it) => {
+            return sum.concat(it.values.map(it => it[0]))
+          }, []))).sort((pre, next) => {
+            return pre - next;
+          });
+          // console.log(timeStampList);
+          // fix value according to timeStampList
+          resData.forEach(it => {
+            if (it.values.length == timeStampList.length) {
+              return;
+            } else {
+              const values = it.values;
+              const results = timeStampList.map(it => [it, null]);
+              for (let i = 0, j = 0; i < results.length && j < values.length; i++) {
+                const timeStamp = timeStampList[i];
+                if (timeStamp == values[j][0]) {
+                  results[i][1] = values[j][1];
+                  j++;
+                }
+              }
+              it.values = results;
+            }
+          });
 
           this.status[type].series = resData.map(it => {
             return {
@@ -639,6 +667,7 @@
               })
             }
           });
+          //console.log(JSON.stringify(this.status[type].series));
 
           // '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'
           const colors = resData.map(it => this.style[`$env-${it.profileInfo.name}-color`]);
