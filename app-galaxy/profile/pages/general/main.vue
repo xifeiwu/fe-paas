@@ -92,7 +92,8 @@
 <style lang="scss" scoped>
   #profile_general {
     & > .statistic {
-      .section {
+      & > .section {
+        margin-top: 10px;
         .header {
           display: flex;
           align-items: center;
@@ -278,7 +279,7 @@
             height: 240,
           },
           lineChart: {
-            width: 360,
+            width: 400,
             height: 240,
           }
         },
@@ -549,7 +550,7 @@
           },
           xaxis: {
             type: 'datetime',
-            tickAmount: 4,
+            tickAmount: 3,
             style: {
               fontSize: '12px'
             },
