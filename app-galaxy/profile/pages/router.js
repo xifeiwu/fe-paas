@@ -452,6 +452,7 @@ class Helper extends RouterHelper {
         },
       ]
     }, {
+      name: 'image_list',
       path: '/profile/image/repo',
       label: '镜像仓库',
       component: ImageList,
@@ -462,6 +463,7 @@ class Helper extends RouterHelper {
     //   component: ImageDetail,
     // },
       {
+        name: 'image_version_list',
         path: '/profile/image/repo/version',
         label:'镜像版本',
         component: ImageVersion,

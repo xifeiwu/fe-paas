@@ -648,6 +648,10 @@ class Net extends NetBase {
         path: '/image/removeLabel',
         method: 'post'
       },
+      'image_remove': {
+        path: '/image/delete',
+        method: 'post'
+      },
 
       /** 域名相关*/
       // 获取当前组的所有一级域名（在服务管理和域名管理都被调用，存储到全局store中）

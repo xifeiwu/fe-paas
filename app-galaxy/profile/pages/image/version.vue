@@ -14,26 +14,33 @@
           prop="imageName"
           label="镜像:版本"
           aheaderAlign="center" align="left"
-          minWidth="150px"
+          minWidth="180px"
         >
         </el-table-column>
         <el-table-column
           prop="size"
           label="镜像大小"
           headerAlign="center" align="center"
-          width="100px">
+          width="80px">
         </el-table-column>
         <el-table-column
-          prop="created"
           label="构建成功时间"
           headerAlign="center" align="center"
-          width="160px">
+          width="100px">
+          <template slot-scope="scope">
+            <div v-if="Array.isArray(scope.row.formattedCreateTime)">
+              <div v-for="(item, index) in scope.row.formattedCreateTime" :key="index">
+                {{item}}
+              </div>
+            </div>
+            <div v-else>{{scope.row.formattedCreateTime}}</div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="gitAddress"
           label="git地址/分支"
           headerAlign="center" align="center"
-          minWidth="120px">
+          minWidth="160px">
           <template slot-scope="scope">
             {{gitAddressAndBranch(scope.row)}}
           </template>
@@ -54,16 +61,30 @@
                 prop="survivalDays"
                 label="剩余天数"
                 headerAlign="center" align="center"
-                minWidth="120px">
+                width="80px">
         </el-table-column>
         <el-table-column
                 label="废弃标签"
                 headerAlign="center" align="center"
-                minWidth="100px">
+                width="80px">
           <template slot-scope="scope">
             <div class="labels">
               <el-tag v-for="(label, index) in scope.row.labels" :key="index" size="small" :disableTransitions="false" closable
-                      @close="handleTRClick($event, 'remove-label', label, scope.row)">{{label.description}}</el-tag>
+                      @close="handleTRClick($event, 'remove-label', scope.row, label)">{{label.description}}</el-tag>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" headerAlign="center" align="center" minWidth="80" class="operation-list">
+          <template slot-scope="scope">
+            <div>
+              <el-button
+                      v-if="scope.row.canDeleted"
+                      size="small"
+                      type="text"
+                      :class="['danger', 'flex']"
+                      @click="handleTRClick($event,'image_remove', scope.row, scope.$index)">
+                <span>删除</span>
+              </el-button>
             </div>
           </template>
         </el-table-column>
@@ -113,12 +134,18 @@
   export default {
     created() {
       const queryString = window.location.search.replace(/^\?/, '');
-      const queryObj = this.$utils.parseQueryString(queryString);
-      this.repoName = queryObj.repoName;
-    },
-    mounted(){
-      this.onScreenSizeChange(this.$storeHelper.screen.size);
+      const {repoName} = this.$utils.parseQueryString(queryString);
+      if (!repoName) {
+        this.$router.push({
+          name: 'image_list'
+        });
+        return;
+      }
+      this.query.repoName = repoName;
       this.updateVersionListByPage();
+    },
+    mounted() {
+      this.onScreenSizeChange(this.$storeHelper.screen.size);
     },
     beforeDestroy() {
     },
@@ -129,7 +156,9 @@
         versionListByPage: [],
         keyFilter: '',
 
-        repoName:'',
+        query: {
+          repoName: ''
+        },
 
         totalSize: 0,
         currentPage: 1,
@@ -167,7 +196,7 @@
         this.versionList = [];
         const resContent = await this.$net.requestPaasServer(this.$net.URL_LIST.image_version_list_by_repo,{
           payload: {
-            'projectAndRepository':  this.repoName
+            'projectAndRepository':  this.query.repoName
           }
         });
 //        console.log(resContent);
@@ -214,6 +243,9 @@
         }
         this.totalSize = this.versionListFiltered.length;
         this.versionListByPage = this.versionListFiltered.slice(start, end);
+        this.versionListByPage.forEach(it => {
+          it['formattedCreateTime'] = this.$utils.formatDate(it['created'], 'yyyy-MM-dd hh:mm:ss').split(' ');
+        })
       },
 
       handleClick(evt, action) {
@@ -223,8 +255,27 @@
             break;
         }
       },
-      async handleTRClick(evt, action, index, row) {
+      async handleTRClick(evt, action, row, index) {
         switch (action) {
+          case 'image_remove':
+            try {
+              await this.$confirm(`确定要删除镜像${row.imageName}？`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                dangerouslyUseHTMLString: true
+              });
+              this.$net.requestPaasServer(this.$net.URL_LIST.image_remove, {
+                data: {
+                  fullName: row.imageName
+                }
+              });
+              this.$message.success('删除成功');
+              console.log(arguments);
+            } catch (err) {
+              console.log(err);
+            }
+            break;
           case 'remove-label':
             const label = index;
             try {
