@@ -222,7 +222,11 @@
           shared: true,
           y: {
             formatter(val) {
-              return `${val}%`;
+              if (null == val) {
+                return '--'
+              } else {
+                return `${val}%`;
+              }
             }
           }
         }
@@ -242,7 +246,11 @@
           shared: true,
           y: {
             formatter(val) {
-              return `${val}%`;
+              if (null == val) {
+                return '--'
+              } else {
+                return `${val}%`;
+              }
             }
           }
         }
@@ -506,6 +514,9 @@
           chart: {
             // height: 280,
             type: 'line',
+            animations: {
+              enabled: false
+            },
             zoom: {
               enabled: true,
               type: 'x',
@@ -538,6 +549,7 @@
           },
           xaxis: {
             type: 'datetime',
+            tickAmount: 4,
             style: {
               fontSize: '12px'
             },
@@ -570,14 +582,14 @@
         const dataFormatter = {
           general_ratio_cpu_usage(val) {
             if (!val) {
-              return 0;
+              return val;
             } else {
               return (val * 100).toFixed(2)
             }
           },
           general_ratio_memory_usage(val) {
             if (!val) {
-              return 0;
+              return val;
             } else {
               return (val * 100).toFixed(2)
             }
@@ -613,9 +625,6 @@
           endTime,
           step: timeStep,
         };
-//        const data = {
-//          groupId: 246, endTime: 1576228265800, startTime: 1576206665800
-//        };
         // format of resData:
         // [{
         //   spaceId: 2, values: [{timestamp, ratio}, {timestamp, ratio}, ...]
@@ -658,6 +667,7 @@
               it.values = results;
             }
           });
+          // console.log(JSON.stringify(resData));
 
           this.status[type].series = resData.map(it => {
             return {
