@@ -82,22 +82,23 @@
                       size="small"
                       type="text"
                       :class="['danger', 'flex']"
-                      @click="handleTRClick($event,'image_remove', scope.row, scope.$index)">
+                      @click="handleTRClick($event,'image_version_remove', scope.row, scope.$index)">
                 <span>删除</span>
               </el-button>
             </div>
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination-container" v-if="totalSize > pageSize">
+      <div class="pagination-container" v-if="totalSize > query.pageSize">
         <div class="pagination">
           <el-pagination
-                  :current-page="currentPage"
-                  size="large"
-                  layout="prev,pager,next"
-                  :page-size="pageSize"
+                  size="mini"
+                  layout="total, sizes, prev, pager, next, jumper"
                   :total="totalSize"
-                  @current-change="handlePaginationPageChange">
+                  :current-page.sync="query.currentPage"
+                  :page-size.sync = "query.pageSize"
+                  :page-sizes="[10, 15, 20, 30]"
+          >
           </el-pagination>
         </div>
       </div>
@@ -142,7 +143,7 @@
         return;
       }
       this.query.repoName = repoName;
-      this.updateVersionListByPage();
+      this.updateVersionListByPage(true);
     },
     mounted() {
       this.onScreenSizeChange(this.$storeHelper.screen.size);
@@ -151,18 +152,17 @@
     },
     data() {
       return {
-        versionList: null,
-        versionListFiltered: [],
+        versionList: [],
         versionListByPage: [],
         keyFilter: '',
 
         query: {
-          repoName: ''
+          repoName: '',
+          currentPage: 1,
+          pageSize: 10,
         },
 
         totalSize: 0,
-        currentPage: 1,
-        pageSize: 12,
 
         heightOfTable:'',
 
@@ -172,7 +172,10 @@
 
     watch: {
       '$storeHelper.screen.size': 'onScreenSizeChange',
-      'pageSize': 'updateVersionListByPage',
+      'query.currentPage'() {
+        this.updateVersionListByPage();
+      },
+      'query.pageSize': 'updateVersionListByPage',
       'keyFilter': function () {
         this.updateVersionListByPage();
       }
@@ -187,7 +190,7 @@
           const headerNode = this.$el.querySelector(':scope > .header');
           const headerHeight = headerNode.offsetHeight;
           this.heightOfTable = this.$el.clientHeight - headerHeight;
-          this.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 12 : 10;
+          // this.query.pageSize = this.$storeHelper.screen['ratioHeight'] > 500 ? 12 : 10;
         } catch(err) {
         }
       },
@@ -215,8 +218,7 @@
           return (pre['create_time'] - next['create_time']) * -1;
         });
         this.versionList = versionList;
-        this.totalSize = versionList.length;
-        this.currentPage = 1;
+        return versionList;
       },
 
       /**
@@ -225,24 +227,30 @@
        * @returns {Promise.<void>}
        */
       async updateVersionListByPage(refresh) {
-        if (refresh || !this.versionList) {
-          await this.requestVersionList();
+        if (refresh || this.versionList.length == 0) {
+          this.versionList = await this.requestVersionList();
         }
-        var page = this.currentPage - 1;
-        page = page >= 0 ? page : 0;
-        const start = page * this.pageSize;
-        const length = this.pageSize;
-        const end = start + length;
 
-        this.versionListFiltered = this.versionList;
+        var listFiltered = this.versionList;
         if (this.keyFilter) {
           const filterReg = new RegExp(this.keyFilter);
-          this.versionListFiltered = this.versionList.filter(it => {
+          listFiltered = this.versionList.filter(it => {
             return filterReg.exec(it['imageName']);
           });
         }
-        this.totalSize = this.versionListFiltered.length;
-        this.versionListByPage = this.versionListFiltered.slice(start, end);
+        this.totalSize = listFiltered.length;
+
+        const maxPageSize = Math.ceil(listFiltered.length / this.query.pageSize);
+        if (maxPageSize >= 1 && this.query.currentPage > maxPageSize) {
+          this.query.currentPage = maxPageSize;
+        }
+        var page = this.query.currentPage - 1;
+        page = page >= 0 ? page : 0;
+        const start = page * this.query.pageSize;
+        const length = this.query.pageSize;
+        const end = start + length;
+
+        this.versionListByPage = listFiltered.slice(start, end);
         this.versionListByPage.forEach(it => {
           it['formattedCreateTime'] = this.$utils.formatDate(it['created'], 'yyyy-MM-dd hh:mm:ss').split(' ');
         })
@@ -257,7 +265,7 @@
       },
       async handleTRClick(evt, action, row, index) {
         switch (action) {
-          case 'image_remove':
+          case 'image_version_remove':
             try {
               await this.$confirm(`确定要删除镜像${row.imageName}？`, '提示', {
                 confirmButtonText: '确定',
@@ -265,13 +273,13 @@
                 type: 'warning',
                 dangerouslyUseHTMLString: true
               });
-              this.$net.requestPaasServer(this.$net.URL_LIST.image_remove, {
+              this.$net.requestPaasServer(this.$net.URL_LIST.image_version_remove, {
                 data: {
                   fullName: row.imageName
                 }
               });
               this.$message.success('删除成功');
-              console.log(arguments);
+              this.updateVersionListByPage(true);
             } catch (err) {
               console.log(err);
             }
@@ -303,11 +311,6 @@
             }
             break;
         }
-      },
-
-      handlePaginationPageChange(val){
-        this.currentPage = val;
-        this.updateVersionListByPage();
       },
 
       gitAddressAndBranch(row){

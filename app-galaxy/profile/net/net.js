@@ -648,7 +648,7 @@ class Net extends NetBase {
         path: '/image/removeLabel',
         method: 'post'
       },
-      'image_remove': {
+      'image_version_remove': {
         path: '/image/delete',
         method: 'post'
       },
