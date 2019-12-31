@@ -198,6 +198,7 @@
               </el-button>
               <div class="ant-divider" v-if="$storeHelper.groupVersion === 'v2'"></div>
               <el-button
+                      v-if="false"
                       size="small"
                       type="text"
                       @click="handleTRClick($event, 'to_page_gateway', scope.$index, scope.row)"
