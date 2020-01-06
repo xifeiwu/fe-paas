@@ -17,15 +17,18 @@
         <div class="chart-list">
           <div class="chart" v-loading="!status['general_instance_count'].ready"
                :style="{width: `${size.barChart.width}px`, height: `${size.barChart.height}px`}">
-            <apxe-chart :width="size.barChart.width" :height="size.barChart.height" type=bar :options="status['general_instance_count'].chartOptions" :series="status['general_instance_count'].series" v-if="status['general_instance_count'].ready"></apxe-chart>
+            <apxe-chart :width="size.barChart.width" :height="size.barChart.height" type=bar :options="status['general_instance_count'].chartOptions"
+                        :series="status['general_instance_count'].series" v-if="status['general_instance_count'].ready"></apxe-chart>
           </div>
           <div class="chart" v-loading="!status['general_cpu_count'].ready"
                :style="{width: `${size.barChart.width}px`, height: `${size.barChart.height}px`}">
-            <apxe-chart :width="size.barChart.width" :height="size.barChart.height" type=bar :options="status['general_cpu_count'].chartOptions" :series="status['general_cpu_count'].series" v-if="status['general_cpu_count'].ready"></apxe-chart>
+            <apxe-chart :width="size.barChart.width" :height="size.barChart.height" type=bar :options="status['general_cpu_count'].chartOptions"
+                        :series="status['general_cpu_count'].series" v-if="status['general_cpu_count'].ready"></apxe-chart>
           </div>
           <div class="chart" v-loading="!status['general_memory_size'].ready"
                :style="{width: `${size.barChart.width}px`, height: `${size.barChart.height}px`}">
-            <apxe-chart :width="size.barChart.width" :height="size.barChart.height" type=bar :options="status['general_memory_size'].chartOptions" :series="status['general_memory_size'].series" v-if="status['general_memory_size'].ready"></apxe-chart>
+            <apxe-chart :width="size.barChart.width" :height="size.barChart.height" type=bar :options="status['general_memory_size'].chartOptions"
+                        :series="status['general_memory_size'].series" v-if="status['general_memory_size'].ready"></apxe-chart>
           </div>
         </div>
       </div>
@@ -173,7 +176,7 @@
         },
         yaxis: {
           title: {
-            text: '（单位：个）',
+            text: '（单位：核）',
           },
           labels: {
             formatter(val, index) {
@@ -486,15 +489,19 @@
           name: CONSTANT[type].chartOptions.title.text,
           data: valueList.map(it => dataFomatter[type] ? dataFomatter[type](it[1]): it[1])
         }];
+        // set tickAmount by maxValue
+        const maxValue = this.status[type].series[0].data.reduce((sum, it) => sum > it ? sum : it, 0);
 
         // '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8'
         const colors = resData.map(it => this.style[`$env-${it.profileInfo.name}-color`]);
         this.status[type].chartOptions.colors = colors;
         this.status[type].chartOptions.xaxis.categories = resData.map(it => it.profileInfo.description);
         this.status[type].chartOptions.xaxis.labels.style.colors = colors;
+        this.status[type].chartOptions.yaxis.tickAmount = maxValue <= 1 ? 1 : (maxValue <= 2 ? 2 : 3);
+
         this.status[type].ready = true;
         // 确保series发生改变才能触发重绘
-        // this.status[type].series[0].data = valueList.map(it => it[1]);
+        // this.status[type].series[0].data = valueList.map(it => dataFomatter[type] ? dataFomatter[type](it[1]): it[1]);
       },
 
       // 绘制使用率
