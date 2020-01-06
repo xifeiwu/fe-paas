@@ -279,21 +279,28 @@
     }
   }
 
-  .el-date-editor.custom {
-    font-size: 12px;
-    width: 230px;
-    .el-input__icon {
-      width: 22px;
+  .el-date-editor {
+    .el-date-editor--datetimerange {
+      .custom {
+
+      }
     }
-    .el-range-separator {
-      padding: 0px;
-    }
-    .el-range-input {
-      width: 36%;
-    }
-    &.disable-close {
+    .custom {
+      font-size: 12px;
+      width: 230px;
+      .el-input__icon {
+        width: 22px;
+      }
+      .el-range-separator {
+        padding: 0px;
+      }
       .el-range-input {
-        width: 40%;
+        width: 36%;
+      }
+      &.disable-close {
+        .el-range-input {
+          width: 40%;
+        }
       }
     }
   }
