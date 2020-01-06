@@ -267,7 +267,7 @@
         switch (action) {
           case 'image_version_remove':
             try {
-              await this.$confirm(`确定要删除镜像${row.imageName}？`, '提示', {
+              await this.$confirm(`确定要删除镜像${row.imageName}？（请确认该镜像已经不再被使用，才能删除，否则影响服务的正常运行）`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning',
@@ -278,8 +278,8 @@
                   fullName: row.imageName
                 }
               });
-              this.$message.success('删除成功');
-              this.updateVersionListByPage(true);
+              this.$message.success('删除中！因缓存原因，请5秒后刷新，列表才会更新');
+              // this.updateVersionListByPage(true);
             } catch (err) {
               console.log(err);
             }

@@ -443,7 +443,7 @@
           emailList: [{
             type: 'array',
             required: true,
-            message: '请至少填写一个邮件组',
+            message: '请至少填写一个邮箱',
           },
             {
               validator(rule, values, callback) {
