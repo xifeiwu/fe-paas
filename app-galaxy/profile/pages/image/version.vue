@@ -81,7 +81,7 @@
                       v-if="scope.row.canDeleted"
                       size="small"
                       type="text"
-                      :class="['danger', 'flex']"
+                      :class="[actionDisabled('image_version_remove', scope.row)? 'disabled' : 'danger', 'flex']"
                       @click="handleTRClick($event,'image_version_remove', scope.row, scope.$index)">
                 <span>删除</span>
               </el-button>
@@ -264,6 +264,13 @@
         }
       },
       async handleTRClick(evt, action, row, index) {
+        if (this.$storeHelper.actionDisabled(action)) {
+          this.$storeHelper.globalPopover.show({
+            ref: evt.target,
+            msg: this.$storeHelper.reason4ActionDisabled(action)
+          });
+          return;
+        }
         switch (action) {
           case 'image_version_remove':
             try {

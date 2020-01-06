@@ -810,6 +810,8 @@ class Net extends Common {
       // 实例管理 -> 运行日志
       '/2.x/instances/searchLogs': 'go-to-log-run-from-instance',
 
+      /** 镜像相关 */
+      '/2.x/images/delete': 'image_version_remove',
       /** 外网域名 */
       // 创建外网域名
       '/2.x/internet/create': 'domain_add',
