@@ -81,7 +81,7 @@
                       v-if="scope.row.canDeleted"
                       size="small"
                       type="text"
-                      :class="[actionDisabled('image_version_remove', scope.row)? 'disabled' : 'danger', 'flex']"
+                      :class="[$storeHelper.actionDisabled('image_version_remove', scope.row)? 'disabled' : 'danger', 'flex']"
                       @click="handleTRClick($event,'image_version_remove', scope.row, scope.$index)">
                 <span>删除</span>
               </el-button>

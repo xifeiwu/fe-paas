@@ -205,7 +205,7 @@
                       :class="['flex', 'primary']">
                 <span>API网关</span><i class="paas-icon-level-up"></i>
               </el-button>
-              <div class="ant-divider"></div>
+              <div class="ant-divider" v-if="false"></div>
               <el-button
                       v-if="false"
                       size="small"
