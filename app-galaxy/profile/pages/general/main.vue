@@ -153,6 +153,11 @@
         title: {
           text: '实例数',
         },
+        xaxis: {
+          labels: {
+            rotate: -25,
+          }
+        },
         yaxis: {
           title: {
             text: '（单位：个）',
@@ -173,6 +178,11 @@
       chartOptions: {
         title: {
           text: 'CPU申请核数',
+        },
+        xaxis: {
+          labels: {
+            rotate: -25,
+          }
         },
         yaxis: {
           title: {
@@ -196,9 +206,23 @@
         title: {
           text: '内存申请量',
         },
+        xaxis: {
+          labels: {
+            rotate: -25,
+          }
+        },
         yaxis: {
           title: {
             text: '（单位：GB）',
+          },
+          labels: {
+            formatter(val, index) {
+              if (val < 1) {
+                return 0;
+              }
+              val = parseInt(val);
+              return val;
+            }
           }
         },
         tooltip: {
