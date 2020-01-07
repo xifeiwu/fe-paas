@@ -252,7 +252,7 @@
 
         this.versionListByPage = listFiltered.slice(start, end);
         this.versionListByPage.forEach(it => {
-          it['formattedCreateTime'] = this.$utils.formatDate(it['created'], 'yyyy-MM-dd hh:mm:ss').split(' ');
+          it['formattedCreateTime'] = it['created'].split(' ');
         })
       },
 
